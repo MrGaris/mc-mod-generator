@@ -1,0 +1,1277 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Mod Generator — Minecraft Java Edition</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d1510;--surface:#161f18;--surface2:#1c2820;--surface3:#202e23;
+  --border:#243028;--border2:#2e3d32;
+  --green:#4ade80;--green-dim:#3bbd6a;--green-bg:rgba(74,222,128,.08);--green-bg2:rgba(74,222,128,.14);
+  --text:#e4ede6;--text2:#7d9a83;--text3:#4d6652;
+  --red:#f87171;--yellow:#fbbf24;
+}
+html,body{height:100%;font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);overflow:hidden}
+body::before{content:'';position:fixed;inset:0;background-image:radial-gradient(circle,rgba(255,255,255,.045) 1px,transparent 1px);background-size:28px 28px;pointer-events:none;z-index:0}
+
+/* ── AUTH MODAL ─────────────────────────────────────────────────── */
+#authModal{
+  display:none;position:fixed;inset:0;z-index:1000;
+  align-items:center;justify-content:center;
+  background:rgba(13,21,16,.88);backdrop-filter:blur(8px);
+}
+#authModal.open{display:flex}
+.auth-card{
+  position:relative;background:var(--surface);border:1px solid var(--border2);
+  border-radius:16px;padding:32px;width:100%;max-width:400px;
+  box-shadow:0 20px 60px rgba(0,0,0,.6);animation:slideUp .25s ease;
+}
+.auth-close{position:absolute;top:14px;right:16px;background:none;border:none;color:var(--text3);cursor:pointer;font-size:20px;line-height:1;transition:color .15s}
+.auth-close:hover{color:var(--text)}
+.auth-header{display:flex;align-items:center;gap:12px;margin-bottom:24px}
+.auth-logo-icon{width:44px;height:44px;background:var(--green-bg2);border:1px solid rgba(74,222,128,.3);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px}
+.auth-title{font-size:20px;font-weight:700;color:var(--text)}
+.auth-sub{font-size:13px;color:var(--text3);margin-top:2px}
+.field{margin-bottom:16px}
+.field label{display:block;font-size:13px;font-weight:500;color:var(--text2);margin-bottom:6px}
+.field input{width:100%;background:#0a110c;border:1px solid var(--border2);color:var(--text);font-family:'Outfit',sans-serif;font-size:14px;padding:11px 14px;border-radius:8px;outline:none;transition:border-color .2s}
+.field input:focus{border-color:rgba(74,222,128,.45)}
+.field .hint{font-size:11px;color:var(--text3);margin-top:4px}
+.field .err{font-size:11px;color:var(--red);margin-top:4px;display:none}
+.btn-auth{width:100%;background:var(--green);color:#071a0a;border:none;font-family:'Outfit',sans-serif;font-size:15px;font-weight:700;padding:13px;border-radius:9px;cursor:pointer;margin-top:4px;transition:background .15s}
+.btn-auth:hover{background:#62ec93}
+.btn-auth:disabled{background:var(--border2);color:var(--text3);cursor:not-allowed}
+.auth-switch{text-align:center;margin-top:14px;font-size:13px;color:var(--text3)}
+.auth-switch button{background:none;border:none;color:var(--green);cursor:pointer;font-family:'Outfit',sans-serif;font-size:13px;padding:0}
+.auth-note{text-align:center;margin-top:10px;font-size:12px;color:var(--text3)}
+
+/* ── NAV ────────────────────────────────────────────────────────── */
+#app{display:flex;flex-direction:column;height:100vh;position:relative;z-index:1}
+.top-nav{height:52px;background:rgba(13,21,16,.95);backdrop-filter:blur(14px);border-bottom:1px solid var(--border);flex-shrink:0;display:flex;align-items:center;padding:0 16px;gap:0;z-index:50}
+.nav-brand{display:flex;align-items:center;gap:10px;min-width:190px}
+.nav-brand-icon{width:32px;height:32px;background:var(--green-bg2);border:1px solid rgba(74,222,128,.25);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:15px}
+.nav-brand-title{font-size:14px;font-weight:700;color:var(--text)}
+.nav-brand-sub{font-size:10px;color:var(--text3)}
+.nav-spacer{flex:1}
+.nav-right{display:flex;align-items:center;gap:8px}
+.nav-link{background:none;border:none;color:var(--text2);font-family:'Outfit',sans-serif;font-size:13px;font-weight:500;padding:5px 12px;cursor:pointer;border-radius:6px;transition:color .15s,background .15s}
+.nav-link:hover{color:var(--text);background:var(--surface2)}
+.btn-nav-signin{background:none;border:1px solid var(--border2);color:var(--text2);font-family:'Outfit',sans-serif;font-size:13px;font-weight:500;padding:6px 14px;border-radius:7px;cursor:pointer;transition:all .15s}
+.btn-nav-signin:hover{border-color:var(--green-dim);color:var(--green)}
+.btn-nav-signup{background:var(--green);color:#071a0a;border:none;font-family:'Outfit',sans-serif;font-size:13px;font-weight:700;padding:7px 16px;border-radius:8px;cursor:pointer;transition:background .15s}
+.btn-nav-signup:hover{background:#62ec93}
+.nav-credits{display:flex;align-items:center;gap:6px;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:5px 11px;font-size:13px}
+.nc-free{color:var(--green);font-weight:600}
+.nc-num{font-weight:700;color:var(--text)}
+.nc-lbl{color:var(--text3);font-size:11px}
+.nav-avatar{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#3bbd6a,#1e7a40);border:2px solid var(--green-dim);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;cursor:pointer;position:relative;user-select:none}
+.av-menu{position:absolute;top:calc(100%+8px);right:0;background:var(--surface2);border:1px solid var(--border2);border-radius:10px;overflow:hidden;display:none;min-width:160px;box-shadow:0 10px 30px rgba(0,0,0,.5);z-index:200}
+.av-menu.open{display:block}
+.av-menu button{width:100%;background:none;border:none;color:var(--text2);font-family:'Outfit',sans-serif;font-size:13px;padding:9px 14px;text-align:left;cursor:pointer;display:flex;align-items:center;gap:8px;transition:background .1s}
+.av-menu button:hover{background:var(--border2);color:var(--text)}
+.av-menu .av-logout{color:var(--red)}
+.av-menu .av-logout:hover{background:rgba(248,113,113,.1)}
+
+/* ── BODY LAYOUT ────────────────────────────────────────────────── */
+.app-body{display:flex;flex:1;overflow:hidden}
+
+/* ── SIDEBAR ────────────────────────────────────────────────────── */
+.sidebar{width:200px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;transition:width .25s}
+.sidebar.collapsed{width:0}
+.sb-inner{width:200px;display:flex;flex-direction:column;height:100%;overflow:hidden}
+.sb-head{display:flex;align-items:center;justify-content:space-between;padding:14px 14px 10px;border-bottom:1px solid var(--border)}
+.sb-title{font-size:13px;font-weight:600;color:var(--text)}
+.sb-toggle{background:none;border:none;color:var(--text3);cursor:pointer;padding:3px;border-radius:4px;transition:color .15s}
+.sb-toggle:hover{color:var(--text2)}
+.btn-new-mod{display:flex;align-items:center;gap:8px;width:calc(100% - 20px);margin:10px;background:var(--surface2);border:1px dashed var(--border2);color:var(--text2);font-family:'Outfit',sans-serif;font-size:13px;font-weight:500;padding:9px 12px;border-radius:8px;cursor:pointer;transition:all .15s}
+.btn-new-mod:hover{border-color:var(--green-dim);color:var(--green);background:var(--green-bg)}
+.sb-empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:20px;text-align:center}
+.sb-empty-icon{font-size:28px;opacity:.3}
+.sb-empty-title{font-size:13px;color:var(--text3);font-weight:500}
+.sb-empty-sub{font-size:11px;color:var(--text3);opacity:.7}
+.sb-mods{flex:1;overflow-y:auto;padding:8px}
+.mod-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:7px;cursor:pointer;transition:background .12s;font-size:13px;color:var(--text2);margin-bottom:2px;border:1px solid transparent}
+.mod-item:hover{background:var(--surface2);color:var(--text)}
+.mod-item.active{background:var(--green-bg);color:var(--green);border-color:rgba(74,222,128,.15)}
+.mod-item-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500}
+.mod-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.mod-dot.done{background:var(--green)}
+.mod-dot.pending{background:var(--yellow);animation:pulse 1.5s infinite}
+
+/* ── MAIN CONTENT ───────────────────────────────────────────────── */
+.main-content{flex:1;overflow-y:auto;display:flex;flex-direction:column;align-items:center;padding:0 20px 160px}
+.main-content::-webkit-scrollbar{width:4px}
+.main-content::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px}
+
+/* ── HERO ───────────────────────────────────────────────────────── */
+.hero{display:flex;flex-direction:column;align-items:center;text-align:center;padding-top:44px;max-width:600px;width:100%}
+.hero-icon{width:80px;height:80px;background:var(--green-bg2);border:1px solid rgba(74,222,128,.22);border-radius:20px;display:flex;align-items:center;justify-content:center;font-size:36px;margin-bottom:20px;box-shadow:0 0 50px rgba(74,222,128,.12)}
+.hero h1{font-size:clamp(26px,4vw,42px);font-weight:700;color:var(--green);letter-spacing:-.5px}
+.hero-sub{font-size:15px;color:var(--text2);line-height:1.65;margin-top:10px;max-width:380px}
+.p-cards{display:flex;gap:10px;margin-top:28px;width:100%;justify-content:center}
+.p-card{background:var(--surface);border:1px solid var(--border2);border-radius:10px;padding:14px 16px;flex:1;max-width:185px;cursor:pointer;text-align:left;transition:border-color .15s,transform .15s,background .15s}
+.p-card:hover{border-color:rgba(74,222,128,.35);background:var(--surface2);transform:translateY(-2px)}
+.p-card-icon{font-size:18px;margin-bottom:6px}
+.p-card-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:4px}
+.p-card-desc{font-size:11px;color:var(--text3);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.badges{display:flex;align-items:center;gap:20px;margin-top:24px}
+.badge{display:flex;align-items:center;gap:7px;font-size:13px;color:var(--text2);font-weight:500}
+.bdot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 7px rgba(74,222,128,.5)}
+.bdot.o{background:#fb923c;box-shadow:0 0 7px rgba(251,146,60,.5)}
+.bdot.p{background:#a78bfa;box-shadow:0 0 7px rgba(167,139,250,.5)}
+
+/* ── MOD VIEW ───────────────────────────────────────────────────── */
+.mod-view{width:100%;max-width:800px;padding-top:30px;display:none}
+.mod-view.show{display:block}
+.mv-header{display:flex;align-items:center;gap:12px;margin-bottom:20px}
+.mv-icon{width:48px;height:48px;background:var(--green-bg2);border:1px solid rgba(74,222,128,.25);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px}
+.mv-name{font-size:20px;font-weight:700;color:var(--text)}
+.mv-tags{display:flex;gap:8px;margin-top:4px}
+.mv-tag{background:var(--surface2);border:1px solid var(--border2);border-radius:20px;padding:2px 10px;font-size:11px;color:var(--text2)}
+.mv-tag.g{background:var(--green-bg);border-color:rgba(74,222,128,.25);color:var(--green)}
+.build-card{background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:20px;margin-bottom:16px}
+.build-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.steps{display:flex;flex-direction:column;gap:8px}
+.step{display:flex;align-items:center;gap:10px;font-size:13px}
+.step-ico{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px}
+.step-ico.w{background:var(--surface2);border:1px solid var(--border2);color:var(--text3)}
+.step-ico.r{background:rgba(251,191,36,.15);border:1px solid rgba(251,191,36,.3);animation:pulse 1s infinite}
+.step-ico.d{background:var(--green-bg);border:1px solid rgba(74,222,128,.3);color:var(--green)}
+.step-ico.e{background:rgba(248,113,113,.15);border:1px solid rgba(248,113,113,.3);color:var(--red)}
+.step-lbl{color:var(--text2)}
+.step-lbl.act{color:var(--text);font-weight:500}
+.step-lbl.done{color:var(--text3)}
+.prog-bar{height:4px;background:var(--border2);border-radius:2px;margin-top:12px;overflow:hidden}
+.prog-fill{height:100%;background:var(--green);border-radius:2px;width:0%;transition:width .4s ease}
+.dl-area{background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:20px;margin-bottom:16px;display:none}
+.dl-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:14px}
+.dl-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.dl-btn{display:flex;align-items:center;gap:10px;background:var(--surface2);border:1px solid var(--border2);border-radius:9px;padding:14px 16px;cursor:pointer;transition:border-color .15s,transform .12s}
+.dl-btn:hover{border-color:rgba(74,222,128,.4);transform:translateY(-1px)}
+.dl-btn-ico{width:36px;height:36px;border-radius:8px;background:var(--green-bg);border:1px solid rgba(74,222,128,.2);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.dl-btn-title{font-size:13px;font-weight:600;color:var(--text)}
+.dl-btn-sub{font-size:11px;color:var(--text3);margin-top:1px}
+.code-panel{background:var(--surface);border:1px solid var(--border2);border-radius:12px;overflow:hidden;margin-bottom:16px;display:none}
+.code-head{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--border);background:var(--surface2)}
+.code-head-l{font-size:12px;color:var(--text2);font-weight:500;display:flex;align-items:center;gap:8px}
+.code-actions{display:flex;gap:6px}
+.cbtn{background:var(--border2);border:none;color:var(--text2);font-family:'Outfit',sans-serif;font-size:11px;padding:4px 10px;border-radius:5px;cursor:pointer;transition:background .12s}
+.cbtn:hover{background:var(--green);color:#071a0a}
+.code-body{padding:16px;font-family:'Courier New',monospace;font-size:12px;color:#9fcca5;line-height:1.75;white-space:pre-wrap;word-break:break-word;overflow-y:auto;max-height:420px}
+.code-body::-webkit-scrollbar{width:4px}
+.code-body::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px}
+
+/* ── INPUT BAR ──────────────────────────────────────────────────── */
+.input-bar-wrap{position:fixed;bottom:0;left:200px;right:0;z-index:40;display:flex;flex-direction:column;align-items:center;padding:10px 24px 18px;background:linear-gradient(to top,var(--bg) 55%,transparent);transition:left .25s}
+.input-bar-wrap.no-sb{left:0}
+.input-bar{width:100%;max-width:680px;background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:5px;display:flex;align-items:center;gap:6px;transition:border-color .2s,box-shadow .2s}
+.input-bar:focus-within{border-color:rgba(74,222,128,.38);box-shadow:0 0 0 3px rgba(74,222,128,.07)}
+.ib-left{display:flex;align-items:center;gap:5px;position:relative}
+.ver-pill{display:flex;align-items:center;gap:5px;background:var(--surface2);border:1px solid var(--border2);border-radius:7px;padding:5px 10px;cursor:pointer;white-space:nowrap;transition:border-color .15s;position:relative;user-select:none}
+.ver-pill:hover{border-color:var(--green-dim)}
+.vdot{width:6px;height:6px;border-radius:50%;background:var(--green);flex-shrink:0}
+.vlabel{font-size:12px;font-weight:500;color:var(--text)}
+.ver-menu{position:absolute;bottom:calc(100%+8px);left:0;background:var(--surface2);border:1px solid var(--border2);border-radius:9px;overflow:hidden;display:none;min-width:148px;box-shadow:0 10px 28px rgba(0,0,0,.5);z-index:300}
+.ver-menu.open{display:block}
+.ver-menu button{width:100%;background:none;border:none;color:var(--text2);font-family:'Outfit',sans-serif;font-size:12px;font-weight:500;padding:8px 12px;text-align:left;cursor:pointer;display:flex;align-items:center;justify-content:space-between;transition:background .1s}
+.ver-menu button:hover{background:var(--border2);color:var(--text)}
+.ver-menu button.sel{color:var(--green)}
+.vtag{font-size:10px;background:var(--green-bg);color:var(--green);padding:1px 6px;border-radius:4px}
+.set-btn{background:none;border:none;color:var(--text3);cursor:pointer;padding:6px;border-radius:6px;display:flex;align-items:center;transition:color .15s,background .15s}
+.set-btn:hover{color:var(--text2);background:var(--surface2)}
+.set-panel{position:absolute;bottom:calc(100%+8px);left:0;background:var(--surface2);border:1px solid var(--border2);border-radius:10px;padding:14px;width:246px;display:none;box-shadow:0 10px 28px rgba(0,0,0,.5);z-index:300}
+.set-panel.open{display:block}
+.slabel{font-size:10px;color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:.6px;margin-bottom:7px}
+.srow{display:flex;gap:5px;flex-wrap:wrap}
+.obt{background:var(--surface);border:1px solid var(--border2);color:var(--text2);font-family:'Outfit',sans-serif;font-size:12px;font-weight:500;padding:5px 10px;border-radius:6px;cursor:pointer;transition:all .12s}
+.obt:hover{border-color:var(--green-dim);color:var(--text)}
+.obt.on{background:var(--green-bg);border-color:var(--green-dim);color:var(--green)}
+.ssep{border:none;border-top:1px solid var(--border);margin:10px 0}
+.credits-badge{display:none;align-items:center;gap:4px;color:var(--text2);font-size:12px;padding:5px 8px}
+.credits-badge span{font-weight:600;color:var(--text)}
+.prompt-input{flex:1;background:none;border:none;outline:none;font-family:'Outfit',sans-serif;font-size:14px;color:var(--text);padding:8px 4px;min-width:0}
+.prompt-input::placeholder{color:var(--text3)}
+.btn-gen{background:var(--green);color:#071a0a;border:none;font-family:'Outfit',sans-serif;font-size:13px;font-weight:700;padding:9px 18px;border-radius:8px;cursor:pointer;display:flex;align-items:center;gap:6px;white-space:nowrap;flex-shrink:0;transition:background .15s}
+.btn-gen:hover{background:#62ec93}
+.btn-gen:disabled{background:var(--border2);color:var(--text3);cursor:not-allowed}
+.spin{width:13px;height:13px;border:2px solid rgba(7,26,10,.25);border-top-color:#071a0a;border-radius:50%;animation:spin .7s linear infinite;display:none}
+.btn-gen.ld .spin{display:block}
+.btn-gen.ld .blbl{display:none}
+
+/* ── GEN OVERLAY ────────────────────────────────────────────────── */
+.gen-overlay{position:fixed;inset:0;z-index:500;display:none;align-items:center;justify-content:center;background:rgba(13,21,16,.78);backdrop-filter:blur(6px)}
+.gen-overlay.show{display:flex}
+.gen-box{background:var(--surface);border:1px solid var(--border2);border-radius:16px;padding:32px 40px;text-align:center;min-width:280px}
+.gen-spinner{width:42px;height:42px;border:3px solid var(--border2);border-top-color:var(--green);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 16px}
+.gen-msg{font-size:15px;font-weight:500;color:var(--text);margin-bottom:6px}
+.gen-sub{font-size:12px;color:var(--text3)}
+
+/* ── TOAST ──────────────────────────────────────────────────────── */
+.toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:#1a0a0a;border:1px solid #7f1d1d;color:#fca5a5;font-size:13px;padding:10px 18px;border-radius:8px;display:none;z-index:900;white-space:nowrap}
+.toast.show{display:block}
+.toast.ok{background:#0a1a0d;border-color:#166534;color:#86efac}
+
+@keyframes slideUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+</style>
+</head>
+<body>
+
+<!-- ════ AUTH MODAL ════ -->
+<div id="authModal">
+  <div class="auth-card">
+    <button class="auth-close" onclick="closeAuth()">×</button>
+
+    <div id="formReg">
+      <div class="auth-header">
+        <div class="auth-logo-icon">🎮</div>
+        <div><div class="auth-title">Create Account</div><div class="auth-sub">Start creating amazing mods</div></div>
+      </div>
+      <div class="field">
+        <label>Email</label>
+        <input type="email" id="rEmail" placeholder="you@example.com">
+        <div class="err" id="rEmailErr"></div>
+      </div>
+      <div class="field">
+        <label>Username</label>
+        <input type="text" id="rUser" placeholder="CoolModder" maxlength="20">
+        <div class="hint">3-20 chars, letters/numbers/underscores</div>
+        <div class="err" id="rUserErr"></div>
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <input type="password" id="rPass" placeholder="••••••••••">
+        <div class="err" id="rPassErr"></div>
+      </div>
+      <button class="btn-auth" id="btnReg" onclick="doRegister()">Create Account</button>
+      <div class="auth-switch">Already have an account? <button onclick="switchForm('login')">Sign in</button></div>
+      <div class="auth-note">You'll receive 5 free credits to start generating mods!</div>
+    </div>
+
+    <div id="formLogin" style="display:none">
+      <div class="auth-header">
+        <div class="auth-logo-icon">🎮</div>
+        <div><div class="auth-title">Welcome Back</div><div class="auth-sub">Sign in to your account</div></div>
+      </div>
+      <div class="field">
+        <label>Email</label>
+        <input type="email" id="lEmail" placeholder="you@example.com">
+        <div class="err" id="lErr"></div>
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <input type="password" id="lPass" placeholder="••••••••••">
+      </div>
+      <button class="btn-auth" id="btnLogin" onclick="doLogin()">Sign In</button>
+      <div class="auth-switch">No account? <button onclick="switchForm('register')">Create one</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════ APP ════ -->
+<div id="app">
+
+  <!-- Nav -->
+  <div class="top-nav">
+    <div class="nav-brand">
+      <div class="nav-brand-icon">🔧</div>
+      <div><div class="nav-brand-title">The Mod Generator</div><div class="nav-brand-sub">Minecraft Java Edition</div></div>
+    </div>
+    <div class="nav-spacer"></div>
+    <div class="nav-right">
+      <button class="nav-link">Pricing</button>
+      <!-- Guest -->
+      <div id="navGuest" style="display:flex;align-items:center;gap:8px">
+        <button class="btn-nav-signin" onclick="openAuth('login')">Sign In</button>
+        <button class="btn-nav-signup" onclick="openAuth('register')">Sign Up Free</button>
+      </div>
+      <!-- User -->
+      <div id="navUser" style="display:none;align-items:center;gap:8px">
+        <div class="nav-credits"><span class="nc-free">Free</span><span class="nc-num" id="navCredits">5</span><span class="nc-lbl">credits</span></div>
+        <div style="position:relative">
+          <div class="nav-avatar" id="navAvatar" onclick="toggleAvMenu(event)">
+            <span id="navInitials">OL</span>
+          </div>
+          <div class="av-menu" id="avMenu">
+            <button onclick="closeAvMenu()">👤 Profile</button>
+            <button onclick="closeAvMenu()">⚙️ Settings</button>
+            <button onclick="closeAvMenu()">💳 Upgrade to Pro</button>
+            <button class="av-logout" onclick="doLogout()">🚪 Sign Out</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Body -->
+  <div class="app-body">
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+      <div class="sb-inner">
+        <div class="sb-head">
+          <span class="sb-title">Your Mods</span>
+          <button class="sb-toggle" onclick="toggleSB()">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M10 4l-4 4 4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </div>
+        <button class="btn-new-mod" onclick="onNewMod()">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 2v10M2 7h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+          New Mod
+        </button>
+        <div class="sb-empty" id="sbEmpty">
+          <div class="sb-empty-icon">📁</div>
+          <div class="sb-empty-title">No mods yet</div>
+          <div class="sb-empty-sub">Create your first mod!</div>
+        </div>
+        <div class="sb-mods" id="sbMods" style="display:none"></div>
+      </div>
+    </div>
+
+    <!-- Main -->
+    <div class="main-content">
+
+      <div class="hero" id="hero">
+        <div class="hero-icon">🔧</div>
+        <h1>Create Minecraft Mods</h1>
+        <p class="hero-sub">Describe your mod idea in plain English and we'll generate a fully working Minecraft mod.</p>
+        <div class="p-cards">
+          <div class="p-card" onclick="onCard('Create a magic wand that shoots lightning bolts and can levitate mobs for 3 seconds')">
+            <div class="p-card-icon">✨</div>
+            <div class="p-card-title">Magic Wand</div>
+            <div class="p-card-desc">Shoots lightning bolts and can levitate mobs for 3 seconds</div>
+          </div>
+          <div class="p-card" onclick="onCard('Make speed boots that give permanent speed boost and double jump ability when worn')">
+            <div class="p-card-icon">⚡</div>
+            <div class="p-card-title">Speed Boots</div>
+            <div class="p-card-desc">Permanent speed boost and double jump when worn</div>
+          </div>
+          <div class="p-card" onclick="onCard('Add lucky blocks that drop random items when broken, from diamonds to explosions')">
+            <div class="p-card-icon">🎁</div>
+            <div class="p-card-title">Lucky Block</div>
+            <div class="p-card-desc">Random items when broken, from diamonds to explosions</div>
+          </div>
+        </div>
+        <div class="badges">
+          <div class="badge"><span class="bdot"></span>Fabric &amp; Forge</div>
+          <div class="badge"><span class="bdot o"></span>MC 1.21.1</div>
+          <div class="badge"><span class="bdot p"></span>Instant Download</div>
+        </div>
+      </div>
+
+      <!-- Mod view -->
+      <div class="mod-view" id="modView">
+        <div class="mv-header">
+          <div class="mv-icon" id="mvIcon">⚙️</div>
+          <div>
+            <div class="mv-name" id="mvName">My Mod</div>
+            <div class="mv-tags">
+              <span class="mv-tag g" id="mvLoader">Fabric</span>
+              <span class="mv-tag" id="mvVer">MC 1.21.1</span>
+              <span class="mv-tag" id="mvLang">Java</span>
+            </div>
+          </div>
+        </div>
+        <div class="build-card">
+          <div class="build-title">⚙️ Build Status</div>
+          <div class="steps">
+            <div class="step"><div class="step-ico w" id="s0i">1</div><span class="step-lbl" id="s0l">Generating source code with AI...</span></div>
+            <div class="step"><div class="step-ico w" id="s1i">2</div><span class="step-lbl" id="s1l">Parsing generated files...</span></div>
+            <div class="step"><div class="step-ico w" id="s2i">3</div><span class="step-lbl" id="s2l">Building Gradle project structure...</span></div>
+            <div class="step"><div class="step-ico w" id="s3i">4</div><span class="step-lbl" id="s3l">Packaging project ZIP...</span></div>
+          </div>
+          <div class="prog-bar"><div class="prog-fill" id="progFill"></div></div>
+        </div>
+        <div class="dl-area" id="dlArea">
+          <div class="dl-title">📦 Download Your Mod</div>
+          <div class="dl-grid">
+            <div class="dl-btn" id="dlJarBtn" onclick="compileAndDownloadJar()">
+              <div class="dl-btn-ico" id="dlJarIco">☕</div>
+              <div>
+                <div class="dl-btn-title" id="dlJarTitle">Download JAR</div>
+                <div class="dl-btn-sub" id="dlJarSub">Compile on server → ready for Minecraft</div>
+              </div>
+            </div>
+            <div class="dl-btn" onclick="downloadZip()">
+              <div class="dl-btn-ico">📦</div>
+              <div><div class="dl-btn-title">Download Project ZIP</div><div class="dl-btn-sub">Compile yourself with <code style="background:#0a110c;padding:1px 4px;border-radius:3px">gradlew build</code></div></div>
+            </div>
+          </div>
+          <div style="margin-top:10px;padding:8px 12px;background:#0d1510;border:1px solid #243028;border-radius:8px;font-size:12px;color:#7d9a83;display:flex;align-items:center;gap:8px">
+            <span>🖥️</span>
+            <span>Compiler API: <code id="apiUrlDisplay" style="color:#4ade80;background:#161f18;padding:1px 6px;border-radius:3px">not set</code>
+            <button onclick="setApiUrl()" style="margin-left:8px;background:var(--surface2);border:1px solid var(--border2);color:var(--text2);font-size:11px;padding:2px 8px;border-radius:4px;cursor:pointer">Change</button></span>
+          </div>
+        </div>
+        <div class="code-panel" id="codePanel">
+          <div class="code-head">
+            <div class="code-head-l">📝 <span id="codeFile">ModMain.java</span></div>
+            <div class="code-actions">
+              <button class="cbtn" id="copyBtn" onclick="copyCode()">Copy</button>
+              <button class="cbtn" onclick="toggleCode()">Collapse</button>
+            </div>
+          </div>
+          <div class="code-body" id="codeBody"></div>
+        </div>
+      </div>
+
+    </div><!-- /main-content -->
+  </div><!-- /app-body -->
+
+  <!-- Input bar -->
+  <div class="input-bar-wrap" id="inputBarWrap">
+    <div class="input-bar">
+      <div class="ib-left">
+        <!-- Version -->
+        <div class="ver-pill" id="verPill" onclick="toggleVerMenu(event)">
+          <span class="vdot"></span>
+          <span class="vlabel" id="vLabel">MC 1.21.1</span>
+          <svg style="color:var(--text3);flex-shrink:0" viewBox="0 0 10 10" fill="none" width="10" height="10"><path d="M2 3.5l3 3 3-3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <div class="ver-menu" id="verMenu">
+            <button onclick="setVer('1.21.1',this)" class="sel">MC 1.21.1<span class="vtag">Latest</span></button>
+            <button onclick="setVer('1.20.4',this)">MC 1.20.4</button>
+            <button onclick="setVer('1.20.1',this)">MC 1.20.1</button>
+            <button onclick="setVer('1.19.4',this)">MC 1.19.4</button>
+            <button onclick="setVer('1.18.2',this)">MC 1.18.2</button>
+            <button onclick="setVer('1.16.5',this)">MC 1.16.5</button>
+          </div>
+        </div>
+        <!-- Settings -->
+        <div style="position:relative">
+          <button class="set-btn" onclick="toggleSetPanel(event)">
+            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" width="15" height="15" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="10" r="2.5"/><path d="M10 2v1.5M10 16.5V18M2 10h1.5M16.5 10H18M4.1 4.1l1.1 1.1M14.8 14.8l1.1 1.1M4.1 15.9l1.1-1.1M14.8 5.2l1.1-1.1"/></svg>
+          </button>
+          <div class="set-panel" id="setPanel">
+            <div class="slabel">Loader</div>
+            <div class="srow" id="gLoader">
+              <button class="obt on" data-v="Fabric" onclick="pickOpt(this,'gLoader')">Fabric</button>
+              <button class="obt" data-v="Forge" onclick="pickOpt(this,'gLoader')">Forge</button>
+              <button class="obt" data-v="NeoForge" onclick="pickOpt(this,'gLoader')">NeoForge</button>
+            </div>
+            <hr class="ssep">
+            <div class="slabel">Language</div>
+            <div class="srow" id="gLang">
+              <button class="obt on" data-v="Java" onclick="pickOpt(this,'gLang')">Java</button>
+              <button class="obt" data-v="Kotlin" onclick="pickOpt(this,'gLang')">Kotlin</button>
+            </div>
+          </div>
+        </div>
+        <!-- Credits (logged in only) -->
+        <div class="credits-badge" id="creditsBadge">⚡ <span id="creditsBar">5</span></div>
+      </div>
+      <input class="prompt-input" id="promptInput" type="text"
+        placeholder="Describe your Minecraft mod idea..."
+        onkeydown="if(event.key==='Enter')onGenerate()"
+        onfocus="if(!S.user){openAuth('register');this.blur()}"
+        autocomplete="off">
+      <button class="btn-gen" id="genBtn" onclick="onGenerate()">
+        <div class="spin"></div>
+        <span class="blbl">⚡ Generate</span>
+      </button>
+    </div>
+  </div>
+
+</div><!-- /app -->
+
+<!-- Gen overlay -->
+<div class="gen-overlay" id="genOverlay">
+  <div class="gen-box">
+    <div class="gen-spinner"></div>
+    <div class="gen-msg" id="genMsg">Generating your mod...</div>
+    <div class="gen-sub">This may take 10–20 seconds</div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ════ CONFIG ════════════════════════════════════════════════════════
+const GROQ_KEY   = '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';
+const GROQ_MODEL = 'llama-3.1-8b-instant';
+const SB_URL     = 'https://tjipfwhzcnzppuchxkmo.supabase.co';
+const SB_KEY     = 'sb_publishable_Zg4IIB1HfciHvw60h6ewcA_J8OfePL8';
+
+// ════ STATE ═════════════════════════════════════════════════════════
+const S = {
+  user: null,
+  mods: JSON.parse(localStorage.getItem('mcmg_mods') || '[]'),
+  activeMod: null,
+  sb: null
+};
+let mcVer = '1.21.1';
+
+// ════ SUPABASE ══════════════════════════════════════════════════════
+function initSupabase() {
+  return new Promise(resolve => {
+    const script = document.createElement('script');
+    script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js';
+    script.onload = () => {
+      try {
+        S.sb = window.supabase.createClient(SB_URL, SB_KEY);
+      } catch(e) { console.warn('SB init failed', e); }
+      resolve();
+    };
+    script.onerror = () => resolve();
+    document.head.appendChild(script);
+  });
+}
+
+// ════ INIT ══════════════════════════════════════════════════════════
+window.addEventListener('DOMContentLoaded', async () => {
+  await initSupabase();
+
+  if (S.sb) {
+    const { data: { session } } = await S.sb.auth.getSession().catch(() => ({ data: { session: null } }));
+    if (session?.user) setUser(session.user);
+    else setGuest();
+
+    S.sb.auth.onAuthStateChange((_e, session) => {
+      if (session?.user) { setUser(session.user); closeAuth(); }
+      else setGuest();
+    });
+  } else {
+    setGuest();
+  }
+
+  document.addEventListener('click', () => {
+    document.getElementById('verMenu').classList.remove('open');
+    document.getElementById('setPanel').classList.remove('open');
+    document.getElementById('avMenu').classList.remove('open');
+  });
+  updateApiDisplay();
+});
+
+// ════ USER STATE ════════════════════════════════════════════════════
+function setUser(sbUser) {
+  const uname = sbUser.user_metadata?.username || sbUser.email.split('@')[0];
+  S.user = { id: sbUser.id, email: sbUser.email, username: uname, credits: sbUser.user_metadata?.credits ?? 5 };
+  document.getElementById('navGuest').style.display = 'none';
+  document.getElementById('navUser').style.display  = 'flex';
+  document.getElementById('creditsBadge').style.display = 'flex';
+  document.getElementById('navInitials').textContent = uname.slice(0,2).toUpperCase();
+  document.getElementById('navCredits').textContent = S.user.credits;
+  document.getElementById('creditsBar').textContent = S.user.credits;
+  renderSidebar();
+}
+
+function setGuest() {
+  S.user = null;
+  document.getElementById('navGuest').style.display = 'flex';
+  document.getElementById('navUser').style.display  = 'none';
+  document.getElementById('creditsBadge').style.display = 'none';
+}
+
+// ════ AUTH ══════════════════════════════════════════════════════════
+function openAuth(mode) {
+  document.getElementById('authModal').classList.add('open');
+  switchForm(mode);
+}
+function closeAuth() {
+  document.getElementById('authModal').classList.remove('open');
+}
+function switchForm(mode) {
+  document.getElementById('formReg').style.display   = mode === 'register' ? '' : 'none';
+  document.getElementById('formLogin').style.display = mode === 'login'    ? '' : 'none';
+}
+
+async function doRegister() {
+  const email = document.getElementById('rEmail').value.trim();
+  const uname = document.getElementById('rUser').value.trim();
+  const pass  = document.getElementById('rPass').value;
+  let ok = true;
+  if (!email.includes('@'))                               { showErr('rEmailErr','Valid email required'); ok=false; } else hideErr('rEmailErr');
+  if (!uname || uname.length < 3 || !/^\w+$/.test(uname)){ showErr('rUserErr','3-20 chars, letters/numbers/_'); ok=false; } else hideErr('rUserErr');
+  if (pass.length < 6)                                    { showErr('rPassErr','Min 6 characters'); ok=false; } else hideErr('rPassErr');
+  if (!ok) return;
+
+  const btn = document.getElementById('btnReg');
+  btn.disabled = true; btn.textContent = 'Creating...';
+
+  if (!S.sb) { showToast('❌ Auth service unavailable'); btn.disabled=false; btn.textContent='Create Account'; return; }
+  const { error } = await S.sb.auth.signUp({ email, password: pass, options: { data: { username: uname, credits: 5 } } });
+  btn.disabled = false; btn.textContent = 'Create Account';
+  if (error) { showErr('rEmailErr', error.message); return; }
+  showToast('✅ Account created! Sign in now.', true);
+  switchForm('login');
+}
+
+async function doLogin() {
+  const email = document.getElementById('lEmail').value.trim();
+  const pass  = document.getElementById('lPass').value;
+  if (!email.includes('@') || !pass) { showErr('lErr','Enter email and password'); return; }
+
+  const btn = document.getElementById('btnLogin');
+  btn.disabled = true; btn.textContent = 'Signing in...';
+
+  if (!S.sb) { showToast('❌ Auth service unavailable'); btn.disabled=false; btn.textContent='Sign In'; return; }
+  const { error } = await S.sb.auth.signInWithPassword({ email, password: pass });
+  btn.disabled = false; btn.textContent = 'Sign In';
+  if (error) { showErr('lErr', error.message.includes('Invalid') ? 'Wrong email or password' : error.message); }
+}
+
+async function doLogout() {
+  document.getElementById('avMenu').classList.remove('open');
+  if (S.sb) await S.sb.auth.signOut();
+  else setGuest();
+}
+
+function showErr(id,msg){ const e=document.getElementById(id); e.textContent=msg; e.style.display='block'; }
+function hideErr(id)    { document.getElementById(id).style.display='none'; }
+
+// ════ SIDEBAR ═══════════════════════════════════════════════════════
+let sbOpen = true;
+function toggleSB() {
+  sbOpen = !sbOpen;
+  document.getElementById('sidebar').classList.toggle('collapsed', !sbOpen);
+  document.getElementById('inputBarWrap').classList.toggle('no-sb', !sbOpen);
+}
+function renderSidebar() {
+  if (!S.user) return;
+  const mods = S.mods.filter(m => m.owner === S.user.email);
+  const empty = document.getElementById('sbEmpty');
+  const list  = document.getElementById('sbMods');
+  if (!mods.length) { empty.style.display='flex'; list.style.display='none'; return; }
+  empty.style.display = 'none'; list.style.display = 'block';
+  list.innerHTML = mods.map(m => `
+    <div class="mod-item ${S.activeMod?.id===m.id?'active':''}" onclick="openMod('${m.id}')">
+      <span style="font-size:15px">${m.icon||'⚙️'}</span>
+      <span class="mod-item-name">${m.name}</span>
+      <span class="mod-dot ${m.built?'done':'pending'}"></span>
+    </div>`).join('');
+}
+
+function onNewMod() {
+  if (!S.user) { openAuth('register'); return; }
+  S.activeMod = null;
+  document.getElementById('hero').style.display = 'flex';
+  document.getElementById('modView').classList.remove('show');
+  renderSidebar();
+  document.getElementById('promptInput').focus();
+}
+
+function openMod(id) {
+  const m = S.mods.find(x => x.id === id);
+  if (!m) return;
+  S.activeMod = m;
+  renderSidebar();
+  showModView(m);
+}
+
+// ════ MOD VIEW ══════════════════════════════════════════════════════
+function showModView(m) {
+  document.getElementById('hero').style.display = 'none';
+  const mv = document.getElementById('modView');
+  mv.classList.add('show');
+  document.getElementById('mvIcon').textContent = m.icon || '⚙️';
+  document.getElementById('mvName').textContent = m.name;
+  document.getElementById('mvLoader').textContent = m.loader;
+  document.getElementById('mvVer').textContent = 'MC ' + m.version;
+  document.getElementById('mvLang').textContent = m.lang;
+  if (m.built) {
+    for (let i=0;i<4;i++){
+      const ico=document.getElementById('s'+i+'i'); ico.className='step-ico d'; ico.innerHTML='✓';
+      document.getElementById('s'+i+'l').className='step-lbl done';
+    }
+    document.getElementById('progFill').style.width='100%';
+    showDL();
+    // Show code if available
+    if (m.code) {
+      const files = parseModFiles(m.code, m);
+      showCode(m, files);
+    }
+  } else { resetSteps(); document.getElementById('dlArea').style.display='none'; document.getElementById('codePanel').style.display='none'; }
+}
+
+function resetSteps() {
+  for (let i=0;i<4;i++) {
+    const ico = document.getElementById('s'+i+'i');
+    ico.className = 'step-ico w'; ico.textContent = i+1;
+    document.getElementById('s'+i+'l').className = 'step-lbl';
+  }
+  document.getElementById('progFill').style.width = '0%';
+}
+
+function showDL() { document.getElementById('dlArea').style.display='block'; }
+
+// ════ API GUIDE PER LOADER ══════════════════════════════════════════
+function buildApiGuide(loader, ver) {
+  const major = parseInt(ver.split('.')[1]) || 21;
+
+  if (loader === 'Fabric') {
+    return `FABRIC ${ver} RULES:
+- Main class implements ModInitializer, annotated with @Mod (no — Fabric uses fabric.mod.json, NOT @Mod annotation)
+- Main class implements net.fabricmc.api.ModInitializer
+- Register items: Registry.register(Registries.ITEM, Identifier.of("modid","item_name"), new Item(new Item.Settings()))
+- Register blocks: Registry.register(Registries.BLOCK, Identifier.of("modid","block_name"), new Block(AbstractBlock.Settings.create()))
+- Events: use net.fabricmc.fabric.api.event.* packages
+- Tick events: ServerTickEvents.END_SERVER_TICK or ClientTickEvents.END_CLIENT_TICK
+- Player hunger: player.getHungerManager().getFoodLevel()
+- Give item: player.giveItemStack(new ItemStack(Items.DIAMOND))
+- Status effects: player.addStatusEffect(new StatusEffectInstance(StatusEffects.SPEED, duration, amplifier))
+- Identifier: use Identifier.of("modid", "name") for ${major >= 21 ? '1.21+' : '1.20.x'}
+- fabric.mod.json entrypoint: "main": ["com.example.ModClass"]
+- Dependencies in fabric.mod.json: "fabric-api": "*", "fabricloader": ">=0.14.0", "minecraft": "~${ver}"
+- NEVER use @Mod annotation — that is Forge only
+- NEVER use net.minecraft.command.CommandBase — use Fabric command API: CommandRegistrationCallback`;
+  }
+
+  if (loader === 'Forge') {
+    const forgeVer = major >= 21 ? '21.x' : major >= 20 ? '20.x' : '1.x';
+    return `FORGE ${ver} RULES:
+- Main class annotated with @Mod("modid")
+- Use @EventBusSubscriber(modid="modid", bus=Bus.MOD) for mod bus events
+- Register items/blocks using DeferredRegister: DeferredRegister.create(ForgeRegistries.ITEMS, MODID)
+- Register events: use @SubscribeEvent on methods
+- Player hunger: player.getFoodData().getFoodLevel()
+- Give item: player.addItem(new ItemStack(Items.DIAMOND))
+- Status effects: player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, duration, amplifier))
+- Identifier (ResourceLocation): new ResourceLocation("modid", "name")
+- mods.toml: required, include modLoader="javafml", loaderVersion="[${forgeVer},)"
+- NEVER use Fabric imports (net.fabricmc.*) 
+- NEVER use ModInitializer — that is Fabric only`;
+  }
+
+  if (loader === 'NeoForge') {
+    return `NEOFORGE ${ver} RULES:
+- Main class annotated with @Mod("modid")  
+- Use IEventBus from ModContainer, register in constructor: NeoForge.EVENT_BUS.register(this)
+- DeferredRegister for items/blocks: DeferredRegister.create(BuiltInRegistries.ITEM, MODID)
+- Player hunger: player.getFoodData().getFoodLevel()
+- Give item: player.addItem(new ItemStack(Items.DIAMOND))
+- Status effects: player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, duration, amplifier))
+- ResourceLocation: ResourceLocation.fromNamespaceAndPath("modid", "name") for 1.21+
+- neoforge.mods.toml required (not mods.toml)
+- NEVER use Fabric imports
+- NEVER use old Forge FMLJavaModLoadingContext — NeoForge removed it`;
+  }
+
+  return `MINECRAFT MOD ${ver} RULES:
+- Use correct loader-specific APIs only
+- Check all method names are real for this version
+- Include all required config files`;
+}
+
+
+// ════ JSZIP LOADER ═══════════════════════════════════════════════════
+function loadJSZip() {
+  return new Promise(resolve => {
+    if (window.JSZip) { resolve(window.JSZip); return; }
+    const s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';
+    s.onload = () => resolve(window.JSZip);
+    s.onerror = () => resolve(null);
+    document.head.appendChild(s);
+  });
+}
+
+// ════ NAME HELPERS ════════════════════════════════════════════════════
+function toModId(p) {
+  return p.toLowerCase().replace(/[^a-z0-9 ]/g,'').trim().split(/\s+/).slice(0,3).join('_') || 'mymod';
+}
+function toModName(p) {
+  return p.replace(/[^a-zA-Z0-9 ]/g,'').trim().split(/\s+/).slice(0,4)
+    .map(w=>w.charAt(0).toUpperCase()+w.slice(1).toLowerCase()).join('') || 'MyMod';
+}
+function toPkg(id) { return 'com.modgen.' + id.replace(/[^a-z0-9]/g,''); }
+
+// ════ GENERATE ════════════════════════════════════════════════════════
+const genMsgs = ['Generating source code with AI...','Parsing generated files...','Building project structure...','Packaging ZIP...'];
+
+async function onGenerate() {
+  const prompt = document.getElementById('promptInput').value.trim();
+  if (!prompt) { document.getElementById('promptInput').focus(); return; }
+  if (!S.user) { openAuth('register'); return; }
+  if (S.user.credits <= 0) { showToast('❌ No credits left!'); return; }
+
+  const loader  = getOpt('gLoader') || 'NeoForge';
+  const lang    = getOpt('gLang')   || 'Java';
+  const modId   = toModId(prompt);
+  const modName = toModName(prompt);
+  const pkg     = toPkg(modId);
+  const icons   = ['⚔️','🪄','🎁','⚡','🔮','🏹','🛡️','🧲'];
+  const id      = 'mod_' + Date.now();
+  const icon    = icons[Math.floor(Math.random() * icons.length)];
+  const mod     = { id, name: modName, icon, loader, version: mcVer, lang, prompt, modId, pkg, built: false, owner: S.user.email, code: '', zipBlob: null };
+
+  S.mods.push(mod); saveMods(); S.activeMod = mod;
+  renderSidebar(); showModView(mod);
+
+  const ov = document.getElementById('genOverlay');
+  ov.classList.add('show');
+  let mi = 0;
+  const iv = setInterval(() => { document.getElementById('genMsg').textContent = genMsgs[mi++ % genMsgs.length]; }, 2500);
+  const btn = document.getElementById('genBtn');
+  btn.disabled = true; btn.classList.add('ld');
+
+  try {
+    // Step 0 — AI generation
+    setStep(0, 'run');
+    const apiGuide = buildApiGuide(loader, mcVer);
+    const pkgPath  = pkg.replace(/\./g, '/');
+    const cfgFile  = loader === 'Fabric' ? 'src/main/resources/fabric.mod.json' : 'src/main/resources/META-INF/neoforge.mods.toml';
+
+    const sys = `You are a senior Minecraft mod developer generating a complete ${loader} mod for MC ${mcVer} in ${lang}.
+
+PACKAGE: ${pkg}   MOD_ID: ${modId}   MOD_NAME: ${modName}
+
+${apiGuide}
+
+OUTPUT FORMAT — output ONLY file blocks, nothing else:
+// FILE: src/main/java/${pkgPath}/${modName}.java
+[java code]
+
+// FILE: src/main/java/${pkgPath}/AnotherClass.java
+[java code]
+
+// FILE: ${cfgFile}
+[config content]
+
+// FILE: src/main/resources/assets/${modId}/lang/en_us.json
+[lang json]
+
+Rules: correct package declarations, all imports present, no placeholder comments like "// add logic here", working implementation.`;
+
+    const usr = `Create a ${loader} mod for Minecraft ${mcVer} in ${lang}.\nMod idea: ${prompt}\nMod ID: ${modId}, Package: ${pkg}, Main class: ${modName}`;
+
+    const data = await groqFetch(sys, usr);
+    const rawCode = data.choices?.[0]?.message?.content || '';
+    mod.code = rawCode;
+    setStep(0, 'done');
+
+    // Step 1 — parse
+    setStep(1, 'run');
+    await sleep(300);
+    const files = parseModFiles(rawCode, mod);
+    setStep(1, 'done');
+    document.getElementById('progFill').style.width = '50%';
+
+    // Step 2 — build structure
+    setStep(2, 'run');
+    await sleep(400);
+    const JSZip = await loadJSZip();
+    if (!JSZip) throw new Error('JSZip library failed to load');
+    const zip = buildGradleProject(JSZip, mod, files);
+    setStep(2, 'done');
+    document.getElementById('progFill').style.width = '80%';
+
+    // Step 3 — package
+    setStep(3, 'run');
+    mod.zipBlob = await zip.generateAsync({ type: 'blob', compression: 'DEFLATE' });
+    setStep(3, 'done');
+    document.getElementById('progFill').style.width = '100%';
+
+    // Deduct credit
+    S.user.credits = Math.max(0, S.user.credits - 1);
+    document.getElementById('navCredits').textContent = S.user.credits;
+    document.getElementById('creditsBar').textContent = S.user.credits;
+
+    mod.built = true; saveMods(); renderSidebar();
+    clearInterval(iv); ov.classList.remove('show');
+    showDL(); showCode(mod, files);
+    showToast('✅ Project ready! Download ZIP → run gradlew build', true);
+
+  } catch(err) {
+    clearInterval(iv); ov.classList.remove('show');
+    showToast('❌ ' + err.message);
+    setStep(0, 'err');
+  } finally {
+    btn.disabled = false; btn.classList.remove('ld');
+    document.getElementById('promptInput').value = '';
+  }
+}
+
+function setStep(i, state) {
+  const ico = document.getElementById('s'+i+'i');
+  const lbl = document.getElementById('s'+i+'l');
+  const map = { run:['r','⚙','act'], done:['d','✓','done'], err:['e','✕',''] };
+  const [cls,txt,lblcls] = map[state] || ['w', i+1, ''];
+  ico.className = 'step-ico ' + cls;
+  ico.textContent = txt;
+  if (lblcls) lbl.className = 'step-lbl ' + lblcls;
+}
+
+// ════ FILE PARSER ═════════════════════════════════════════════════════
+function parseModFiles(raw, mod) {
+  const files = {};
+  const parts = raw.split(/\/\/\s*FILE:\s*/);
+  for (let i = 1; i < parts.length; i++) {
+    const nl = parts[i].indexOf('\n');
+    if (nl === -1) continue;
+    const fp = parts[i].slice(0, nl).trim();
+    let content = parts[i].slice(nl+1).trim().replace(/^```[a-z]*\n?/i,'').replace(/\n?```\s*$/i,'').trim();
+    if (fp && content) files[fp] = content;
+  }
+  if (Object.keys(files).length === 0 && raw.length > 50) {
+    const jp = `src/main/java/${mod.pkg.replace(/\./g,'/')}/${mod.name}.java`;
+    files[jp] = raw.replace(/^```[a-z]*\n?/im,'').replace(/\n?```\s*$/im,'').trim();
+  }
+  return files;
+}
+
+// ════ GRADLE PROJECT BUILDER ═════════════════════════════════════════
+function buildGradleProject(JSZip, mod, generated) {
+  const zip = new JSZip();
+  const root = mod.modId + '/';
+  const { modId, name: modName, version: mcVer2, loader, pkg } = mod;
+  const mcV = mcVer2 || '1.21.1';
+  const neoV = mcV === '1.21.1' ? '21.1.80' : mcV === '1.20.4' ? '20.4.237' : '21.1.80';
+  const isFabric = loader === 'Fabric';
+
+  zip.file(root+'gradle/wrapper/gradle-wrapper.properties',
+`distributionBase=GRADLE_USER_HOME
+distributionPath=wrapper/dists
+distributionUrl=https\\://services.gradle.org/distributions/gradle-8.9-bin.zip
+networkTimeout=10000
+validateDistributionUrl=true
+zipStoreBase=GRADLE_USER_HOME
+zipStorePath=wrapper/dists`);
+
+  zip.file(root+'gradlew',
+`#!/bin/sh
+APP_HOME=$(cd "$(dirname "$0")" && pwd)
+exec java -jar "$APP_HOME/gradle/wrapper/gradle-wrapper.jar" "$@"`, { unixPermissions:'755' });
+
+  zip.file(root+'gradlew.bat',
+`@rem Gradle wrapper for Windows
+@echo off
+java -jar "%~dp0gradle\\wrapper\\gradle-wrapper.jar" %*`);
+
+  zip.file(root+'settings.gradle',
+isFabric ?
+`pluginManagement {
+    repositories {
+        maven { url = 'https://maven.fabricmc.net/' }
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+rootProject.name = "${modId}"` :
+`pluginManagement {
+    repositories {
+        maven { url = 'https://maven-central.storage.googleapis.com' }
+        mavenCentral()
+        gradlePluginPortal()
+        maven { url = 'https://maven.neoforged.net/releases' }
+    }
+}
+plugins { id 'org.gradle.toolchains.foojay-resolver-convention' version '0.8.0' }
+rootProject.name = "${modId}"`);
+
+  zip.file(root+'gradle.properties',
+isFabric ?
+`minecraft_version=${mcV}
+yarn_mappings=${mcV}+build.1
+loader_version=0.16.10
+fabric_version=0.114.1+1.21.1
+java_version=21
+maven_group=${pkg}
+mod_id=${modId}
+mod_name=${modName}
+mod_version=1.0.0
+mod_authors=ModGen
+mod_description=Generated mod
+org.gradle.jvmargs=-Xmx2G
+org.gradle.daemon=false` :
+`minecraft_version=${mcV}
+neo_version=${neoV}
+java_version=21
+maven_group=${pkg}
+mod_id=${modId}
+mod_name=${modName}
+mod_version=1.0.0
+mod_authors=ModGen
+mod_description=Generated mod
+org.gradle.jvmargs=-Xmx4G -XX:MaxMetaspaceSize=512m
+org.gradle.daemon=false
+org.gradle.parallel=true
+org.gradle.caching=true
+org.gradle.configuration-cache=false`);
+
+  zip.file(root+'build.gradle',
+isFabric ?
+`plugins {
+    id 'fabric-loom' version '1.9-SNAPSHOT'
+    id 'maven-publish'
+}
+version = project.mod_version
+group = project.maven_group
+base { archivesName = project.mod_id }
+java.toolchain.languageVersion = JavaLanguageVersion.of(project.java_version.toInteger())
+repositories { mavenCentral() }
+dependencies {
+    minecraft "com.mojang:minecraft:\${project.minecraft_version}"
+    mappings "net.fabricmc:yarn:\${project.yarn_mappings}:v2"
+    modImplementation "net.fabricmc:fabric-loader:\${project.loader_version}"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:\${project.fabric_version}"
+}
+tasks.withType(JavaCompile).configureEach { options.encoding = 'UTF-8' }` :
+`plugins {
+    id 'java-library'
+    id 'maven-publish'
+    id 'net.neoforged.gradle.userdev' version '7.0.163'
+}
+version = project.mod_version
+group = project.maven_group
+base { archivesName = project.mod_id }
+java.toolchain.languageVersion = JavaLanguageVersion.of(project.java_version.toInteger())
+repositories {
+    maven { url = 'https://maven-central.storage.googleapis.com' }
+    mavenCentral()
+}
+dependencies { implementation "net.neoforged:neoforge:\${neo_version}" }
+tasks.withType(ProcessResources).configureEach {
+    var props = [minecraft_version:minecraft_version,neo_version:neo_version,
+        mod_id:mod_id,mod_name:mod_name,mod_version:mod_version,
+        mod_authors:mod_authors,mod_description:mod_description]
+    inputs.properties props
+    filesMatching(['META-INF/neoforge.mods.toml']) { expand props + [project: project] }
+}
+tasks.withType(JavaCompile).configureEach { options.encoding = 'UTF-8' }`);
+
+  // Default config files if AI didn't generate them
+  const hasFabric = Object.keys(generated).some(f=>f.includes('fabric.mod.json'));
+  const hasToml   = Object.keys(generated).some(f=>f.includes('neoforge.mods.toml'));
+  if (isFabric && !hasFabric) {
+    zip.file(root+'src/main/resources/fabric.mod.json', JSON.stringify({
+      schemaVersion:1, id:modId, version:'1.0.0', name:modName,
+      description:'Generated mod', authors:['ModGen'], environment:'*',
+      entrypoints:{ main:[`${pkg}.${modName}`] },
+      depends:{ fabricloader:'>=0.14.0', fabric:'*', minecraft:mcV }
+    }, null, 2));
+  }
+  if (!isFabric && !hasToml) {
+    zip.file(root+'src/main/resources/META-INF/neoforge.mods.toml',
+`modLoader="javafml"
+loaderVersion="[4,)"
+license="All Rights Reserved"
+[[mods]]
+modId="${modId}"
+version="\${mod_version}"
+displayName="\${mod_name}"
+description="\${mod_description}"
+[[dependencies.${modId}]]
+modId="neoforge"
+type="required"
+versionRange="[${neoV},)"
+ordering="NONE"
+side="BOTH"
+[[dependencies.${modId}]]
+modId="minecraft"
+type="required"
+versionRange="[${mcV},)"
+ordering="NONE"
+side="BOTH"`);
+  }
+
+  // All AI-generated files
+  for (const [fp, content] of Object.entries(generated)) {
+    zip.file(root + fp, content);
+  }
+
+  zip.file(root+'README.md',
+`# ${modName}
+
+Generated by MC Mod Generator
+
+## Build Requirements
+- **Java 21 JDK** — [Download here](https://adoptium.net/)
+- Internet connection (first build downloads ~500MB of Minecraft deps)
+
+## How to Compile
+\`\`\`bash
+# Windows:
+gradlew.bat build
+
+# Mac / Linux:
+chmod +x gradlew && ./gradlew build
+\`\`\`
+
+✅ Find your JAR in \`build/libs/${modId}-1.0.0.jar\`
+
+Copy it to your Minecraft **mods/** folder.
+
+## Details
+| Property | Value |
+|----------|-------|
+| Loader   | ${loader} |
+| MC       | ${mcV} |
+| Mod ID   | ${modId} |
+| Package  | ${pkg} |
+`);
+
+  return zip;
+}
+
+// ════ GROQ FETCH ═════════════════════════════════════════════════════
+async function groqFetch(sys, usr) {
+  const body = JSON.stringify({ model:GROQ_MODEL, messages:[{role:'system',content:sys},{role:'user',content:usr}], max_tokens:8000, temperature:0.2 });
+  const hdrs = { 'Content-Type':'application/json', 'Authorization':'Bearer '+GROQ_KEY };
+  for (const url of [
+    'https://api.groq.com/openai/v1/chat/completions',
+    'https://corsproxy.io/?url=https://api.groq.com/openai/v1/chat/completions'
+  ]) {
+    try {
+      const r = await fetch(url, { method:'POST', headers:hdrs, body, signal:AbortSignal.timeout(40000) });
+      if (!r.ok) { const e=await r.json().catch(()=>({})); throw new Error(e.error?.message||'HTTP '+r.status); }
+      return r.json();
+    } catch(e) {
+      if (e.message.startsWith('HTTP ')) throw e;
+    }
+  }
+  throw new Error('Network error — run via: python -m http.server 8080');
+}
+
+// ════ COMPILER API ════════════════════════════════════════════════════
+const DEFAULT_API = 'https://mc-mod-backend.onrender.com';
+
+function getApiUrl() {
+  return localStorage.getItem('mcmg_api') || DEFAULT_API;
+}
+function setApiUrl() {
+  const url = prompt('Enter your compiler API URL:', getApiUrl());
+  if (url) {
+    localStorage.setItem('mcmg_api', url.replace(/\/$/, ''));
+    updateApiDisplay();
+    showToast('✅ API URL updated!', true);
+  }
+}
+function updateApiDisplay() {
+  const el = document.getElementById('apiUrlDisplay');
+  if (el) el.textContent = getApiUrl();
+}
+
+async function compileAndDownloadJar() {
+  const m = S.activeMod;
+  if (!m?.code) { showToast('❌ Generate a mod first'); return; }
+
+  const btn   = document.getElementById('dlJarBtn');
+  const ico   = document.getElementById('dlJarIco');
+  const title = document.getElementById('dlJarTitle');
+  const sub   = document.getElementById('dlJarSub');
+
+  btn.style.opacity = '0.7'; btn.style.cursor = 'not-allowed';
+  ico.textContent   = '⏳';
+  title.textContent = 'Compiling...';
+  sub.textContent   = 'First build ~5-10 min (downloading deps)';
+
+  try {
+    const files = parseModFiles(m.code, m);
+    const apiUrl = getApiUrl();
+
+    showToast('⚙️ Sending to compiler server...', false);
+
+    const r = await fetch(apiUrl + '/compile', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        modId:     m.modId,
+        modName:   m.name,
+        loader:    m.loader,
+        mcVersion: m.version,
+        files
+      }),
+      signal: AbortSignal.timeout(10 * 60 * 1000) // 10 min
+    });
+
+    if (!r.ok) {
+      const e = await r.json().catch(() => ({}));
+      throw new Error(e.details || e.error || 'Compilation failed — HTTP ' + r.status);
+    }
+
+    // Get filename from header
+    const cd       = r.headers.get('Content-Disposition') || '';
+    const match    = cd.match(/filename="?([^"]+)"?/);
+    const filename = match ? match[1] : m.modId + '-1.0.0.jar';
+
+    const blob = await r.blob();
+    dlFile(blob, filename);
+    showToast('✅ JAR compiled and downloaded!', true);
+
+  } catch(err) {
+    showToast('❌ ' + (err.name === 'TimeoutError' ? 'Compilation timeout (>10 min)' : err.message));
+  } finally {
+    btn.style.opacity = '1'; btn.style.cursor = 'pointer';
+    ico.textContent   = '☕';
+    title.textContent = 'Download JAR';
+    sub.textContent   = 'Compile on server → ready for Minecraft';
+  }
+}
+
+
+function downloadZip() {
+  const m = S.activeMod;
+  if (!m?.zipBlob) { showToast('❌ No project built'); return; }
+  dlFile(m.zipBlob, m.modId + '-project.zip');
+  showToast('✅ Project ZIP downloaded!', true);
+}
+function downloadSrc() {
+  const m = S.activeMod;
+  if (!m?.code) { showToast('❌ No code generated'); return; }
+  dlFile(new Blob([m.code], {type:'text/plain'}), m.name + '_source.txt');
+  showToast('✅ Source downloaded!', true);
+}
+function dlFile(blob,name){ const a=Object.assign(document.createElement('a'),{href:URL.createObjectURL(blob),download:name}); a.click(); }
+
+function copyCode() {
+  if (!S.activeMod?.code) return;
+  navigator.clipboard.writeText(S.activeMod.code).then(()=>{
+    const b=document.getElementById('copyBtn'); b.textContent='Copied!';
+    setTimeout(()=>b.textContent='Copy',1500);
+  });
+}
+function toggleCode() { const b=document.getElementById('codeBody'); b.style.display=b.style.display==='none'?'':'none'; }
+
+function showCode(mod, files) {
+  const cp = document.getElementById('codePanel');
+  cp.style.display = 'block';
+  const jf = Object.keys(files||{}).find(f=>f.endsWith('.java')) || '';
+  document.getElementById('codeFile').textContent = jf.split('/').pop() || 'output.java';
+  const content = (files && jf) ? files[jf] : mod.code;
+  document.getElementById('codeBody').innerHTML = hlJava(content || '// No code');
+}
+
+// ════ UI HELPERS ════════════════════════════════════════════════════
+function onCard(txt) {
+  if (!S.user) { openAuth('register'); return; }
+  document.getElementById('promptInput').value = txt;
+  document.getElementById('promptInput').focus();
+}
+
+function toggleVerMenu(e) { e.stopPropagation(); document.getElementById('verMenu').classList.toggle('open'); document.getElementById('setPanel').classList.remove('open'); }
+function setVer(v, btn) {
+  mcVer=v; document.getElementById('vLabel').textContent='MC '+v;
+  document.querySelectorAll('#verMenu button').forEach(b=>b.classList.remove('sel'));
+  btn.classList.add('sel');
+  document.getElementById('verMenu').classList.remove('open');
+}
+function toggleSetPanel(e) { e.stopPropagation(); document.getElementById('setPanel').classList.toggle('open'); document.getElementById('verMenu').classList.remove('open'); }
+function pickOpt(btn,gid) { document.querySelectorAll('#'+gid+' .obt').forEach(b=>b.classList.remove('on')); btn.classList.add('on'); }
+function getOpt(gid) { return document.querySelector('#'+gid+' .obt.on')?.dataset.v||''; }
+function toggleAvMenu(e) { e.stopPropagation(); document.getElementById('avMenu').classList.toggle('open'); }
+function closeAvMenu() { document.getElementById('avMenu').classList.remove('open'); }
+
+let toastT;
+function showToast(msg, ok=false) {
+  const t=document.getElementById('toast'); t.textContent=msg;
+  t.className='toast show'+(ok?' ok':'');
+  clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('show'),3500);
+}
+
+function saveMods() { localStorage.setItem('mcmg_mods', JSON.stringify(S.mods)); }
+function sleep(ms)  { return new Promise(r=>setTimeout(r,ms)); }
+
+function hlJava(code) {
+  return code.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/(\/\/[^\n]*)/g,'<span style="color:#546e7a;font-style:italic">$1</span>')
+    .replace(/("(?:[^"\\]|\\.)*")/g,'<span style="color:#c3e88d">$1</span>')
+    .replace(/(@\w+)/g,'<span style="color:#ffcb6b">$1</span>')
+    .replace(/\b(public|private|protected|class|interface|extends|implements|new|return|void|static|final|import|package|if|else|for|while|try|catch|super|this|null|true|false)\b/g,'<span style="color:#c792ea">$1</span>');
+}
+</script>
+</body>
+</html>
