@@ -1247,19 +1247,34 @@ function parseModFiles(raw, mod) {
 }
 
 // ════ GRADLE PROJECT BUILDER ═════════════════════════════════════════
+function getGradleV(loader) {
+  // fabric-loom 1.9-SNAPSHOT needs 8.11+, NeoForge works on 8.10.2
+  return loader === 'Fabric' ? '8.11' : '8.10.2';
+}
+function getNeoV(mcV) {
+  const m = {'1.21.4':'21.4.20','1.21.3':'21.3.3','1.21.1':'21.1.80','1.21':'21.0.167','1.20.6':'20.6.119','1.20.4':'20.4.237','1.20.2':'20.2.88'};
+  return m[mcV] || '21.1.80';
+}
+function getFabricApiV(mcV) {
+  const m = {'1.21.1':'0.114.1+1.21.1','1.21':'0.100.8+1.21','1.20.4':'0.97.0+1.20.4','1.20.2':'0.91.0+1.20.2','1.20.1':'0.92.2+1.20.1','1.19.4':'0.87.2+1.19.4','1.18.2':'0.77.0+1.18.2'};
+  return m[mcV] || '0.114.1+1.21.1';
+}
+
 function buildGradleProject(JSZip, mod, generated) {
   const zip = new JSZip();
   const root = mod.modId + '/';
   const { modId, name: modName, version: mcVer2, loader, pkg } = mod;
   const mcV = mcVer2 || '1.21.1';
-  const neoV = mcV === '1.21.1' ? '21.1.80' : mcV === '1.20.4' ? '20.4.237' : '21.1.80';
   const isFabric = loader === 'Fabric';
+  const gradleV  = getGradleV(loader);
+  const neoV     = getNeoV(mcV);
+  const fabApiV  = getFabricApiV(mcV);
 
   zip.file(root+'gradle/wrapper/gradle-wrapper.properties',
 `distributionBase=GRADLE_USER_HOME
 distributionPath=wrapper/dists
-distributionUrl=https\\://services.gradle.org/distributions/gradle-8.9-bin.zip
-networkTimeout=10000
+distributionUrl=https\\://services.gradle.org/distributions/gradle-${gradleV}-bin.zip
+networkTimeout=180000
 validateDistributionUrl=true
 zipStoreBase=GRADLE_USER_HOME
 zipStorePath=wrapper/dists`);
@@ -1300,7 +1315,7 @@ isFabric ?
 `minecraft_version=${mcV}
 yarn_mappings=${mcV}+build.1
 loader_version=0.16.10
-fabric_version=0.114.1+1.21.1
+fabric_version=${fabApiV}
 java_version=21
 maven_group=${pkg}
 mod_id=${modId}
