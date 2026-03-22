@@ -79,9 +79,15 @@ body::before{content:'';position:fixed;inset:0;background-image:radial-gradient(
 .app-body{display:flex;flex:1;overflow:hidden}
 
 /* ── SIDEBAR ────────────────────────────────────────────────────── */
-.sidebar{width:200px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;transition:width .25s}
-.sidebar.collapsed{width:0}
+.sidebar{width:200px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;transition:width .25s;position:relative}
+.sidebar.collapsed{width:0;border-right:none}
 .sb-inner{width:200px;display:flex;flex-direction:column;height:100%;overflow:hidden}
+/* Expand tab shown when sidebar is collapsed */
+.sb-expand-tab{position:fixed;left:0;top:50%;transform:translateY(-50%);width:18px;height:48px;background:var(--surface);border:1px solid var(--border2);border-left:none;border-radius:0 8px 8px 0;display:none;align-items:center;justify-content:center;cursor:pointer;color:var(--text3);z-index:45;transition:color .15s,background .15s}
+.sb-expand-tab:hover{color:var(--green);background:var(--surface2)}
+.sidebar.collapsed ~ .main-content .sb-expand-tab{display:flex}
+/* simpler: just show when collapsed */
+.sb-expand-tab.show{display:flex}
 .sb-head{display:flex;align-items:center;justify-content:space-between;padding:14px 14px 10px;border-bottom:1px solid var(--border)}
 .sb-title{font-size:13px;font-weight:600;color:var(--text)}
 .sb-toggle{background:none;border:none;color:var(--text3);cursor:pointer;padding:3px;border-radius:4px;transition:color .15s}
@@ -174,8 +180,10 @@ body::before{content:'';position:fixed;inset:0;background-image:radial-gradient(
 .ver-pill:hover{border-color:var(--green-dim)}
 .vdot{width:6px;height:6px;border-radius:50%;background:var(--green);flex-shrink:0}
 .vlabel{font-size:12px;font-weight:500;color:var(--text)}
-.ver-menu{position:absolute;bottom:calc(100%+8px);left:0;background:var(--surface2);border:1px solid var(--border2);border-radius:9px;overflow:hidden;display:none;min-width:148px;box-shadow:0 10px 28px rgba(0,0,0,.5);z-index:300}
+.ver-menu{position:absolute;bottom:calc(100%+8px);left:0;background:var(--surface2);border:1px solid var(--border2);border-radius:9px;overflow-y:auto;max-height:240px;display:none;min-width:148px;box-shadow:0 10px 28px rgba(0,0,0,.5);z-index:300}
 .ver-menu.open{display:block}
+.ver-menu::-webkit-scrollbar{width:3px}
+.ver-menu::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
 .ver-menu button{width:100%;background:none;border:none;color:var(--text2);font-family:'Outfit',sans-serif;font-size:12px;font-weight:500;padding:8px 12px;text-align:left;cursor:pointer;display:flex;align-items:center;justify-content:space-between;transition:background .1s}
 .ver-menu button:hover{background:var(--border2);color:var(--text)}
 .ver-menu button.sel{color:var(--green)}
@@ -213,6 +221,22 @@ body::before{content:'';position:fixed;inset:0;background-image:radial-gradient(
 .toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:#1a0a0a;border:1px solid #7f1d1d;color:#fca5a5;font-size:13px;padding:10px 18px;border-radius:8px;display:none;z-index:900;white-space:nowrap}
 .toast.show{display:block}
 .toast.ok{background:#0a1a0d;border-color:#166534;color:#86efac}
+
+/* ── ADMIN PANEL ─────────────────────────────────────────────────── */
+.admin-overlay{position:fixed;inset:0;z-index:800;display:none;align-items:center;justify-content:center;background:rgba(13,21,16,.9);backdrop-filter:blur(8px)}
+.admin-overlay.open{display:flex}
+.admin-card{background:var(--surface);border:1px solid var(--border2);border-radius:14px;padding:28px;width:100%;max-width:440px;box-shadow:0 20px 60px rgba(0,0,0,.6)}
+.admin-title{font-size:16px;font-weight:700;color:var(--green);margin-bottom:20px;display:flex;align-items:center;gap:8px}
+.admin-field{margin-bottom:14px}
+.admin-field label{display:block;font-size:12px;color:var(--text2);margin-bottom:5px;font-weight:500}
+.admin-field input{width:100%;background:#0a110c;border:1px solid var(--border2);color:var(--text);font-family:'Outfit',sans-serif;font-size:14px;padding:9px 12px;border-radius:7px;outline:none}
+.admin-field input:focus{border-color:var(--green-dim)}
+.admin-row{display:flex;gap:8px;margin-top:16px}
+.btn-admin{flex:1;background:var(--green);color:#071a0a;border:none;font-family:'Outfit',sans-serif;font-size:13px;font-weight:700;padding:10px;border-radius:8px;cursor:pointer;transition:background .15s}
+.btn-admin:hover{background:#62ec93}
+.btn-admin.sec{background:var(--surface2);color:var(--text2);border:1px solid var(--border2)}
+.btn-admin.sec:hover{background:var(--border2);color:var(--text)}
+.admin-log{margin-top:14px;padding:10px;background:#0a110c;border-radius:7px;font-size:12px;color:var(--text2);min-height:36px;line-height:1.6;white-space:pre-wrap}
 
 @keyframes slideUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
 @keyframes spin{to{transform:rotate(360deg)}}
@@ -300,6 +324,7 @@ body::before{content:'';position:fixed;inset:0;background-image:radial-gradient(
             <button onclick="closeAvMenu()">👤 Profile</button>
             <button onclick="closeAvMenu()">⚙️ Settings</button>
             <button onclick="closeAvMenu()">💳 Upgrade to Pro</button>
+            <button id="adminMenuBtn" onclick="openAdmin()" style="display:none">🛡️ Admin Panel</button>
             <button class="av-logout" onclick="doLogout()">🚪 Sign Out</button>
           </div>
         </div>
@@ -309,6 +334,11 @@ body::before{content:'';position:fixed;inset:0;background-image:radial-gradient(
 
   <!-- Body -->
   <div class="app-body">
+
+    <!-- Sidebar expand tab (shown when collapsed) -->
+    <button class="sb-expand-tab" id="sbExpandTab" onclick="toggleSB()" title="Open sidebar">
+      <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M3 2l4 3-4 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
 
     <!-- Sidebar -->
     <div class="sidebar" id="sidebar">
@@ -475,6 +505,54 @@ body::before{content:'';position:fixed;inset:0;background-image:radial-gradient(
     </div>
   </div>
 
+<!-- Admin Panel — password from DB, credits via Supabase SQL only -->
+<div class="admin-overlay" id="adminOverlay" onclick="if(event.target===this)closeAdmin()">
+  <div class="admin-card" style="max-width:360px">
+
+    <!-- Lock screen -->
+    <div id="adminLock">
+      <div class="admin-title">🔐 Admin</div>
+      <div class="admin-field">
+        <label>Password</label>
+        <input type="password" id="adminPassInput" placeholder="Enter password..."
+          onkeydown="if(event.key==='Enter')adminUnlock()" autofocus>
+      </div>
+      <div class="admin-log" id="adminLockLog" style="min-height:0;margin-top:8px"></div>
+      <div class="admin-row" style="margin-top:12px">
+        <button class="btn-admin" onclick="adminUnlock()">Unlock</button>
+        <button class="btn-admin sec" onclick="closeAdmin()">Cancel</button>
+      </div>
+    </div>
+
+    <!-- Unlocked -->
+    <div id="adminMain" style="display:none">
+      <div class="admin-title" style="justify-content:space-between">
+        🛡️ Admin
+        <button onclick="adminLock()" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:12px">🔒</button>
+      </div>
+
+      <div style="padding:12px;background:#0a110c;border-radius:8px;font-size:12px;color:var(--text2);line-height:1.8;margin-bottom:14px">
+        <div style="color:var(--text);font-weight:600;margin-bottom:6px">Керування кредитами — через Supabase SQL:</div>
+        <div style="color:var(--text3);margin-bottom:4px">Видати собі кредити:</div>
+        <code id="adminSqlMe" style="display:block;background:#161f18;padding:8px;border-radius:5px;color:var(--green);font-size:11px;word-break:break-all;cursor:pointer" onclick="copySql('me')" title="Click to copy">
+          -- натисни щоб скопіювати
+        </code>
+        <div style="color:var(--text3);margin-top:8px;margin-bottom:4px">Видати будь-якому юзеру:</div>
+        <code style="display:block;background:#161f18;padding:8px;border-radius:5px;color:var(--text2);font-size:11px;word-break:break-all">
+update profiles set credits = 1000000<br>where email = 'email@example.com';
+        </code>
+        <div style="margin-top:8px;color:var(--text3);font-size:11px">→ <a href="https://supabase.com/dashboard" target="_blank" style="color:var(--green)">Відкрити Supabase SQL Editor</a></div>
+      </div>
+
+      <div class="admin-log" id="adminLog">✅ Авторизовано</div>
+      <div style="margin-top:10px;text-align:right">
+        <button class="btn-admin sec" style="font-size:12px" onclick="closeAdmin()">✕ Close</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
 </div><!-- /app -->
 
 <!-- Gen overlay -->
@@ -548,15 +626,38 @@ window.addEventListener('DOMContentLoaded', async () => {
 });
 
 // ════ USER STATE ════════════════════════════════════════════════════
-function setUser(sbUser) {
+const ADMIN_EMAILS = ['oleksandrromanovic2@gmail.com']; // ← твій email
+
+async function setUser(sbUser) {
   const uname = sbUser.user_metadata?.username || sbUser.email.split('@')[0];
-  S.user = { id: sbUser.id, email: sbUser.email, username: uname, credits: sbUser.user_metadata?.credits ?? 5 };
+
+  // Load credits from profiles table
+  let credits = 5;
+  if (S.sb) {
+    try {
+      const { data } = await S.sb.from('profiles').select('credits').eq('id', sbUser.id).single();
+      if (data?.credits !== undefined) {
+        credits = data.credits;
+      } else {
+        // First login — create profile row
+        await S.sb.from('profiles').upsert({ id: sbUser.id, email: sbUser.email, username: uname, credits: 5 });
+      }
+    } catch(e) { console.warn('profiles table missing, using default credits'); }
+  }
+
+  S.user = { id: sbUser.id, email: sbUser.email, username: uname, credits };
+
   document.getElementById('navGuest').style.display = 'none';
   document.getElementById('navUser').style.display  = 'flex';
   document.getElementById('creditsBadge').style.display = 'flex';
   document.getElementById('navInitials').textContent = uname.slice(0,2).toUpperCase();
-  document.getElementById('navCredits').textContent = S.user.credits;
-  document.getElementById('creditsBar').textContent = S.user.credits;
+  document.getElementById('navCredits').textContent = credits;
+  document.getElementById('creditsBar').textContent = credits;
+
+  // Show admin button only for admins
+  const adminBtn = document.getElementById('adminMenuBtn');
+  if (adminBtn) adminBtn.style.display = ADMIN_EMAILS.includes(sbUser.email) ? '' : 'none';
+
   renderSidebar();
 }
 
@@ -630,6 +731,7 @@ function toggleSB() {
   sbOpen = !sbOpen;
   document.getElementById('sidebar').classList.toggle('collapsed', !sbOpen);
   document.getElementById('inputBarWrap').classList.toggle('no-sb', !sbOpen);
+  document.getElementById('sbExpandTab').classList.toggle('show', !sbOpen);
 }
 function renderSidebar() {
   if (!S.user) return;
@@ -702,59 +804,131 @@ function showDL() { document.getElementById('dlArea').style.display='block'; }
 // ════ API GUIDE PER LOADER ══════════════════════════════════════════
 function buildApiGuide(loader, ver) {
   const major = parseInt(ver.split('.')[1]) || 21;
+  const minor = parseInt(ver.split('.')[2]) || 1;
 
   if (loader === 'Fabric') {
-    return `FABRIC ${ver} RULES:
-- Main class implements ModInitializer, annotated with @Mod (no — Fabric uses fabric.mod.json, NOT @Mod annotation)
-- Main class implements net.fabricmc.api.ModInitializer
-- Register items: Registry.register(Registries.ITEM, Identifier.of("modid","item_name"), new Item(new Item.Settings()))
-- Register blocks: Registry.register(Registries.BLOCK, Identifier.of("modid","block_name"), new Block(AbstractBlock.Settings.create()))
-- Events: use net.fabricmc.fabric.api.event.* packages
-- Tick events: ServerTickEvents.END_SERVER_TICK or ClientTickEvents.END_CLIENT_TICK
-- Player hunger: player.getHungerManager().getFoodLevel()
-- Give item: player.giveItemStack(new ItemStack(Items.DIAMOND))
-- Status effects: player.addStatusEffect(new StatusEffectInstance(StatusEffects.SPEED, duration, amplifier))
-- Identifier: use Identifier.of("modid", "name") for ${major >= 21 ? '1.21+' : '1.20.x'}
-- fabric.mod.json entrypoint: "main": ["com.example.ModClass"]
-- Dependencies in fabric.mod.json: "fabric-api": "*", "fabricloader": ">=0.14.0", "minecraft": "~${ver}"
-- NEVER use @Mod annotation — that is Forge only
-- NEVER use net.minecraft.command.CommandBase — use Fabric command API: CommandRegistrationCallback`;
+    return `FABRIC ${ver} PRECISE API RULES — READ EVERY LINE:
+
+=== FORBIDDEN — will cause compile errors ===
+- NEVER use FabricItemSettings — REMOVED. Use: new Item.Settings()
+- NEVER use ItemGroup.COMBAT or any ItemGroup.X — REMOVED in 1.19.3+
+- NEVER use Registry.register(Registry.ITEM, ...) — OLD API. Use: Registry.register(Registries.ITEM, ...)
+- NEVER use new Identifier("mod","name") — use Identifier.of("mod","name") in 1.21+
+- NEVER use schemaVersion 2 in fabric.mod.json — use schemaVersion 1
+- NEVER use player.getHungerManager() on LivingEntity — only PlayerEntity has it
+- NEVER use world.method() on client side without isClient check
+- NEVER use EntityType.LIGHTNING_BOLT without import
+- NEVER import net.fabricmc.fabric.api.item.v1.FabricItemSettings — class doesn't exist in 1.21
+- NEVER use item.group() in Item.Settings — use ItemGroups with custom tab
+- NEVER cast PlayerEntity from LivingEntity without instanceof check
+
+=== CORRECT PATTERNS for Fabric ${ver} ===
+
+Item registration:
+  public static final Item MY_ITEM = new Item(new Item.Settings());
+  Registry.register(Registries.ITEM, Identifier.of(MOD_ID, "my_item"), MY_ITEM);
+
+Custom item class:
+  public class MyItem extends Item {
+    public MyItem(Settings settings) { super(settings); }
+    @Override
+    public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
+      if (world.isClient()) return TypedActionResult.pass(user.getStackInHand(hand));
+      // server logic here
+      return TypedActionResult.success(user.getStackInHand(hand));
+    }
+  }
+
+Lightning bolt spawn (1.21):
+  LightningEntity lightning = new LightningEntity(EntityType.LIGHTNING_BOLT, world);
+  lightning.setPos(x, y, z);
+  world.spawnEntity(lightning);
+  import net.minecraft.entity.EntityType;
+  import net.minecraft.entity.LightningEntity;
+
+Status effects:
+  player.addStatusEffect(new StatusEffectInstance(StatusEffects.LEVITATION, 60, 0));
+  import net.minecraft.entity.effect.StatusEffectInstance;
+  import net.minecraft.entity.effect.StatusEffects;
+
+Main class:
+  import net.fabricmc.api.ModInitializer;
+  public class MyMod implements ModInitializer {
+    public static final String MOD_ID = "${major >= 21 ? 'mymod' : 'mymod'}";
+    @Override public void onInitialize() { /* register things here */ }
+  }
+
+fabric.mod.json (schemaVersion MUST be 1):
+  { "schemaVersion": 1, "id": "modid", "version": "1.0.0",
+    "entrypoints": { "main": ["com.pkg.MyMod"] },
+    "depends": { "fabricloader": ">=0.14.0", "fabric-api": "*", "minecraft": "${ver}" } }
+
+Registries import: import net.minecraft.registry.Registries;
+                   import net.minecraft.registry.Registry;
+Identifier: Identifier.of("modid", "name")  // 1.21+`;
   }
 
   if (loader === 'Forge') {
-    const forgeVer = major >= 21 ? '21.x' : major >= 20 ? '20.x' : '1.x';
     return `FORGE ${ver} RULES:
-- Main class annotated with @Mod("modid")
-- Use @EventBusSubscriber(modid="modid", bus=Bus.MOD) for mod bus events
-- Register items/blocks using DeferredRegister: DeferredRegister.create(ForgeRegistries.ITEMS, MODID)
-- Register events: use @SubscribeEvent on methods
-- Player hunger: player.getFoodData().getFoodLevel()
-- Give item: player.addItem(new ItemStack(Items.DIAMOND))
-- Status effects: player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, duration, amplifier))
-- Identifier (ResourceLocation): new ResourceLocation("modid", "name")
-- mods.toml: required, include modLoader="javafml", loaderVersion="[${forgeVer},)"
-- NEVER use Fabric imports (net.fabricmc.*) 
-- NEVER use ModInitializer — that is Fabric only`;
+
+=== FORBIDDEN ===
+- NEVER use Fabric imports (net.fabricmc.*)
+- NEVER use ModInitializer — Fabric only
+- NEVER use Registry.register — use DeferredRegister
+
+=== CORRECT PATTERNS ===
+
+Main class:
+  @Mod("modid")
+  public class MyMod {
+    public static final String MODID = "modid";
+    public MyMod(IEventBus modEventBus) {
+      ITEMS.register(modEventBus);
+      BLOCKS.register(modEventBus);
+    }
+  }
+
+Item register:
+  public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, MODID);
+  public static final RegistryObject<Item> MY_ITEM = ITEMS.register("my_item", () -> new Item(new Item.Properties()));
+
+Player hunger: player.getFoodData().getFoodLevel()
+Give item: player.addItem(new ItemStack(Items.DIAMOND))
+Status effects: player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, duration, amplifier))
+ResourceLocation: new ResourceLocation("modid", "name")`;
   }
 
   if (loader === 'NeoForge') {
     return `NEOFORGE ${ver} RULES:
-- Main class annotated with @Mod("modid")  
-- Use IEventBus from ModContainer, register in constructor: NeoForge.EVENT_BUS.register(this)
-- DeferredRegister for items/blocks: DeferredRegister.create(BuiltInRegistries.ITEM, MODID)
-- Player hunger: player.getFoodData().getFoodLevel()
-- Give item: player.addItem(new ItemStack(Items.DIAMOND))
-- Status effects: player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, duration, amplifier))
-- ResourceLocation: ResourceLocation.fromNamespaceAndPath("modid", "name") for 1.21+
-- neoforge.mods.toml required (not mods.toml)
-- NEVER use Fabric imports
-- NEVER use old Forge FMLJavaModLoadingContext — NeoForge removed it`;
+
+=== FORBIDDEN ===
+- NEVER use Fabric imports (net.fabricmc.*)
+- NEVER use old FMLJavaModLoadingContext — removed in NeoForge
+- NEVER use ForgeRegistries — use BuiltInRegistries or DeferredRegister
+
+=== CORRECT PATTERNS ===
+
+Main class:
+  @Mod("modid")
+  public class MyMod {
+    public static final String MODID = "modid";
+    public MyMod(IEventBus modEventBus) {
+      ITEMS.register(modEventBus);
+    }
   }
 
-  return `MINECRAFT MOD ${ver} RULES:
-- Use correct loader-specific APIs only
-- Check all method names are real for this version
-- Include all required config files`;
+Item register:
+  public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(Registries.ITEM, MODID);
+  public static final DeferredHolder<Item, Item> MY_ITEM = ITEMS.register("my_item", () -> new Item(new Item.Properties()));
+
+Player hunger: player.getFoodData().getFoodLevel()
+Give item: player.addItem(new ItemStack(Items.DIAMOND))
+Status effects: player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, duration, amplifier))
+ResourceLocation: ResourceLocation.fromNamespaceAndPath("modid", "name")
+neoforge.mods.toml: required with modLoader="javafml", loaderVersion="[4,)"`;
+  }
+
+  return `MINECRAFT MOD ${ver} — use correct loader APIs only`;
 }
 
 
@@ -843,22 +1017,32 @@ PACKAGE: ${pkg}   MOD_ID: ${modId}   MOD_NAME: ${modName}
 
 ${apiGuide}
 
-OUTPUT FORMAT — output ONLY file blocks, nothing else:
+CRITICAL RULES:
+1. Every import must be real and exist in ${loader} ${mcVer}
+2. Every method call must exist in the class you're calling it on
+3. Check the FORBIDDEN list above — using any forbidden API = compile error
+4. Use EXACTLY the correct patterns shown in the guide above
+5. No placeholder code like "// TODO" or "// add logic here" — write real implementation
+
+OUTPUT FORMAT — output ONLY file blocks:
 // FILE: src/main/java/${pkgPath}/${modName}.java
-[java code]
+[complete java code]
 
 // FILE: src/main/java/${pkgPath}/AnotherClass.java
-[java code]
+[complete java code]
 
 // FILE: ${cfgFile}
-[config content]
+[config file content]
 
 // FILE: src/main/resources/assets/${modId}/lang/en_us.json
-[lang json]
+{"item.${modId}.itemname": "Display Name"}
 
-Rules: correct package declarations, all imports present, no placeholder comments like "// add logic here", working implementation.`;
+No prose, no explanations outside code comments. All files must be complete and compilable.`;
 
-    const usr = `Create a ${loader} mod for Minecraft ${mcVer} in ${lang}.\nMod idea: ${prompt}\nMod ID: ${modId}, Package: ${pkg}, Main class: ${modName}`;
+    const usr = `Create a working ${loader} mod for Minecraft ${mcVer} in ${lang}.
+Mod idea: ${prompt}
+Mod ID: ${modId}, Package: ${pkg}, Main class: ${modName}
+Think carefully about which APIs exist in ${loader} ${mcVer} before writing code.`;
 
     const data = await groqFetch(sys, usr);
     const rawCode = data.choices?.[0]?.message?.content || '';
@@ -892,6 +1076,8 @@ Rules: correct package declarations, all imports present, no placeholder comment
     S.user.credits = Math.max(0, S.user.credits - 1);
     document.getElementById('navCredits').textContent = S.user.credits;
     document.getElementById('creditsBar').textContent = S.user.credits;
+    // Save to DB
+    if (S.sb) S.sb.from('profiles').update({ credits: S.user.credits }).eq('id', S.user.id).then(() => {});
 
     mod.built = true; saveMods(); renderSidebar();
     clearInterval(timerIv); ov.classList.remove('show');
@@ -1284,6 +1470,70 @@ function showToast(msg, ok=false) {
 
 function saveMods() { localStorage.setItem('mcmg_mods', JSON.stringify(S.mods)); }
 function sleep(ms)  { return new Promise(r=>setTimeout(r,ms)); }
+
+// ════ ADMIN PANEL ════════════════════════════════════════════════════
+// ════ ADMIN PANEL ════════════════════════════════════════════════════
+function openAdmin() {
+  closeAvMenu();
+  document.getElementById('adminOverlay').classList.add('open');
+  document.getElementById('adminLock').style.display = '';
+  document.getElementById('adminMain').style.display = 'none';
+  document.getElementById('adminPassInput').value = '';
+  document.getElementById('adminLockLog').textContent = '';
+  setTimeout(() => document.getElementById('adminPassInput').focus(), 100);
+}
+function closeAdmin() { document.getElementById('adminOverlay').classList.remove('open'); }
+function adminLock()  {
+  document.getElementById('adminLock').style.display = '';
+  document.getElementById('adminMain').style.display = 'none';
+  document.getElementById('adminPassInput').value = '';
+}
+
+async function adminUnlock() {
+  const entered = document.getElementById('adminPassInput').value;
+  const logEl   = document.getElementById('adminLockLog');
+  if (!entered) return;
+  if (!S.sb) { logEl.textContent = '❌ Supabase not connected'; logEl.style.color='var(--red)'; return; }
+
+  logEl.textContent = 'Checking...'; logEl.style.color = 'var(--text2)';
+  try {
+    const { data, error } = await S.sb.from('admin_settings').select('value').eq('key','admin_password').single();
+    if (error) throw error;
+    if (data?.value === entered) {
+      document.getElementById('adminLock').style.display = 'none';
+      document.getElementById('adminMain').style.display = '';
+      // Fill SQL snippet for current user
+      if (S.user) {
+        document.getElementById('adminSqlMe').innerHTML =
+          `update profiles<br>set credits = 1000000<br>where email = '<span style="color:#fbbf24">${S.user.email}</span>';`;
+      }
+    } else {
+      logEl.textContent = '❌ Wrong password'; logEl.style.color = 'var(--red)';
+      document.getElementById('adminPassInput').value = '';
+    }
+  } catch(e) {
+    logEl.textContent = '❌ ' + e.message; logEl.style.color = 'var(--red)';
+  }
+}
+
+function copySql(type) {
+  const sql = `update profiles set credits = 1000000 where email = '${S.user?.email || ''}';`;
+  navigator.clipboard.writeText(sql).then(() => {
+    const el = document.getElementById('adminSqlMe');
+    const orig = el.innerHTML;
+    el.textContent = '✅ Copied!';
+    el.style.color = 'var(--green)';
+    setTimeout(() => { el.innerHTML = orig; el.style.color = 'var(--green)'; }, 1500);
+  });
+}
+
+function adminLog(msg, ok) {
+  const el = document.getElementById('adminLog');
+  if (!el) return;
+  el.textContent = msg;
+  el.style.color = ok === true ? 'var(--green)' : ok === false ? 'var(--red)' : 'var(--text2)';
+}
+
 
 function hlJava(code) {
   return code.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
