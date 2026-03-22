@@ -180,7 +180,7 @@ body::before{content:'';position:fixed;inset:0;background-image:radial-gradient(
 .ver-pill:hover{border-color:var(--green-dim)}
 .vdot{width:6px;height:6px;border-radius:50%;background:var(--green);flex-shrink:0}
 .vlabel{font-size:12px;font-weight:500;color:var(--text)}
-.ver-menu{position:absolute;bottom:calc(100%+8px);left:0;background:var(--surface2);border:1px solid var(--border2);border-radius:9px;overflow-y:auto;max-height:240px;display:none;min-width:148px;box-shadow:0 10px 28px rgba(0,0,0,.5);z-index:300}
+.ver-menu{position:fixed;background:var(--surface2);border:1px solid var(--border2);border-radius:9px;overflow-y:auto;max-height:260px;display:none;min-width:160px;box-shadow:0 10px 28px rgba(0,0,0,.7);z-index:9999}
 .ver-menu.open{display:block}
 .ver-menu::-webkit-scrollbar{width:3px}
 .ver-menu::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
@@ -209,7 +209,26 @@ body::before{content:'';position:fixed;inset:0;background-image:radial-gradient(
 .btn-gen.ld .spin{display:block}
 .btn-gen.ld .blbl{display:none}
 
-/* ── GEN OVERLAY ────────────────────────────────────────────────── */
+/* ── ERROR CHECKER ──────────────────────────────────────────────── */
+.error-panel{background:var(--surface);border:1px solid var(--border2);border-radius:12px;overflow:hidden;margin-bottom:16px}
+.ep-header{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--border);background:var(--surface2);font-size:13px;font-weight:600;color:var(--text)}
+.ep-errors{padding:12px 14px;display:flex;flex-direction:column;gap:6px;max-height:280px;overflow-y:auto}
+.ep-errors::-webkit-scrollbar{width:3px}
+.ep-errors::-webkit-scrollbar-thumb{background:var(--border2)}
+.ep-item{display:flex;align-items:flex-start;gap:8px;padding:8px 10px;border-radius:7px;background:#0a110c;border:1px solid var(--border)}
+.ep-item.err{border-color:rgba(248,113,113,.25)}
+.ep-item.warn{border-color:rgba(251,191,36,.2)}
+.ep-item.ok{border-color:rgba(74,222,128,.2)}
+.ep-chk{margin-top:2px;accent-color:var(--green);flex-shrink:0}
+.ep-icon{font-size:14px;flex-shrink:0}
+.ep-body{flex:1}
+.ep-title{font-size:12px;font-weight:600;color:var(--text);margin-bottom:2px}
+.ep-desc{font-size:11px;color:var(--text3);line-height:1.5}
+.ep-file{font-size:10px;color:var(--text3);margin-top:2px;font-family:'Courier New',monospace}
+.ep-actions{display:flex;gap:8px;padding:10px 14px;border-top:1px solid var(--border);background:var(--surface2)}
+.ep-status{font-size:12px;color:var(--text2);display:flex;align-items:center;gap:6px;flex:1}
+
+
 .gen-overlay{position:fixed;inset:0;z-index:500;display:none;align-items:center;justify-content:center;background:rgba(13,21,16,.78);backdrop-filter:blur(6px)}
 .gen-overlay.show{display:flex}
 .gen-box{background:var(--surface);border:1px solid var(--border2);border-radius:16px;padding:32px 40px;text-align:center;min-width:280px}
@@ -447,6 +466,22 @@ body::before{content:'';position:fixed;inset:0;background-image:radial-gradient(
           </div>
           <div class="code-body" id="codeBody"></div>
         </div>
+
+        <!-- Error Checker Panel -->
+        <div class="error-panel" id="errorPanel" style="display:none">
+          <div class="ep-header">
+            <span>🔍 Code Analysis</span>
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;color:var(--text2)">
+              <input type="checkbox" id="autoFixChk" style="accent-color:var(--green)">
+              Auto-fix until no errors
+            </label>
+          </div>
+          <div id="epErrors" class="ep-errors"></div>
+          <div class="ep-actions">
+            <button class="cbtn" id="checkBtn" onclick="checkErrors()">🔍 Check for Errors</button>
+            <button class="cbtn" id="fixBtn" onclick="fixErrors()" style="display:none;background:var(--green);color:#071a0a">🔧 Fix Selected</button>
+          </div>
+        </div>
       </div>
 
     </div><!-- /main-content -->
@@ -526,25 +561,69 @@ body::before{content:'';position:fixed;inset:0;background-image:radial-gradient(
 
     <!-- Unlocked -->
     <div id="adminMain" style="display:none">
-      <div class="admin-title" style="justify-content:space-between">
-        🛡️ Admin
-        <button onclick="adminLock()" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:12px">🔒</button>
+      <div class="admin-title" style="justify-content:space-between;margin-bottom:14px">
+        🛡️ Admin Panel
+        <button onclick="adminLock()" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:12px;padding:2px 6px;border-radius:4px">🔒 Lock</button>
       </div>
 
-      <div style="padding:12px;background:#0a110c;border-radius:8px;font-size:12px;color:var(--text2);line-height:1.8;margin-bottom:14px">
-        <div style="color:var(--text);font-weight:600;margin-bottom:6px">Керування кредитами — через Supabase SQL:</div>
-        <div style="color:var(--text3);margin-bottom:4px">Видати собі кредити:</div>
-        <code id="adminSqlMe" style="display:block;background:#161f18;padding:8px;border-radius:5px;color:var(--green);font-size:11px;word-break:break-all;cursor:pointer" onclick="copySql('me')" title="Click to copy">
-          -- натисни щоб скопіювати
-        </code>
-        <div style="color:var(--text3);margin-top:8px;margin-bottom:4px">Видати будь-якому юзеру:</div>
-        <code style="display:block;background:#161f18;padding:8px;border-radius:5px;color:var(--text2);font-size:11px;word-break:break-all">
-update profiles set credits = 1000000<br>where email = 'email@example.com';
-        </code>
-        <div style="margin-top:8px;color:var(--text3);font-size:11px">→ <a href="https://supabase.com/dashboard" target="_blank" style="color:var(--green)">Відкрити Supabase SQL Editor</a></div>
+      <!-- Stats -->
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px">
+        <div style="background:#0a110c;border-radius:8px;padding:10px;text-align:center">
+          <div style="font-size:20px;font-weight:700;color:var(--green)" id="statTotal">—</div>
+          <div style="font-size:10px;color:var(--text3)">Users</div>
+        </div>
+        <div style="background:#0a110c;border-radius:8px;padding:10px;text-align:center">
+          <div style="font-size:20px;font-weight:700;color:#fbbf24" id="statCredits">—</div>
+          <div style="font-size:10px;color:var(--text3)">Total Credits</div>
+        </div>
+        <div style="background:#0a110c;border-radius:8px;padding:10px;text-align:center">
+          <div style="font-size:20px;font-weight:700;color:#a78bfa" id="statToday">—</div>
+          <div style="font-size:10px;color:var(--text3)">New Today</div>
+        </div>
       </div>
 
-      <div class="admin-log" id="adminLog">✅ Авторизовано</div>
+      <!-- User search -->
+      <div class="admin-field">
+        <label>🔍 User Email</label>
+        <input type="email" id="adminEmail" placeholder="email@example.com" oninput="adminAutoSearch()" style="width:100%">
+        <div id="adminUserInfo" style="display:none;margin-top:8px;padding:8px;background:#0a110c;border-radius:7px;font-size:12px;color:var(--text2);line-height:1.7"></div>
+      </div>
+
+      <!-- Credits control -->
+      <div class="admin-field">
+        <label>💳 Credits</label>
+        <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:6px">
+          <button class="btn-admin sec" style="font-size:11px;padding:4px 8px" onclick="setCredVal(5)">5</button>
+          <button class="btn-admin sec" style="font-size:11px;padding:4px 8px" onclick="setCredVal(50)">50</button>
+          <button class="btn-admin sec" style="font-size:11px;padding:4px 8px" onclick="setCredVal(100)">100</button>
+          <button class="btn-admin sec" style="font-size:11px;padding:4px 8px" onclick="setCredVal(500)">500</button>
+          <button class="btn-admin sec" style="font-size:11px;padding:4px 8px" onclick="setCredVal(999999)">∞</button>
+        </div>
+        <div style="display:flex;gap:6px">
+          <input type="number" id="adminCredits" value="100" style="flex:1">
+          <button class="btn-admin" style="flex:0;padding:9px 12px;font-size:12px" onclick="adminSetCredits()">Set</button>
+          <button class="btn-admin sec" style="flex:0;padding:9px 12px;font-size:12px" onclick="adminAddCredits()">+Add</button>
+        </div>
+      </div>
+
+      <!-- Users list -->
+      <div class="admin-field">
+        <label style="display:flex;justify-content:space-between;align-items:center">
+          <span>👥 Users</span>
+          <button class="cbtn" onclick="adminLoadUsers()">↻ Refresh</button>
+        </label>
+        <div id="adminUsersList" style="background:#0a110c;border-radius:7px;max-height:160px;overflow-y:auto;font-size:12px">
+          <div style="padding:10px;color:var(--text3);text-align:center">↻ Click Refresh</div>
+        </div>
+      </div>
+
+      <!-- Bulk actions -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px">
+        <button class="btn-admin sec" style="font-size:11px" onclick="adminGiveAll()">🎁 Give All +10</button>
+        <button class="btn-admin sec" style="font-size:11px;color:var(--red);border-color:rgba(248,113,113,.3)" onclick="adminResetAll()">⚠️ Reset All → 5</button>
+      </div>
+
+      <div class="admin-log" id="adminLog">✅ Ready.</div>
       <div style="margin-top:10px;text-align:right">
         <button class="btn-admin sec" style="font-size:12px" onclick="closeAdmin()">✕ Close</button>
       </div>
@@ -568,7 +647,7 @@ update profiles set credits = 1000000<br>where email = 'email@example.com';
 <!-- Toast -->
 <div class="toast" id="toast"></div>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 // ════ CONFIG ════════════════════════════════════════════════════════
 // Groq API key lives on the backend (Render env var GROQ_API_KEY)
 // Supabase keys below are safe to be public (anon/publishable key)
@@ -1011,33 +1090,78 @@ async function onGenerate() {
     const pkgPath  = pkg.replace(/\./g, '/');
     const cfgFile  = loader === 'Fabric' ? 'src/main/resources/fabric.mod.json' : 'src/main/resources/META-INF/neoforge.mods.toml';
 
-    const sys = `You are a senior Minecraft mod developer generating a complete ${loader} mod for MC ${mcVer} in ${lang}.
+    const sys = `You are a senior Minecraft mod developer. Generate a complete, compilable ${loader} mod for Minecraft ${mcVer} in ${lang}.
 
 PACKAGE: ${pkg}   MOD_ID: ${modId}   MOD_NAME: ${modName}
 
 ${apiGuide}
 
-CRITICAL RULES:
-1. Every import must be real and exist in ${loader} ${mcVer}
-2. Every method call must exist in the class you're calling it on
-3. Check the FORBIDDEN list above — using any forbidden API = compile error
-4. Use EXACTLY the correct patterns shown in the guide above
-5. No placeholder code like "// TODO" or "// add logic here" — write real implementation
+════ IMPORT RULES — VERIFY EVERY IMPORT ════
+Before writing ANY import, ask: "Does this class exist in ${loader} ${mcVer}?"
 
-OUTPUT FORMAT — output ONLY file blocks:
-// FILE: src/main/java/${pkgPath}/${modName}.java
-[complete java code]
+FABRIC ${mcVer} CORRECT IMPORTS:
+  net.fabricmc.api.ModInitializer                          ✅ main class
+  net.minecraft.registry.Registries                        ✅ registry access
+  net.minecraft.registry.Registry                          ✅ registry.register
+  net.minecraft.util.Identifier                            ✅ use Identifier.of()
+  net.minecraft.item.Item                                  ✅
+  net.minecraft.item.Items                                 ✅ for Items.DIAMOND etc
+  net.minecraft.item.ItemStack                             ✅
+  net.minecraft.item.BlockItem                             ✅
+  net.minecraft.block.Block                                ✅
+  net.minecraft.block.AbstractBlock                        ✅ for AbstractBlock.Settings
+  net.minecraft.block.BlockState                           ✅
+  net.minecraft.block.Blocks                               ✅ vanilla blocks
+  net.minecraft.entity.player.PlayerEntity                 ✅
+  net.minecraft.entity.LivingEntity                        ✅
+  net.minecraft.entity.EntityType                          ✅
+  net.minecraft.entity.LightningEntity                     ✅
+  net.minecraft.entity.effect.StatusEffectInstance        ✅
+  net.minecraft.entity.effect.StatusEffects               ✅
+  net.minecraft.util.math.BlockPos                         ✅
+  net.minecraft.world.World                                ✅
+  net.minecraft.world.explosion.Explosion.DestructionType ✅
+  net.minecraft.util.TypedActionResult                     ✅
+  net.minecraft.util.ActionResult                          ✅
+  net.minecraft.util.Hand                                  ✅
+  java.util.Random                                         ✅
+  java.util.concurrent.ThreadLocalRandom                   ✅ (NOT net.minecraft.util.math.ThreadLocalRandom)
+  net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents ✅
+  net.fabricmc.fabric.api.event.lifecycle.v1.ClientLifecycleEvents ✅
 
-// FILE: src/main/java/${pkgPath}/AnotherClass.java
-[complete java code]
+FORBIDDEN IMPORTS (do NOT use):
+  net.minecraft.util.math.ThreadLocalRandom  ❌ DOES NOT EXIST
+  net.fabricmc.fabric.api.item.v1.FabricItemSettings ❌ REMOVED
+  net.minecraft.item.ItemGroup.COMBAT etc    ❌ REMOVED in 1.19.3+
+  net.minecraft.client.item.TooltipContext   ❌ changed in 1.21
+  net.minecraft.world.explosion.Explosion.ExplosionBehavior ❌ wrong package
 
-// FILE: ${cfgFile}
-[config file content]
+════ COMMON MISTAKES TO AVOID ════
+❌ new Item.Settings().group(...)        → group() removed
+❌ Registry.register(Registry.ITEM,...) → use Registries.ITEM
+❌ new Identifier("mod","name")          → use Identifier.of("mod","name")
+❌ player.inventory.insertStack(stack)   → use player.getInventory().insertStack(stack)
+❌ Block.Settings.of()                   → use AbstractBlock.Settings.create()
+❌ world.createExplosion(null,x,y,z,power,false,type) → check exact signature
+❌ AnotherClass.java with only a comment → MUST be a real class or don't include
+
+════ FILE RULES ════
+- Every .java FILE must contain exactly one public class matching the filename
+- If you don't need an extra class, DON'T output that file
+- AnotherClass.java must have: package ...; public class AnotherClass {}
+- fabric.mod.json schemaVersion MUST be 1
+
+OUTPUT FORMAT:
+// FILE: src/main/java/${pkg.replace(/\./g,'/')}/${modName}.java
+[complete compilable java]
+
+// FILE: ${loader === 'Fabric' ? 'src/main/resources/fabric.mod.json' : 'src/main/resources/META-INF/neoforge.mods.toml'}
+[config]
 
 // FILE: src/main/resources/assets/${modId}/lang/en_us.json
-{"item.${modId}.itemname": "Display Name"}
+{"block.${modId}.lucky_block": "Lucky Block"}
 
-No prose, no explanations outside code comments. All files must be complete and compilable.`;
+Only output files. No prose outside comments.`;
 
     const usr = `Create a working ${loader} mod for Minecraft ${mcVer} in ${lang}.
 Mod idea: ${prompt}
@@ -1439,6 +1563,12 @@ function showCode(mod, files) {
   document.getElementById('codeFile').textContent = jf.split('/').pop() || 'output.java';
   const content = (files && jf) ? files[jf] : mod.code;
   document.getElementById('codeBody').innerHTML = hlJava(content || '// No code');
+
+  // Show error checker
+  const ep = document.getElementById('errorPanel');
+  ep.style.display = 'block';
+  // Auto-run check
+  setTimeout(() => checkErrors(), 300);
 }
 
 // ════ UI HELPERS ════════════════════════════════════════════════════
@@ -1448,7 +1578,19 @@ function onCard(txt) {
   document.getElementById('promptInput').focus();
 }
 
-function toggleVerMenu(e) { e.stopPropagation(); document.getElementById('verMenu').classList.toggle('open'); document.getElementById('setPanel').classList.remove('open'); }
+function toggleVerMenu(e) {
+  e.stopPropagation();
+  const menu = document.getElementById('verMenu');
+  document.getElementById('setPanel').classList.remove('open');
+  if (menu.classList.contains('open')) { menu.classList.remove('open'); return; }
+  // Position menu above the pill using fixed coords
+  const pill = document.getElementById('verPill');
+  const rect = pill.getBoundingClientRect();
+  menu.style.left  = rect.left + 'px';
+  menu.style.bottom = (window.innerHeight - rect.top + 6) + 'px';
+  menu.style.top    = 'auto';
+  menu.classList.add('open');
+}
 function setVer(v, btn) {
   mcVer=v; document.getElementById('vLabel').textContent='MC '+v;
   document.querySelectorAll('#verMenu button').forEach(b=>b.classList.remove('sel'));
@@ -1494,7 +1636,6 @@ async function adminUnlock() {
   const logEl   = document.getElementById('adminLockLog');
   if (!entered) return;
   if (!S.sb) { logEl.textContent = '❌ Supabase not connected'; logEl.style.color='var(--red)'; return; }
-
   logEl.textContent = 'Checking...'; logEl.style.color = 'var(--text2)';
   try {
     const { data, error } = await S.sb.from('admin_settings').select('value').eq('key','admin_password').single();
@@ -1502,29 +1643,12 @@ async function adminUnlock() {
     if (data?.value === entered) {
       document.getElementById('adminLock').style.display = 'none';
       document.getElementById('adminMain').style.display = '';
-      // Fill SQL snippet for current user
-      if (S.user) {
-        document.getElementById('adminSqlMe').innerHTML =
-          `update profiles<br>set credits = 1000000<br>where email = '<span style="color:#fbbf24">${S.user.email}</span>';`;
-      }
+      adminLoadStats();
     } else {
       logEl.textContent = '❌ Wrong password'; logEl.style.color = 'var(--red)';
       document.getElementById('adminPassInput').value = '';
     }
-  } catch(e) {
-    logEl.textContent = '❌ ' + e.message; logEl.style.color = 'var(--red)';
-  }
-}
-
-function copySql(type) {
-  const sql = `update profiles set credits = 1000000 where email = '${S.user?.email || ''}';`;
-  navigator.clipboard.writeText(sql).then(() => {
-    const el = document.getElementById('adminSqlMe');
-    const orig = el.innerHTML;
-    el.textContent = '✅ Copied!';
-    el.style.color = 'var(--green)';
-    setTimeout(() => { el.innerHTML = orig; el.style.color = 'var(--green)'; }, 1500);
-  });
+  } catch(e) { logEl.textContent = '❌ ' + e.message; logEl.style.color = 'var(--red)'; }
 }
 
 function adminLog(msg, ok) {
@@ -1534,14 +1658,369 @@ function adminLog(msg, ok) {
   el.style.color = ok === true ? 'var(--green)' : ok === false ? 'var(--red)' : 'var(--text2)';
 }
 
+function setCredVal(v) { document.getElementById('adminCredits').value = v; }
 
-function hlJava(code) {
+// ── Stats ──
+async function adminLoadStats() {
+  if (!S.sb) return;
+  try {
+    const { data } = await S.sb.from('profiles').select('credits,created_at');
+    if (!data) return;
+    const today = new Date().toISOString().slice(0,10);
+    document.getElementById('statTotal').textContent   = data.length;
+    document.getElementById('statCredits').textContent = data.reduce((s,u)=>s+(u.credits||0),0);
+    document.getElementById('statToday').textContent   = data.filter(u=>u.created_at?.startsWith(today)).length;
+  } catch(e) { console.warn('stats', e); }
+}
+
+// ── Auto search ──
+let adminSearchT;
+function adminAutoSearch() {
+  clearTimeout(adminSearchT);
+  adminSearchT = setTimeout(adminGetUser, 500);
+}
+
+async function adminGetUser() {
+  const email = document.getElementById('adminEmail').value.trim();
+  const info  = document.getElementById('adminUserInfo');
+  if (!email.includes('@')) { info.style.display='none'; return; }
+  if (!S.sb) return;
+  try {
+    const { data } = await S.sb.from('profiles').select('*').eq('email', email).single();
+    if (!data) { info.style.display='block'; info.innerHTML='<span style="color:var(--red)">User not found</span>'; return; }
+    document.getElementById('adminCredits').value = data.credits;
+    info.style.display = 'block';
+    info.innerHTML = `👤 <b style="color:var(--text)">${data.username||'—'}</b> &nbsp; 💳 <b style="color:var(--green)">${data.credits} credits</b><br><span style="color:var(--text3);font-size:11px">${data.id}</span>`;
+  } catch(e) { info.style.display='block'; info.textContent='Error: '+e.message; }
+}
+
+// ── Set credits ──
+async function adminSetCredits() {
+  const email   = document.getElementById('adminEmail').value.trim();
+  const credits = parseInt(document.getElementById('adminCredits').value);
+  if (!email || isNaN(credits)) { adminLog('Enter email and credits', false); return; }
+  if (!S.sb) return;
+  adminLog('Setting...');
+  try {
+    const { data, error } = await S.sb.from('profiles').update({ credits }).eq('email', email).select();
+    if (error) throw error;
+    if (!data?.length) { adminLog('User not found', false); return; }
+    adminLog(`✅ Set ${credits} credits → ${email}`, true);
+    if (S.user?.email === email) { S.user.credits=credits; document.getElementById('navCredits').textContent=credits; document.getElementById('creditsBar').textContent=credits; }
+    adminGetUser(); adminLoadStats();
+  } catch(e) { adminLog('❌ ' + e.message, false); }
+}
+
+// ── Add credits ──
+async function adminAddCredits() {
+  const email = document.getElementById('adminEmail').value.trim();
+  const add   = parseInt(document.getElementById('adminCredits').value);
+  if (!email || isNaN(add)) { adminLog('Enter email and amount', false); return; }
+  if (!S.sb) return;
+  adminLog('Adding...');
+  try {
+    const { data: cur } = await S.sb.from('profiles').select('credits').eq('email', email).single();
+    if (!cur) { adminLog('User not found', false); return; }
+    const newC = (cur.credits||0) + add;
+    await S.sb.from('profiles').update({ credits: newC }).eq('email', email);
+    adminLog(`✅ +${add} → total ${newC} for ${email}`, true);
+    if (S.user?.email === email) { S.user.credits=newC; document.getElementById('navCredits').textContent=newC; document.getElementById('creditsBar').textContent=newC; }
+    adminGetUser(); adminLoadStats();
+  } catch(e) { adminLog('❌ ' + e.message, false); }
+}
+
+// ── Load users list ──
+async function adminLoadUsers() {
+  if (!S.sb) return;
+  adminLog('Loading...');
+  try {
+    const { data, error } = await S.sb.from('profiles').select('email,username,credits,created_at').order('created_at',{ascending:false}).limit(50);
+    if (error) throw error;
+    const list = document.getElementById('adminUsersList');
+    list.innerHTML = data.length ? data.map(u => `
+      <div style="display:flex;justify-content:space-between;padding:6px 10px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .1s" onclick="document.getElementById('adminEmail').value='${u.email}';adminGetUser()" onmouseover="this.style.background='var(--surface2)'" onmouseout="this.style.background=''">
+        <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:200px">
+          <span style="color:var(--text)">${u.username||'—'}</span>
+          <span style="color:var(--text3);font-size:10px;margin-left:4px">${u.email}</span>
+        </span>
+        <span style="color:var(--green);font-weight:600;flex-shrink:0;margin-left:8px">⚡${u.credits}</span>
+      </div>`).join('') : '<div style="padding:10px;color:var(--text3);text-align:center">No users</div>';
+    adminLog(`Loaded ${data.length} users`, true);
+    adminLoadStats();
+  } catch(e) { adminLog('❌ ' + e.message, false); }
+}
+
+// ── Give all +10 ──
+async function adminGiveAll() {
+  if (!confirm('Give ALL users +10 credits?')) return;
+  if (!S.sb) return;
+  adminLog('Processing...');
+  try {
+    const { data } = await S.sb.from('profiles').select('id,credits');
+    if (!data) return;
+    await Promise.all(data.map(u =>
+      S.sb.from('profiles').update({ credits: (u.credits||0)+10 }).eq('id', u.id)
+    ));
+    adminLog(`✅ Gave +10 to ${data.length} users`, true);
+    adminLoadStats(); adminLoadUsers();
+  } catch(e) { adminLog('❌ ' + e.message, false); }
+}
+
+// ── Reset all ──
+async function adminResetAll() {
+  if (!confirm('Reset ALL users to 5 credits?')) return;
+  if (!S.sb) return;
+  adminLog('Resetting...');
+  try {
+    await S.sb.from('profiles').update({ credits: 5 }).neq('email','');
+    adminLog('✅ All users reset to 5', true);
+    adminLoadStats(); adminLoadUsers();
+  } catch(e) { adminLog('❌ ' + e.message, false); }
+}
+
+
+// ════ ERROR CHECKER ═══════════════════════════════════════════════════
+
+// Known bad patterns with descriptions and fixes
+const ERROR_PATTERNS = [
+  {
+    id: 'bad_threadlocal',
+    re: /import\s+net\.minecraft\.util\.math\.ThreadLocalRandom/g,
+    title: 'Wrong ThreadLocalRandom import',
+    desc: 'net.minecraft.util.math.ThreadLocalRandom does not exist',
+    fix: 'import java.util.concurrent.ThreadLocalRandom',
+    severity: 'err'
+  },
+  {
+    id: 'bad_fabricitemsettings',
+    re: /import\s+net\.fabricmc\.fabric\.api\.item\.v1\.FabricItemSettings/g,
+    title: 'FabricItemSettings removed',
+    desc: 'FabricItemSettings was removed. Use new Item.Settings() instead',
+    severity: 'err'
+  },
+  {
+    id: 'bad_itemgroup',
+    re: /ItemGroup\.(COMBAT|TOOLS|FOOD|MISC|BUILDING_BLOCKS|DECORATIONS|TRANSPORTATION|SEARCH|HOTBAR|INVENTORY)/g,
+    title: 'Old ItemGroup API removed',
+    desc: 'ItemGroup.X constants were removed in 1.19.3+. Remove .group() from Item.Settings()',
+    severity: 'err'
+  },
+  {
+    id: 'bad_registry_old',
+    re: /Registry\.register\s*\(\s*Registry\.(ITEM|BLOCK|SOUND_EVENT|ENTITY_TYPE)/g,
+    title: 'Old Registry API',
+    desc: 'Registry.ITEM is old. Use Registries.ITEM instead',
+    fix: (m) => m.replace('Registry.ITEM','Registries.ITEM').replace('Registry.BLOCK','Registries.BLOCK'),
+    severity: 'err'
+  },
+  {
+    id: 'bad_new_identifier',
+    re: /new\s+Identifier\s*\(/g,
+    title: 'Deprecated Identifier constructor',
+    desc: 'Use Identifier.of("modid", "name") instead of new Identifier(...) in 1.21+',
+    severity: 'err'
+  },
+  {
+    id: 'bad_settings_of',
+    re: /Block\.Settings\.of\s*\(/g,
+    title: 'Block.Settings.of() removed',
+    desc: 'Use AbstractBlock.Settings.create() instead of Block.Settings.of()',
+    severity: 'err'
+  },
+  {
+    id: 'bad_hardness',
+    re: /new\s+(Block|Item)\.Settings\s*\(\s*\)\.hardness\s*\(/g,
+    title: 'hardness() replaced by strength()',
+    desc: 'Use .strength(hardness, resistance) instead of .hardness()',
+    severity: 'err'
+  },
+  {
+    id: 'bad_requirestool',
+    re: /\.requiresTool\s*\(\s*\)/g,
+    title: 'requiresTool() may not exist',
+    desc: 'In 1.21 use .requiresCorrectToolForDrops() instead of .requiresTool()',
+    severity: 'warn'
+  },
+  {
+    id: 'empty_java_file',
+    re: /^\/\/\s*(No additional|Placeholder|Empty)/im,
+    title: 'Empty/placeholder Java file',
+    desc: 'A .java file must contain a real class, not just a comment',
+    severity: 'err'
+  },
+  {
+    id: 'bad_schema_v2',
+    re: /"schemaVersion"\s*:\s*2/g,
+    title: 'Wrong schemaVersion in fabric.mod.json',
+    desc: 'schemaVersion must be 1, not 2',
+    severity: 'err'
+  },
+  {
+    id: 'missing_items_import',
+    re: /Items\.(DIAMOND|GOLD_INGOT|IRON_INGOT|EMERALD|NETHERITE_INGOT|REDSTONE|LAPIS_LAZULI)/g,
+    check: (code) => code.includes('Items.') && !code.includes('import net.minecraft.item.Items'),
+    title: 'Missing Items import',
+    desc: 'Using Items.X but missing: import net.minecraft.item.Items;',
+    severity: 'err'
+  },
+  {
+    id: 'missing_entitytype_import',
+    re: /EntityType\.(LIGHTNING_BOLT|ZOMBIE|SKELETON|CREEPER)/g,
+    check: (code) => /EntityType\.\w+/.test(code) && !code.includes('import net.minecraft.entity.EntityType'),
+    title: 'Missing EntityType import',
+    desc: 'Using EntityType.X but missing: import net.minecraft.entity.EntityType;',
+    severity: 'err'
+  },
+  {
+    id: 'bad_inventory_access',
+    re: /player\.inventory\.(insertStack|getStack|removeStack)/g,
+    title: 'Direct inventory access removed',
+    desc: 'Use player.getInventory().insertStack() instead of player.inventory.insertStack()',
+    severity: 'err'
+  },
+  {
+    id: 'bad_schemaver',
+    re: /"schemaVersion"\s*:\s*([^1\s,}])/,
+    title: 'Wrong schemaVersion',
+    desc: 'fabric.mod.json schemaVersion must be 1',
+    severity: 'warn'
+  }
+];
+
+let _checkedFiles = {};
+let _foundErrors  = [];
+
+function checkErrors() {
+  const m = S.activeMod;
+  if (!m?.code) return;
+
+  const files = parseModFiles(m.code, m);
+  _checkedFiles = files;
+  _foundErrors = [];
+
+  for (const [filePath, content] of Object.entries(files)) {
+    for (const pattern of ERROR_PATTERNS) {
+      let found = false;
+      if (pattern.check) {
+        found = pattern.check(content);
+      } else if (pattern.re) {
+        pattern.re.lastIndex = 0;
+        found = pattern.re.test(content);
+        pattern.re.lastIndex = 0;
+      }
+      if (found) {
+        _foundErrors.push({ ...pattern, file: filePath.split('/').pop(), filePath });
+      }
+    }
+  }
+
+  renderErrors();
+}
+
+function renderErrors() {
+  const container = document.getElementById('epErrors');
+  const fixBtn    = document.getElementById('fixBtn');
+  const checkBtn  = document.getElementById('checkBtn');
+
+  if (_foundErrors.length === 0) {
+    container.innerHTML = `<div class="ep-item ok"><span class="ep-icon">✅</span><div class="ep-body"><div class="ep-title">No errors found!</div><div class="ep-desc">Code looks good for this version.</div></div></div>`;
+    fixBtn.style.display = 'none';
+    return;
+  }
+
+  container.innerHTML = _foundErrors.map((e, i) => `
+    <div class="ep-item ${e.severity}">
+      <input type="checkbox" class="ep-chk" id="epchk${i}" checked>
+      <span class="ep-icon">${e.severity === 'err' ? '❌' : '⚠️'}</span>
+      <div class="ep-body">
+        <div class="ep-title">${e.title}</div>
+        <div class="ep-desc">${e.desc}</div>
+        <div class="ep-file">${e.file}</div>
+      </div>
+    </div>`).join('');
+
+  fixBtn.style.display = '';
+  fixBtn.textContent = `🔧 Fix ${_foundErrors.length} error${_foundErrors.length>1?'s':''} with AI`;
+}
+
+async function fixErrors() {
+  const m = S.activeMod;
+  if (!m?.code || _foundErrors.length === 0) return;
+
+  const selected = _foundErrors.filter((_,i) => document.getElementById('epchk'+i)?.checked);
+  if (!selected.length) { showToast('Select at least one error to fix'); return; }
+
+  const autoFix = document.getElementById('autoFixChk').checked;
+  const fixBtn  = document.getElementById('fixBtn');
+  fixBtn.disabled = true; fixBtn.textContent = '🤖 Fixing...';
+
+  const container = document.getElementById('epErrors');
+  container.innerHTML = `<div class="ep-item"><span class="ep-icon">🤖</span><div class="ep-body"><div class="ep-title">AI is fixing errors...</div><div class="ep-desc">This may take 15-30 seconds</div></div></div>`;
+
+  try {
+    const errorList = selected.map(e => `- ${e.title}: ${e.desc} (in ${e.file})`).join('\n');
+    const javaFiles = Object.entries(_checkedFiles)
+      .filter(([p]) => p.endsWith('.java'))
+      .map(([p, c]) => `// FILE: ${p}\n${c}`).join('\n\n---\n\n');
+
+    const sys = `You are a Minecraft mod expert. Fix ONLY the listed errors in the Java source files.
+Loader: ${m.loader}, MC version: ${m.version}
+
+ERRORS TO FIX:
+${errorList}
+
+OUTPUT FORMAT — output ONLY fixed .java files:
+// FILE: src/main/java/path/ClassName.java
+[corrected java code]
+
+Rules:
+- Fix EVERY listed error
+- Keep all existing functionality
+- Use correct imports for ${m.loader} ${m.version}
+- Output ALL java files (fixed and unchanged ones)
+- No prose outside code comments`;
+
+    const usr = `Fix these errors in my mod files:\n${errorList}\n\nSOURCE FILES:\n${javaFiles}`;
+
+    const data = await groqFetch(sys, usr);
+    const raw  = data.choices?.[0]?.message?.content || '';
+
+    // Parse fixed files
+    const fixed = parseModFiles(raw, m);
+    if (Object.keys(fixed).length === 0) throw new Error('AI returned no files');
+
+    // Merge into mod code — rebuild code string
+    const allFiles = { ..._checkedFiles, ...fixed };
+    const newCode = Object.entries(allFiles)
+      .map(([p, c]) => `// FILE: ${p}\n${c}`).join('\n\n');
+    m.code = newCode;
+    saveMods();
+
+    // Refresh code view
+    const jf = Object.keys(allFiles).find(f => f.endsWith('.java')) || '';
+    document.getElementById('codeFile').textContent = jf.split('/').pop() || 'output.java';
+    document.getElementById('codeBody').innerHTML = hlJava(allFiles[jf] || raw);
+
+    showToast('✅ Errors fixed!', true);
+
+    // Re-check
+    checkErrors();
+
+    // Auto-fix loop
+    if (autoFix && _foundErrors.length > 0) {
+      setTimeout(() => fixErrors(), 1000);
+    }
+
+  } catch(err) {
+    showToast('❌ Fix failed: ' + err.message);
+    checkErrors();
+  } finally {
+    fixBtn.disabled = false;
+  }
+}
+
   return code.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
     .replace(/(\/\/[^\n]*)/g,'<span style="color:#546e7a;font-style:italic">$1</span>')
     .replace(/("(?:[^"\\]|\\.)*")/g,'<span style="color:#c3e88d">$1</span>')
     .replace(/(@\w+)/g,'<span style="color:#ffcb6b">$1</span>')
-    .replace(/\b(public|private|protected|class|interface|extends|implements|new|return|void|static|final|import|package|if|else|for|while|try|catch|super|this|null|true|false)\b/g,'<span style="color:#c792ea">$1</span>');
-}
-</script>
-</body>
-</html>
+    .replace(/\b(public
