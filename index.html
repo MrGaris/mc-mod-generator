@@ -640,7 +640,7 @@ body::before{content:'';position:fixed;inset:0;background-image:radial-gradient(
     <div class="gen-spinner"></div>
     <div class="gen-msg" id="genMsg">Thinking...</div>
     <div class="gen-sub" id="genTimer" style="font-family:'Courier New',monospace;color:var(--green);margin-top:4px">0s</div>
-    <div class="gen-sub">DeepSeek R1 reasoning model</div>
+    <div class="gen-sub">Qwen3 Coder via OpenRouter</div>
   </div>
 </div>
 
@@ -1447,7 +1447,7 @@ async function groqFetch(sys, usr) {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ system: sys, user: usr }),
-    signal: AbortSignal.timeout(60000)
+    signal: AbortSignal.timeout(180000) // 3 хв для reasoning моделі
   });
   if (!r.ok) {
     const e = await r.json().catch(() => ({}));
