@@ -481,8 +481,9 @@ body::before{content:'';position:fixed;inset:0;background-image:radial-gradient(
 <div class="gen-overlay" id="genOverlay">
   <div class="gen-box">
     <div class="gen-spinner"></div>
-    <div class="gen-msg" id="genMsg">Generating your mod...</div>
-    <div class="gen-sub">This may take 10–20 seconds</div>
+    <div class="gen-msg" id="genMsg">Thinking...</div>
+    <div class="gen-sub" id="genTimer" style="font-family:'Courier New',monospace;color:var(--green);margin-top:4px">0s</div>
+    <div class="gen-sub">DeepSeek R1 reasoning model</div>
   </div>
 </div>
 
@@ -803,8 +804,29 @@ async function onGenerate() {
 
   const ov = document.getElementById('genOverlay');
   ov.classList.add('show');
-  let mi = 0;
-  const iv = setInterval(() => { document.getElementById('genMsg').textContent = genMsgs[mi++ % genMsgs.length]; }, 2500);
+
+  // Thinking timer
+  const timerEl = document.getElementById('genTimer');
+  const msgEl   = document.getElementById('genMsg');
+  const startTs = Date.now();
+  const thinkMsgs = [
+    '🧠 Thinking about mod structure...',
+    '🔍 Analyzing Minecraft APIs...',
+    '⚙️ Planning class architecture...',
+    '📝 Writing source code...',
+    '🔧 Optimizing implementation...',
+    '✅ Finalizing code...',
+  ];
+  let tmi = 0;
+  const timerIv = setInterval(() => {
+    const secs = Math.floor((Date.now() - startTs) / 1000);
+    timerEl.textContent = secs + 's';
+    if (tmi < thinkMsgs.length && secs >= tmi * 3) {
+      msgEl.textContent = thinkMsgs[tmi];
+      tmi++;
+    }
+  }, 500);
+
   const btn = document.getElementById('genBtn');
   btn.disabled = true; btn.classList.add('ld');
 
@@ -842,6 +864,7 @@ Rules: correct package declarations, all imports present, no placeholder comment
     const rawCode = data.choices?.[0]?.message?.content || '';
     mod.code = rawCode;
     setStep(0, 'done');
+    clearInterval(timerIv);
 
     // Step 1 — parse
     setStep(1, 'run');
@@ -871,12 +894,12 @@ Rules: correct package declarations, all imports present, no placeholder comment
     document.getElementById('creditsBar').textContent = S.user.credits;
 
     mod.built = true; saveMods(); renderSidebar();
-    clearInterval(iv); ov.classList.remove('show');
+    clearInterval(timerIv); ov.classList.remove('show');
     showDL(); showCode(mod, files);
     showToast('✅ Project ready! Download ZIP → run gradlew build', true);
 
   } catch(err) {
-    clearInterval(iv); ov.classList.remove('show');
+    clearInterval(timerIv); ov.classList.remove('show');
     showToast('❌ ' + err.message);
     setStep(0, 'err');
   } finally {
