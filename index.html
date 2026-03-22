@@ -366,19 +366,55 @@ html,body{height:100%;background:var(--night);color:var(--white);font-family:var
 .small-btn{background:none;border:1px solid var(--grey3);color:var(--grey);font-family:var(--fm);font-size:10px;padding:3px 8px;cursor:pointer;transition:all .1s}
 .small-btn:hover{border-color:var(--grass);color:var(--leaf)}
 
-/* Code panel */
-.code-panel{background:var(--night);border:2px solid var(--grass);margin-bottom:12px;display:none;box-shadow:3px 3px 0 var(--grass2)}
-.cph{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;border-bottom:1px solid var(--grey3);background:var(--night2)}
-.cphl{font-family:var(--fp);font-size:7px;color:var(--leaf);letter-spacing:2px;display:flex;align-items:center;gap:10px}
-.mc-dots{display:flex;gap:5px}
+/* ═══ IDE EDITOR ═══════════════════════════════════════════ */
+.ide{background:var(--night);border:2px solid var(--grass);margin-bottom:12px;display:none;box-shadow:3px 3px 0 var(--grass2)}
+/* Title bar */
+.ide-bar{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;border-bottom:1px solid var(--grey3);background:var(--night2);gap:8px}
+.mc-dots{display:flex;gap:5px;flex-shrink:0}
 .mcd{width:10px;height:10px;image-rendering:pixelated}
-.mcd.r{background:#ff5f57}
-.mcd.y{background:#febc2e}
-.mcd.g{background:var(--leaf)}
-.cpa{display:flex;gap:6px}
+.mcd.r{background:#ff5f57}.mcd.y{background:#febc2e}.mcd.g{background:var(--leaf)}
+.ide-title{font-family:var(--fp);font-size:7px;color:var(--leaf);letter-spacing:1px;flex:1}
+.ide-actions{display:flex;gap:5px;flex-shrink:0}
+/* File tabs */
+.ide-tabs{display:flex;border-bottom:1px solid var(--grey3);background:var(--night3);overflow-x:auto;scrollbar-width:none}
+.ide-tabs::-webkit-scrollbar{display:none}
+.ide-tab{display:flex;align-items:center;gap:6px;padding:7px 14px;font-family:var(--fm);font-size:10px;color:var(--grey2);border-right:1px solid var(--grey3);white-space:nowrap;cursor:pointer;transition:all .1s;flex-shrink:0;border-bottom:2px solid transparent}
+.ide-tab:hover{color:var(--white);background:var(--night4)}
+.ide-tab.active{color:var(--leaf);background:var(--night);border-bottom-color:var(--grass)}
+.ide-tab .tab-dot{width:5px;height:5px;border-radius:50%;background:var(--gold);display:none}
+.ide-tab.modified .tab-dot{display:block}
+/* Editor area: line numbers + textarea */
+.ide-editor{display:flex;position:relative;height:360px}
+.ide-lines{width:44px;flex-shrink:0;background:var(--night2);border-right:1px solid var(--grey3);padding:14px 0;font-family:var(--fm);font-size:11px;color:var(--grey3);line-height:1.75;text-align:right;padding-right:8px;overflow:hidden;user-select:none}
+.ide-textarea{flex:1;background:var(--night);border:none;outline:none;resize:none;font-family:var(--fm);font-size:11px;color:#a8d8a8;line-height:1.75;padding:14px 16px;caret-color:var(--leaf);tab-size:2;white-space:pre;overflow:auto;height:100%}
+.ide-textarea::selection{background:rgba(92,148,54,.3)}
+/* AI edit bar */
+.ide-ai{border-top:1px solid var(--grey3);background:var(--night2);padding:10px 12px;display:flex;flex-direction:column;gap:8px}
+.ide-ai-top{display:flex;align-items:center;gap:8px;font-family:var(--fp);font-size:7px;color:var(--leaf);letter-spacing:1px}
+.ide-ai-top::before{content:'🤖'}
+.ide-prompt-row{display:flex;gap:6px}
+.ide-prompt{flex:1;background:var(--night);border:1px solid var(--grey3);color:var(--white);font-family:var(--fm);font-size:11px;padding:8px 10px;outline:none;caret-color:var(--leaf);transition:border-color .1s}
+.ide-prompt:focus{border-color:var(--grass)}
+.ide-prompt::placeholder{color:var(--grey3)}
+.ide-send{background:var(--grass);color:var(--white);border:none;font-family:var(--fp);font-size:7px;padding:8px 14px;letter-spacing:1px;cursor:pointer;box-shadow:2px 2px 0 var(--grass2);transition:all .1s;white-space:nowrap;flex-shrink:0}
+.ide-send:hover{transform:translate(-1px,-1px);box-shadow:3px 3px 0 var(--grass2)}
+.ide-send:disabled{background:var(--grey3);color:var(--grey2);box-shadow:none;transform:none}
+/* Diff view */
+.ide-diff{border-top:1px solid var(--grey3);background:var(--night);max-height:260px;overflow-y:auto;display:none}
+.diff-header{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;background:var(--night2);border-bottom:1px solid var(--grey3)}
+.diff-stats{display:flex;gap:12px;font-family:var(--fp);font-size:7px;letter-spacing:1px}
+.diff-add{color:#40c060}.diff-del{color:#c04040}
+.diff-body{font-family:var(--fm);font-size:11px;line-height:1.75}
+.diff-line{display:flex;gap:0;min-height:20px}
+.diff-ln{width:44px;flex-shrink:0;padding:0 8px 0 0;text-align:right;color:var(--grey3);font-size:10px;user-select:none;border-right:1px solid var(--grey3)}
+.diff-content{flex:1;padding:0 16px;white-space:pre-wrap;word-break:break-word}
+.diff-line.add{background:rgba(64,192,96,.08)}.diff-line.add .diff-content{color:#60c878}
+.diff-line.del{background:rgba(192,64,64,.08)}.diff-line.del .diff-content{color:#c06060;text-decoration:line-through}
+.diff-line.ctx .diff-content{color:var(--grey2)}
+.diff-apply-row{padding:8px 14px;display:flex;gap:8px;border-top:1px solid var(--grey3);background:var(--night2)}
+/* Cbtn reuse */
 .cbtn{background:var(--night2);border:1px solid var(--grey3);color:var(--grey);font-family:var(--fm);font-size:10px;padding:3px 8px;cursor:pointer;transition:all .1s}
 .cbtn:hover{border-color:var(--grass);color:var(--leaf)}
-.code-body{padding:16px;font-family:var(--fm);font-size:11px;color:#7cb87c;line-height:1.8;white-space:pre-wrap;word-break:break-word;overflow-y:auto;max-height:380px;background:var(--night)}
 
 /* Error panel */
 .ep{background:var(--night2);border:2px solid var(--grey3);margin-bottom:12px;box-shadow:3px 3px 0 var(--grey3)}
@@ -697,15 +733,50 @@ html,body{height:100%;background:var(--night);color:var(--white);font-family:var
           <div class="api-row"><span>COMPILER:</span><span class="api-val" id="apiUrlDisplay">not set</span><button class="small-btn" onclick="setApiUrl()" style="margin-left:auto">CHANGE</button></div>
         </div>
 
-        <div class="code-panel" id="codePanel">
-          <div class="cph">
-            <div class="cphl">
-              <div class="mc-dots"><div class="mcd r"></div><div class="mcd y"></div><div class="mcd g"></div></div>
-              <span id="codeFile">ModMain.java</span>
+        <!-- IDE EDITOR -->
+        <div class="ide" id="codePanel">
+          <!-- Title bar -->
+          <div class="ide-bar">
+            <div class="mc-dots"><div class="mcd r"></div><div class="mcd y"></div><div class="mcd g"></div></div>
+            <span class="ide-title">// EDITOR</span>
+            <div class="ide-actions">
+              <button class="cbtn" id="copyBtn" onclick="copyCode()">COPY</button>
+              <button class="cbtn" onclick="ideToggle()">COLLAPSE</button>
             </div>
-            <div class="cpa"><button class="cbtn" id="copyBtn" onclick="copyCode()">COPY</button><button class="cbtn" onclick="toggleCode()">COLLAPSE</button></div>
           </div>
-          <div class="code-body" id="codeBody"></div>
+          <!-- File tabs -->
+          <div class="ide-tabs" id="ideTabs"></div>
+          <!-- Editor -->
+          <div class="ide-editor" id="ideEditorWrap">
+            <div class="ide-lines" id="ideLines">1</div>
+            <textarea class="ide-textarea" id="ideTextarea" spellcheck="false" oninput="onIdeInput()" onscroll="syncScroll()" onkeydown="ideKeydown(event)"></textarea>
+          </div>
+          <!-- AI edit bar -->
+          <div class="ide-ai">
+            <div class="ide-ai-top">AI EDIT</div>
+            <div class="ide-prompt-row">
+              <input class="ide-prompt" id="idePromptInput" type="text"
+                placeholder="describe what to change, e.g. 'add right-click teleport ability'..."
+                onkeydown="if(event.key==='Enter')ideAiEdit()">
+              <button class="ide-send" id="ideSendBtn" onclick="ideAiEdit()">[ EDIT ]</button>
+            </div>
+          </div>
+          <!-- Diff view -->
+          <div class="ide-diff" id="ideDiff">
+            <div class="diff-header">
+              <div class="diff-stats">
+                <span class="diff-add" id="diffAdded">+0 lines</span>
+                <span class="diff-del" id="diffRemoved">-0 lines</span>
+              </div>
+              <span style="font-family:var(--fp);font-size:7px;color:var(--grey2);letter-spacing:1px" id="diffFile"></span>
+            </div>
+            <div class="diff-body" id="diffBody"></div>
+            <div class="diff-apply-row">
+              <button class="cbtn" style="background:var(--grass);color:var(--white);border-color:var(--grass)" onclick="applyDiff()">APPLY CHANGES</button>
+              <button class="cbtn" onclick="discardDiff()">DISCARD</button>
+              <span id="diffHint" style="font-size:10px;color:var(--grey2);margin-left:auto;font-family:var(--fm)"></span>
+            </div>
+          </div>
         </div>
 
         <div class="ep" id="errorPanel" style="display:none">
@@ -904,9 +975,268 @@ function updateApiDisplay(){const e=document.getElementById('apiUrlDisplay');if(
 async function compileAndDownloadJar(){const m=S.activeMod;if(!m?.code){showToast('NO MOD TO COMPILE','err');return;}const btn=document.getElementById('dlJarBtn'),ic=document.getElementById('dlJarIco'),tt=document.getElementById('dlJarTitle'),sb=document.getElementById('dlJarSub');btn.style.opacity='0.6';btn.style.pointerEvents='none';ic.textContent='⏳';tt.textContent='COMPILING...';sb.textContent='// first build ~5-10 min';try{const files=parseMF(m.code,m),r=await fetch(getApiUrl()+'/compile',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({modId:m.modId,modName:m.name,loader:m.loader,mcVersion:m.version,files}),signal:AbortSignal.timeout(10*60*1000)});if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e.details||e.error||'HTTP '+r.status);}const cd=r.headers.get('Content-Disposition')||'',match=cd.match(/filename="?([^"]+)"?/),fn=match?match[1]:m.modId+'-1.0.0.jar';dlFile(await r.blob(),fn);showToast('JAR DOWNLOADED','ok');}catch(err){showToast('ERROR: '+err.message.slice(0,40),'err');}finally{btn.style.opacity='1';btn.style.pointerEvents='';ic.textContent='☕';tt.textContent='DOWNLOAD JAR';sb.textContent='// server-compiled → drop in mods/';}}
 function downloadZip(){const m=S.activeMod;if(!m?.zipBlob){showToast('NO PROJECT BUILT','err');return;}dlFile(m.zipBlob,m.modId+'-project.zip');showToast('ZIP DOWNLOADED','ok');}
 function dlFile(b,n){const a=Object.assign(document.createElement('a'),{href:URL.createObjectURL(b),download:n});a.click();}
-function copyCode(){if(!S.activeMod?.code)return;navigator.clipboard.writeText(S.activeMod.code).then(()=>{const b=document.getElementById('copyBtn');b.textContent='COPIED!';setTimeout(()=>b.textContent='COPY',1500);});}
-function toggleCode(){const b=document.getElementById('codeBody');b.style.display=b.style.display==='none'?'':'none';}
-function showCode(mod,files){const cp=document.getElementById('codePanel');cp.style.display='block';const jf=Object.keys(files||{}).find(f=>f.endsWith('.java'))||'';document.getElementById('codeFile').textContent=jf.split('/').pop()||'output.java';const c=(files&&jf)?files[jf]:mod.code;document.getElementById('codeBody').innerHTML=hlJ(c||'// no code');document.getElementById('errorPanel').style.display='block';setTimeout(()=>checkErrors(),300);}
+// ═══ IDE EDITOR ══════════════════════════════════════════════════════
+const IDE = {
+  files: {},       // { filepath: content }
+  active: null,    // active filepath
+  modified: {},    // { filepath: true } — unsaved
+  pendingDiff: null,
+};
+
+function showCode(mod, files) {
+  IDE.files = files && Object.keys(files).length ? { ...files } : {};
+  // fallback: if no parsed files but raw code exists
+  if (!Object.keys(IDE.files).length && mod.code) {
+    const jp = `src/main/java/${mod.pkg.replace(/\./g,'/')}/${mod.name}.java`;
+    IDE.files[jp] = mod.code;
+  }
+  IDE.active = Object.keys(IDE.files).find(f => f.endsWith('.java'))
+             || Object.keys(IDE.files)[0]
+             || null;
+  IDE.modified = {};
+  renderIdeTabs();
+  loadActiveFile();
+  document.getElementById('codePanel').style.display = 'block';
+  document.getElementById('errorPanel').style.display = 'block';
+  setTimeout(() => checkErrors(), 300);
+}
+
+function renderIdeTabs() {
+  const tabs = document.getElementById('ideTabs');
+  tabs.innerHTML = Object.keys(IDE.files).map(fp => {
+    const name = fp.split('/').pop();
+    const isActive = fp === IDE.active;
+    const isMod = IDE.modified[fp];
+    return `<div class="ide-tab ${isActive?'active':''} ${isMod?'modified':''}" onclick="switchTab('${fp}')">
+      <span>${name}</span>
+      <span class="tab-dot"></span>
+    </div>`;
+  }).join('');
+}
+
+function switchTab(fp) {
+  // save current
+  if (IDE.active) {
+    IDE.files[IDE.active] = document.getElementById('ideTextarea').value;
+  }
+  IDE.active = fp;
+  renderIdeTabs();
+  loadActiveFile();
+  // hide diff when switching
+  document.getElementById('ideDiff').style.display = 'none';
+}
+
+function loadActiveFile() {
+  if (!IDE.active) return;
+  const ta = document.getElementById('ideTextarea');
+  ta.value = IDE.files[IDE.active] || '';
+  updateLineNumbers();
+}
+
+function updateLineNumbers() {
+  const ta = document.getElementById('ideTextarea');
+  const lines = ta.value.split('\n').length;
+  const ln = document.getElementById('ideLines');
+  ln.innerHTML = Array.from({length: lines}, (_, i) => i + 1).join('<br>');
+}
+
+function onIdeInput() {
+  if (IDE.active) {
+    IDE.files[IDE.active] = document.getElementById('ideTextarea').value;
+    IDE.modified[IDE.active] = true;
+    // persist back to mod
+    if (S.activeMod) {
+      S.activeMod.code = Object.entries(IDE.files)
+        .map(([p,c]) => `// FILE: ${p}\n${c}`).join('\n\n');
+      saveMods();
+    }
+    renderIdeTabs();
+  }
+  updateLineNumbers();
+}
+
+function syncScroll() {
+  const ta = document.getElementById('ideTextarea');
+  document.getElementById('ideLines').scrollTop = ta.scrollTop;
+}
+
+function ideKeydown(e) {
+  // Tab inserts 2 spaces
+  if (e.key === 'Tab') {
+    e.preventDefault();
+    const ta = e.target;
+    const s = ta.selectionStart, end = ta.selectionEnd;
+    ta.value = ta.value.slice(0, s) + '  ' + ta.value.slice(end);
+    ta.selectionStart = ta.selectionEnd = s + 2;
+    onIdeInput();
+  }
+}
+
+function ideToggle() {
+  const wrap = document.getElementById('ideEditorWrap');
+  const diff = document.getElementById('ideDiff');
+  const ai   = document.querySelector('.ide-ai');
+  const hidden = wrap.style.display === 'none';
+  wrap.style.display = hidden ? 'flex' : 'none';
+  diff.style.display = 'none';
+  ai.style.display   = hidden ? '' : 'none';
+}
+
+function copyCode() {
+  if (!IDE.active || !IDE.files[IDE.active]) return;
+  navigator.clipboard.writeText(IDE.files[IDE.active]).then(() => {
+    const b = document.getElementById('copyBtn');
+    b.textContent = 'COPIED!';
+    setTimeout(() => b.textContent = 'COPY', 1500);
+  });
+}
+
+// ── AI EDIT ──────────────────────────────────────────────────────────
+async function ideAiEdit() {
+  const prompt = document.getElementById('idePromptInput').value.trim();
+  if (!prompt) { document.getElementById('idePromptInput').focus(); return; }
+  if (!IDE.active || !IDE.files[IDE.active]) { showToast('NO FILE OPEN','err'); return; }
+  if (!S.user) { openAuth('register'); return; }
+
+  const m = S.activeMod;
+  const btn = document.getElementById('ideSendBtn');
+  btn.disabled = true; btn.textContent = '[ ... ]';
+  document.getElementById('ideDiff').style.display = 'none';
+
+  const fileName = IDE.active.split('/').pop();
+  const currentCode = IDE.files[IDE.active];
+
+  const sys = `You are a Minecraft mod code editor. The user wants to modify a file.
+You MUST respond in this exact format and nothing else:
+
+CHANGES_SUMMARY: <one line describing what you changed>
+ADDED_LINES: <number>
+REMOVED_LINES: <number>
+FILE_START
+<complete updated file content>
+FILE_END
+
+Rules:
+- Output the COMPLETE updated file between FILE_START and FILE_END
+- Keep all existing functionality unless told otherwise
+- Use correct ${m?.loader||'Fabric'} ${m?.version||'1.21.1'} APIs`;
+
+  const usr = `File: ${IDE.active}
+User request: ${prompt}
+
+Current code:
+${currentCode}`;
+
+  try {
+    const data = await groqFetch(sys, usr);
+    const raw = data.choices?.[0]?.message?.content || '';
+    if (!raw) throw new Error('Empty response');
+
+    // Parse response
+    const summaryM = raw.match(/CHANGES_SUMMARY:\s*(.+)/);
+    const addedM   = raw.match(/ADDED_LINES:\s*(\d+)/);
+    const removedM = raw.match(/REMOVED_LINES:\s*(\d+)/);
+    const fileM    = raw.match(/FILE_START\n([\s\S]*?)\nFILE_END/);
+
+    if (!fileM) throw new Error('Could not parse AI response');
+
+    const newCode  = fileM[1].trim();
+    const added    = parseInt(addedM?.[1] || '0');
+    const removed  = parseInt(removedM?.[1] || '0');
+    const summary  = summaryM?.[1] || prompt;
+
+    // Build diff
+    IDE.pendingDiff = { fp: IDE.active, oldCode: currentCode, newCode, added, removed, summary };
+    renderDiff(currentCode, newCode, added, removed, fileName, summary);
+
+    document.getElementById('idePromptInput').value = '';
+  } catch (err) {
+    showToast('AI EDIT FAILED: ' + err.message.slice(0, 30), 'err');
+  }
+  btn.disabled = false; btn.textContent = '[ EDIT ]';
+}
+
+function renderDiff(oldCode, newCode, added, removed, fileName, summary) {
+  const oldLines = oldCode.split('\n');
+  const newLines = newCode.split('\n');
+
+  // Simple line-by-line diff
+  const diffLines = [];
+  const maxLen = Math.max(oldLines.length, newLines.length);
+
+  // Use LCS-like approach: find changed regions
+  let oldI = 0, newI = 0;
+  const CONTEXT = 3;
+
+  // Build a simple unified diff
+  const changes = [];
+  for (let i = 0; i < Math.max(oldLines.length, newLines.length); i++) {
+    const o = oldLines[i], n = newLines[i];
+    if (o === undefined) changes.push({ type: 'add', line: n, newLn: i+1 });
+    else if (n === undefined) changes.push({ type: 'del', line: o, oldLn: i+1 });
+    else if (o !== n) {
+      changes.push({ type: 'del', line: o, oldLn: i+1 });
+      changes.push({ type: 'add', line: n, newLn: i+1 });
+    } else {
+      changes.push({ type: 'ctx', line: o, oldLn: i+1, newLn: i+1 });
+    }
+  }
+
+  // Show only context around changes (collapse unchanged sections)
+  const changedIdxs = new Set();
+  changes.forEach((c, i) => { if (c.type !== 'ctx') { for (let j = Math.max(0,i-CONTEXT); j <= Math.min(changes.length-1,i+CONTEXT); j++) changedIdxs.add(j); }});
+
+  let html = '';
+  let lastShown = -1;
+  changes.forEach((c, i) => {
+    if (!changedIdxs.has(i)) return;
+    if (lastShown !== -1 && i > lastShown + 1) {
+      html += `<div class="diff-line ctx" style="opacity:.3"><div class="diff-ln">···</div><div class="diff-content"></div></div>`;
+    }
+    const ln = c.oldLn || c.newLn || '';
+    const esc = (s) => (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    const prefix = c.type === 'add' ? '+' : c.type === 'del' ? '-' : ' ';
+    html += `<div class="diff-line ${c.type}"><div class="diff-ln">${ln}</div><div class="diff-content">${prefix} ${esc(c.line)}</div></div>`;
+    lastShown = i;
+  });
+
+  document.getElementById('diffBody').innerHTML = html || '<div style="padding:12px 16px;color:var(--grey2);font-size:11px">// no visible changes in context</div>';
+  document.getElementById('diffAdded').textContent   = `+${added} lines`;
+  document.getElementById('diffRemoved').textContent = `-${removed} lines`;
+  document.getElementById('diffFile').textContent    = fileName;
+  document.getElementById('diffHint').textContent    = summary;
+  document.getElementById('ideDiff').style.display   = 'block';
+  // Scroll to diff
+  document.getElementById('ideDiff').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function applyDiff() {
+  if (!IDE.pendingDiff) return;
+  const { fp, newCode, added, removed } = IDE.pendingDiff;
+  IDE.files[fp] = newCode;
+  IDE.modified[fp] = true;
+  if (IDE.active === fp) {
+    document.getElementById('ideTextarea').value = newCode;
+    updateLineNumbers();
+  }
+  // persist
+  if (S.activeMod) {
+    S.activeMod.code = Object.entries(IDE.files).map(([p,c]) => `// FILE: ${p}\n${c}`).join('\n\n');
+    saveMods();
+  }
+  renderIdeTabs();
+  document.getElementById('ideDiff').style.display = 'none';
+  IDE.pendingDiff = null;
+  showToast(`APPLIED +${added} -${removed}`, 'ok');
+  // re-check errors
+  setTimeout(() => checkErrors(), 200);
+}
+
+function discardDiff() {
+  IDE.pendingDiff = null;
+  document.getElementById('ideDiff').style.display = 'none';
+  showToast('CHANGES DISCARDED', '');
+}
 function onCard(t){if(!S.user){openAuth('register');return;}document.getElementById('promptInput').value=t;document.getElementById('promptInput').focus();}
 
 function toggleVerMenu(e){e.stopPropagation();const m=document.getElementById('verMenu');document.getElementById('setPanel').classList.remove('open');if(m.classList.contains('open')){m.classList.remove('open');return;}const p=document.getElementById('verPill'),r=p.getBoundingClientRect();m.style.left=r.left+'px';m.style.bottom=(window.innerHeight-r.top+6)+'px';m.style.top='auto';m.classList.add('open');}
@@ -938,9 +1268,9 @@ async function adminResetAll(){if(!confirm('Reset ALL to 5?'))return;if(!S.sb)re
 
 const EPATS=[{id:'a',re:/import\s+net\.minecraft\.util\.math\.ThreadLocalRandom/g,title:'Wrong ThreadLocalRandom import',desc:'Use java.util.concurrent.ThreadLocalRandom',severity:'err'},{id:'b',re:/import\s+net\.fabricmc\.fabric\.api\.item\.v1\.FabricItemSettings/g,title:'FabricItemSettings removed',desc:'Use new Item.Settings()',severity:'err'},{id:'c',re:/ItemGroup\.(COMBAT|TOOLS|FOOD|MISC|BUILDING_BLOCKS|DECORATIONS)/g,title:'Old ItemGroup API removed',desc:'Remove .group() from Item.Settings()',severity:'err'},{id:'d',re:/Registry\.register\s*\(\s*Registry\.(ITEM|BLOCK)/g,title:'Old Registry API',desc:'Use Registries.ITEM not Registry.ITEM',severity:'err'},{id:'e',re:/new\s+Identifier\s*\(/g,title:'Deprecated Identifier constructor',desc:'Use Identifier.of() in 1.21+',severity:'err'},{id:'f',re:/Block\.Settings\.of\s*\(/g,title:'Block.Settings.of() removed',desc:'Use AbstractBlock.Settings.create()',severity:'err'},{id:'g',re:/"schemaVersion"\s*:\s*2/g,title:'Wrong schemaVersion (must be 1)',desc:'schemaVersion must be 1',severity:'err'},{id:'h',re:/player\.inventory\.(insertStack|getStack|removeStack)/g,title:'Direct inventory access removed',desc:'Use player.getInventory().method()',severity:'err'}];
 let _cf={},_fe=[];
-function checkErrors(){const m=S.activeMod;if(!m?.code)return;const files=parseMF(m.code,m);_cf=files;_fe=[];for(const[fp,c]of Object.entries(files))for(const p of EPATS){let f=false;if(p.re){p.re.lastIndex=0;f=p.re.test(c);p.re.lastIndex=0;}if(f)_fe.push({...p,file:fp.split('/').pop(),filePath:fp});}renderErrors();}
+function checkErrors(){const m=S.activeMod;if(!m?.code)return;const files=Object.keys(IDE.files).length?IDE.files:parseMF(m.code,m);_cf=files;_fe=[];for(const[fp,c]of Object.entries(files))for(const p of EPATS){let f=false;if(p.re){p.re.lastIndex=0;f=p.re.test(c);p.re.lastIndex=0;}if(f)_fe.push({...p,file:fp.split('/').pop(),filePath:fp});}renderErrors();}
 function renderErrors(){const c=document.getElementById('epErrors'),fb=document.getElementById('fixBtn');if(!_fe.length){c.innerHTML=`<div class="epi ok"><span class="epic">✓</span><div><div class="eptl">// no issues found</div><div class="epds">code looks clean</div></div></div>`;fb.style.display='none';return;}c.innerHTML=_fe.map((e,i)=>`<div class="epi ${e.severity}"><input type="checkbox" class="epchk" id="epchk${i}" checked><span class="epic">${e.severity==='err'?'✕':'!'}</span><div><div class="eptl">${e.title}</div><div class="epds">${e.desc}</div><div class="epfl">${e.file}</div></div></div>`).join('');fb.style.display='';fb.textContent=`FIX ${_fe.length} ERROR${_fe.length>1?'S':''}`;}
-async function fixErrors(){const m=S.activeMod;if(!m?.code||!_fe.length)return;const sel=_fe.filter((_,i)=>{const c=document.getElementById('epchk'+i);return c?c.checked:true;});if(!sel.length)return;const af=document.getElementById('autoFixChk').checked,fb=document.getElementById('fixBtn'),orig=fb.textContent;fb.disabled=true;fb.textContent='FIXING...';document.getElementById('epErrors').innerHTML=`<div class="epi"><span class="epic">⚡</span><div><div class="eptl">// fixing...</div></div></div>`;try{const el=sel.map(e=>`- ${e.title}: ${e.desc} (${e.file})`).join('\n'),jf=Object.entries(_cf).filter(([p])=>p.endsWith('.java')).map(([p,c])=>`// FILE: ${p}\n${c}`).join('\n\n---\n\n'),sys=`Fix ONLY these errors. Loader: ${m.loader}, MC: ${m.version}\nOutput: // FILE: path\n[code]\nFix ALL.`,usr=`Fix:\n${el}\n\n${jf}`;const data=await groqFetch(sys,usr),raw=data.choices?.[0]?.message?.content||'';if(!raw)throw new Error('Empty');const fixed=parseMF(raw,m);if(!Object.keys(fixed).length)throw new Error('No files');const all={..._cf,...fixed};m.code=Object.entries(all).map(([p,c])=>`// FILE: ${p}\n${c}`).join('\n\n');saveMods();const j=Object.keys(all).find(f=>f.endsWith('.java'))||'';document.getElementById('codeFile').textContent=j.split('/').pop()||'output.java';document.getElementById('codeBody').innerHTML=hlJ(all[j]||raw);showToast('ERRORS FIXED','ok');checkErrors();if(af&&_fe.length>0)setTimeout(()=>fixErrors(),1500);}catch(err){showToast('FIX FAILED','err');setTimeout(()=>checkErrors(),2000);}finally{fb.disabled=false;fb.textContent=orig;}}
+async function fixErrors(){const m=S.activeMod;if(!m?.code||!_fe.length)return;const sel=_fe.filter((_,i)=>{const c=document.getElementById('epchk'+i);return c?c.checked:true;});if(!sel.length)return;const af=document.getElementById('autoFixChk').checked,fb=document.getElementById('fixBtn'),orig=fb.textContent;fb.disabled=true;fb.textContent='FIXING...';document.getElementById('epErrors').innerHTML=`<div class="epi"><span class="epic">⚡</span><div><div class="eptl">// fixing...</div></div></div>`;try{const el=sel.map(e=>`- ${e.title}: ${e.desc} (${e.file})`).join('\n'),jf=Object.entries(_cf).filter(([p])=>p.endsWith('.java')).map(([p,c])=>`// FILE: ${p}\n${c}`).join('\n\n---\n\n'),sys=`Fix ONLY these errors. Loader: ${m.loader}, MC: ${m.version}\nOutput: // FILE: path\n[code]\nFix ALL.`,usr=`Fix:\n${el}\n\n${jf}`;const data=await groqFetch(sys,usr),raw=data.choices?.[0]?.message?.content||'';if(!raw)throw new Error('Empty');const fixed=parseMF(raw,m);if(!Object.keys(fixed).length)throw new Error('No files');const all={..._cf,...fixed};m.code=Object.entries(all).map(([p,c])=>`// FILE: ${p}\n${c}`).join('\n\n');saveMods();// Update IDE files Object.assign(IDE.files,fixed);IDE.modified=Object.fromEntries(Object.keys(fixed).map(k=>[k,true]));renderIdeTabs();if(IDE.active&&fixed[IDE.active]){document.getElementById('ideTextarea').value=fixed[IDE.active];updateLineNumbers();}showToast('ERRORS FIXED','ok');checkErrors();if(af&&_fe.length>0)setTimeout(()=>fixErrors(),1500);}catch(err){showToast('FIX FAILED','err');setTimeout(()=>checkErrors(),2000);}finally{fb.disabled=false;fb.textContent=orig;}}
 function hlJ(c){return c.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/(\/\/[^\n]*)/g,'<span style="color:#3a5a3a;font-style:italic">$1</span>').replace(/("(?:[^"\\]|\\.)*")/g,'<span style="color:#7cb87c">$1</span>').replace(/(@\w+)/g,'<span style="color:#c8a840">$1</span>').replace(/\b(public|private|protected|class|interface|extends|implements|new|return|void|static|final|import|package|if|else|for|while|try|catch|super|this|null|true|false)\b/g,'<span style="color:#5a9abf">$1</span>');}
 </script>
 </body>
