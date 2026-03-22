@@ -8,544 +8,289 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --night:#0A0F0A;
-  --night2:#0F160F;
-  --night3:#141E14;
-  --night4:#192219;
-  --night5:#1F2A1F;
-  --grass:#5C9436;
-  --grass2:#4A7A28;
-  --grass3:#6BAF40;
-  --leaf:#8BC34A;
-  --leaf2:#AED581;
-  --dirt:#8B6340;
-  --dirt2:#6B4C30;
-  --stone:#888;
-  --stone2:#666;
-  --white:#E8F5E9;
-  --white2:#C8E6C9;
-  --dim:#A5D6A7;
-  --grey:#5a7a5a;
-  --grey2:#3a5a3a;
-  --grey3:#2a3a2a;
-  --red:#FF5252;
-  --gold:#FFC107;
-  --blue:#64B5F6;
-  --bdr:rgba(92,148,54,.2);
-  --bdr2:rgba(92,148,54,.4);
-  --bdr3:rgba(92,148,54,.7);
+  --night:#0A0F0A;--night2:#0F160F;--night3:#141E14;--night4:#192219;--night5:#1F2A1F;
+  --grass:#5C9436;--grass2:#4A7A28;--grass3:#6BAF40;
+  --leaf:#8BC34A;--leaf2:#AED581;
+  --dirt:#8B6340;--dirt2:#6B4C30;
+  --white:#E8F5E9;--dim:#A5D6A7;
+  --grey:#5a7a5a;--grey2:#3a5a3a;--grey3:#2a3a2a;
+  --red:#FF5252;--gold:#FFC107;--blue:#64B5F6;
   --gdim:rgba(92,148,54,.08);
-  --fp:'Silkscreen',monospace;
-  --fm:'JetBrains Mono',monospace;
+  --fp:'Silkscreen',monospace;--fm:'JetBrains Mono',monospace;
 }
-
 html,body{height:100%;background:var(--night);color:var(--white);font-family:var(--fm);overflow:hidden}
-
-/* STARS */
-.stars-wrap{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
-.star{position:absolute;background:#fff;border-radius:50%;animation:twinkle var(--d,3s) var(--delay,0s) ease-in-out infinite}
-@keyframes twinkle{0%,100%{opacity:var(--min,.2)}50%{opacity:var(--max,.9)}}
-
-/* Grass ground strip */
-.ground{position:fixed;bottom:0;left:0;right:0;z-index:1;pointer-events:none}
-.grass-strip{height:16px;background:var(--grass);box-shadow:0 -2px 0 var(--grass3),0 2px 0 var(--grass2),inset 0 4px 0 rgba(255,255,255,.1)}
-.dirt-strip{height:32px;background:var(--dirt);background-image:repeating-linear-gradient(90deg,transparent,transparent 15px,rgba(0,0,0,.12) 15px,rgba(0,0,0,.12) 16px),repeating-linear-gradient(0deg,transparent,transparent 7px,rgba(0,0,0,.08) 7px,rgba(0,0,0,.08) 8px)}
-
-/* SCROLLBAR */
-::-webkit-scrollbar{width:6px}
+button{cursor:pointer;font-family:var(--fm)}
+::-webkit-scrollbar{width:5px;height:5px}
 ::-webkit-scrollbar-track{background:var(--night2)}
-::-webkit-scrollbar-thumb{background:var(--grass2);border-radius:0}
+::-webkit-scrollbar-thumb{background:var(--grass2)}
 
-/* AUTH */
-#authModal{display:none;position:fixed;inset:0;z-index:1000;align-items:center;justify-content:center;background:rgba(10,15,10,.95);backdrop-filter:blur(4px)}
+/* ═══ AUTH ═══════════════════════════════════════════ */
+#authModal{display:none;position:fixed;inset:0;z-index:1000;align-items:center;justify-content:center;background:rgba(10,15,10,.97)}
 #authModal.open{display:flex}
-.auth-card{
-  background:var(--night2);
-  border:3px solid var(--grass);
-  box-shadow:
-    0 0 0 1px var(--grass2),
-    6px 6px 0 var(--grass2),
-    0 0 40px rgba(92,148,54,.2);
-  padding:36px;width:100%;max-width:400px;
-  position:relative;
-  animation:blockDrop .15s steps(3) forwards;
-}
-@keyframes blockDrop{from{transform:translateY(-20px);opacity:0}to{transform:none;opacity:1}}
-.auth-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--grass3),var(--leaf),var(--grass3))}
-.ac-close{position:absolute;top:10px;right:10px;background:var(--grass2);border:2px solid var(--grass3);color:var(--white);font-family:var(--fp);font-size:8px;width:26px;height:26px;display:flex;align-items:center;justify-content:center;transition:all .1s;image-rendering:pixelated}
-.ac-close:hover{background:var(--grass);box-shadow:2px 2px 0 var(--grass2)}
-.ac-title{font-family:var(--fp);font-size:13px;color:var(--leaf);margin-bottom:4px;text-shadow:2px 2px 0 var(--grass2)}
-.ac-sub{font-size:11px;color:var(--grey);margin-bottom:28px;letter-spacing:.3px}
-.fld{margin-bottom:16px}
-.fld label{display:block;font-family:var(--fp);font-size:7px;color:var(--leaf2);letter-spacing:1px;margin-bottom:7px}
-.fld input{
-  width:100%;background:var(--night3);
-  border:2px solid var(--grey3);
-  color:var(--white);font-family:var(--fm);font-size:13px;
-  padding:10px 12px;outline:none;
-  transition:border-color .1s;caret-color:var(--leaf);
-}
-.fld input:focus{border-color:var(--grass);box-shadow:0 0 0 2px rgba(92,148,54,.15)}
-.fld .hint{font-size:10px;color:var(--grey2);margin-top:4px;letter-spacing:.2px}
-.fld .err{font-size:10px;color:var(--red);margin-top:4px;display:none;font-family:var(--fp)}
-.mc-btn{
-  width:100%;background:var(--grass);color:var(--white);border:none;
-  font-family:var(--fp);font-size:9px;padding:13px;letter-spacing:1px;
-  margin-top:4px;cursor:pointer;
-  box-shadow:3px 3px 0 var(--grass2),inset 0 1px 0 rgba(255,255,255,.2);
-  transition:all .1s;text-shadow:1px 1px 0 rgba(0,0,0,.4);
-}
-.mc-btn:hover{background:var(--grass3);transform:translate(-1px,-1px);box-shadow:4px 4px 0 var(--grass2)}
-.mc-btn:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--grass2)}
+.auth-card{background:var(--night2);border:2px solid var(--grass);box-shadow:0 0 0 1px var(--grass2),4px 4px 0 var(--grass2);padding:36px;width:100%;max-width:400px;position:relative}
+.auth-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--grass3),var(--leaf),var(--grass3))}
+.ac-close{position:absolute;top:10px;right:10px;background:var(--night3);border:1px solid var(--grey3);color:var(--grey);width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:12px;transition:all .1s}
+.ac-close:hover{border-color:var(--grass);color:var(--leaf)}
+.ac-title{font-family:var(--fp);font-size:12px;color:var(--leaf);margin-bottom:4px;text-shadow:2px 2px 0 var(--grass2)}
+.ac-sub{font-size:11px;color:var(--grey);margin-bottom:24px}
+.fld{margin-bottom:14px}
+.fld label{display:block;font-family:var(--fp);font-size:7px;color:var(--leaf);letter-spacing:1px;margin-bottom:6px}
+.fld input{width:100%;background:var(--night);border:1px solid var(--grey3);color:var(--white);font-family:var(--fm);font-size:13px;padding:9px 11px;outline:none;transition:border-color .1s;caret-color:var(--leaf)}
+.fld input:focus{border-color:var(--grass)}
+.fld .hint{font-size:10px;color:var(--grey2);margin-top:3px}
+.fld .err{font-size:10px;color:var(--red);margin-top:3px;display:none;font-family:var(--fp)}
+.mc-btn{width:100%;background:var(--grass);color:var(--white);border:none;font-family:var(--fp);font-size:9px;padding:12px;letter-spacing:1px;margin-top:4px;box-shadow:3px 3px 0 var(--grass2);transition:all .1s}
+.mc-btn:hover{transform:translate(-1px,-1px);box-shadow:4px 4px 0 var(--grass2)}
 .mc-btn:disabled{background:var(--grey3);color:var(--grey2);box-shadow:none;transform:none}
 .ac-sw{text-align:center;margin-top:12px;font-size:11px;color:var(--grey)}
-.ac-sw button{background:none;border:none;color:var(--leaf);font-family:var(--fm);font-size:11px;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
-.ac-note{text-align:center;margin-top:8px;font-size:10px;color:var(--grey2);letter-spacing:.2px}
+.ac-sw button{background:none;border:none;color:var(--leaf);font-size:11px;text-decoration:underline;text-underline-offset:3px}
+.ac-note{text-align:center;margin-top:8px;font-size:10px;color:var(--grey2)}
 
-/* APP */
+/* ═══ TOP NAV ════════════════════════════════════════ */
 #app{display:flex;flex-direction:column;height:100vh;position:relative;z-index:2}
-
-/* NAV */
-.tnav{
-  height:52px;background:var(--night2);
-  border-bottom:3px solid var(--grass);
-  flex-shrink:0;display:flex;align-items:center;
-  padding:0 20px;z-index:50;gap:0;
-  box-shadow:0 4px 0 var(--grass2),0 8px 0 rgba(0,0,0,.3);
-  position:relative;
-}
-.tnav::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--leaf),transparent)}
-.nbrand{display:flex;align-items:center;gap:10px;min-width:220px}
-.nblock{
-  width:32px;height:32px;
-  background:var(--grass);
-  image-rendering:pixelated;
-  display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;
-  gap:1px;overflow:hidden;
-  box-shadow:2px 2px 0 var(--grass2),inset 0 0 0 1px rgba(255,255,255,.1);
-  flex-shrink:0;
-}
-.nblock-t{background:var(--grass3)}
-.nblock-b{background:var(--dirt)}
-.nblock-b2{background:var(--dirt2)}
-.nbname{font-family:var(--fp);font-size:11px;color:var(--leaf);text-shadow:2px 2px 0 var(--grass2);letter-spacing:1px}
-.nbver{font-size:9px;color:var(--grey);margin-left:2px;letter-spacing:1px}
+.tnav{height:44px;background:var(--night2);border-bottom:2px solid var(--grass);flex-shrink:0;display:flex;align-items:center;padding:0 14px;z-index:50;gap:8px;box-shadow:0 3px 0 var(--grass2)}
+.nbrand{display:flex;align-items:center;gap:8px}
+.nblock{width:26px;height:26px;background:var(--grass);display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:1px;overflow:hidden;box-shadow:2px 2px 0 var(--grass2);flex-shrink:0}
+.nblock div:nth-child(1){background:#6BAF40}
+.nblock div:nth-child(2){background:#5C9436}
+.nblock div:nth-child(3){background:#8B6340}
+.nblock div:nth-child(4){background:#6B4C30}
+.nbname{font-family:var(--fp);font-size:10px;color:var(--leaf);text-shadow:1px 1px 0 var(--grass2);letter-spacing:1px}
+.nbver{font-size:9px;color:var(--grey2);letter-spacing:1px}
 .nsp{flex:1}
-.nr{display:flex;align-items:center;gap:8px}
-.nb{background:var(--night3);border:2px solid var(--grey3);color:var(--dim);font-family:var(--fp);font-size:7px;padding:6px 12px;letter-spacing:1px;cursor:pointer;transition:all .1s;text-shadow:1px 1px 0 rgba(0,0,0,.3)}
-.nb:hover{border-color:var(--grass);color:var(--leaf);background:var(--gdim)}
-.nbp{
-  background:var(--grass);color:var(--white);border:none;
-  font-family:var(--fp);font-size:7px;padding:8px 14px;letter-spacing:1px;
-  cursor:pointer;box-shadow:3px 3px 0 var(--grass2),inset 0 1px 0 rgba(255,255,255,.15);
-  transition:all .1s;text-shadow:1px 1px 0 rgba(0,0,0,.3);
-}
-.nbp:hover{transform:translate(-1px,-1px);box-shadow:4px 4px 0 var(--grass2)}
-.ncred{display:flex;align-items:center;gap:6px;border:2px solid var(--grey3);padding:5px 10px;background:var(--night3);font-size:11px}
-.ncnum{font-family:var(--fp);font-size:9px;color:var(--leaf)}
+.nr{display:flex;align-items:center;gap:6px}
+.nb{background:var(--night3);border:1px solid var(--grey3);color:var(--dim);font-family:var(--fp);font-size:7px;padding:5px 10px;letter-spacing:1px;transition:all .1s}
+.nb:hover{border-color:var(--grass);color:var(--leaf)}
+.nbp{background:var(--grass);color:var(--white);border:none;font-family:var(--fp);font-size:7px;padding:6px 12px;letter-spacing:1px;box-shadow:2px 2px 0 var(--grass2);transition:all .1s}
+.nbp:hover{transform:translate(-1px,-1px);box-shadow:3px 3px 0 var(--grass2)}
+.ncred{display:flex;align-items:center;gap:5px;border:1px solid var(--grey3);padding:4px 9px;background:var(--night3)}
+.ncnum{font-family:var(--fp);font-size:8px;color:var(--leaf)}
 .nclbl{color:var(--grey);font-size:10px}
-.nav-avatar{width:32px;height:32px;background:var(--grass);border:2px solid var(--grass3);display:flex;align-items:center;justify-content:center;font-family:var(--fp);font-size:8px;color:var(--white);position:relative;image-rendering:pixelated;cursor:pointer;box-shadow:2px 2px 0 var(--grass2)}
-.avm{position:absolute;top:calc(100%+8px);right:0;background:var(--night2);border:2px solid var(--grass);display:none;min-width:180px;z-index:200;box-shadow:4px 4px 0 var(--grass2)}
+.nav-avatar{width:28px;height:28px;background:var(--grass);border:1px solid var(--grass3);display:flex;align-items:center;justify-content:center;font-family:var(--fp);font-size:7px;color:var(--white);position:relative;box-shadow:2px 2px 0 var(--grass2)}
+.avm{position:absolute;top:calc(100%+6px);right:0;background:var(--night2);border:2px solid var(--grass);display:none;min-width:170px;z-index:200;box-shadow:3px 3px 0 var(--grass2)}
 .avm.open{display:block}
-.avmi{width:100%;background:none;border:none;border-bottom:1px solid var(--night4);color:var(--dim);font-family:var(--fm);font-size:11px;padding:10px 14px;text-align:left;letter-spacing:.3px;transition:background .05s;cursor:pointer}
+.avmi{width:100%;background:none;border:none;border-bottom:1px solid var(--night4);color:var(--dim);font-family:var(--fm);font-size:11px;padding:9px 13px;text-align:left;transition:background .05s}
 .avmi:hover{background:var(--gdim);color:var(--leaf)}
 .avmi:last-child{border-bottom:none}
 .avmi.danger{color:#ff7070}
 .avmi.danger:hover{color:var(--red)}
 
-/* MAIN LAYOUT - FULL SCREEN */
-.main-fs{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px 20px 80px;position:relative;overflow:hidden}
+/* ═══ MAIN BODY ══════════════════════════════════════ */
+.app-body{flex:1;display:flex;overflow:hidden}
 
-/* BIG HERO */
-.hero-center{display:flex;flex-direction:column;align-items:center;text-align:center;width:100%;max-width:800px;gap:0}
+/* ═══ LANDING (shown before any mod) ════════════════ */
+#landing{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 20px 60px;overflow-y:auto;background:var(--night);background-image:linear-gradient(rgba(92,148,54,.018) 1px,transparent 1px),linear-gradient(90deg,rgba(92,148,54,.018) 1px,transparent 1px);background-size:32px 32px}
+.lt{font-family:var(--fp);font-size:clamp(18px,4vw,44px);color:var(--leaf);text-align:center;line-height:1.5;text-shadow:3px 3px 0 var(--grass2),0 0 30px rgba(139,195,74,.2);margin-bottom:8px}
+.ls{font-family:var(--fp);font-size:clamp(7px,1vw,10px);color:var(--grass2);letter-spacing:3px;text-align:center;margin-bottom:32px}
+.lfeat{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:36px}
+.lf{display:flex;align-items:center;gap:6px;border:1px solid var(--grey3);padding:5px 12px;font-size:10px;color:var(--dim);background:var(--night2)}
+.lfdot{width:7px;height:7px;image-rendering:pixelated}
+.lfdot.g{background:var(--leaf);box-shadow:0 0 5px var(--leaf)}
+.lfdot.o{background:var(--gold);box-shadow:0 0 5px var(--gold)}
+.lfdot.b{background:var(--blue);box-shadow:0 0 5px var(--blue)}
 
-/* Floating blocks decoration */
-.deco-block{
-  position:absolute;
-  image-rendering:pixelated;
-  opacity:.25;
-  animation:float var(--fd,6s) var(--fdelay,0s) ease-in-out infinite;
-}
-@keyframes float{0%,100%{transform:translateY(0) rotate(var(--r,0deg))}50%{transform:translateY(-12px) rotate(var(--r,0deg))}}
-
-/* Title */
-.big-title{
-  font-family:var(--fp);
-  font-size:clamp(22px,5vw,52px);
-  color:var(--leaf);
-  line-height:1.4;
-  text-shadow:
-    3px 3px 0 var(--grass2),
-    6px 6px 0 rgba(0,0,0,.3);
-  margin-bottom:12px;
-  letter-spacing:2px;
-  animation:titleSlide .4s steps(4) forwards;
-}
-@keyframes titleSlide{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
-
-.sub-title{
-  font-family:var(--fp);font-size:clamp(7px,1.2vw,11px);
-  color:var(--grass3);letter-spacing:3px;margin-bottom:32px;
-  text-shadow:1px 1px 0 rgba(0,0,0,.5);
-}
-
-/* Feature pills */
-.feat-row{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:40px}
-.feat-pill{
-  display:flex;align-items:center;gap:6px;
-  background:var(--night3);border:2px solid var(--grey3);
-  padding:6px 12px;font-size:10px;color:var(--dim);
-  letter-spacing:.3px;
-  transition:all .1s;
-}
-.feat-pill .fp-dot{width:8px;height:8px;image-rendering:pixelated;flex-shrink:0}
-.feat-pill .fp-dot.g{background:var(--leaf);box-shadow:0 0 6px var(--leaf)}
-.feat-pill .fp-dot.o{background:var(--gold);box-shadow:0 0 6px var(--gold)}
-.feat-pill .fp-dot.b{background:var(--blue);box-shadow:0 0 6px var(--blue)}
-
-/* COMMAND PROMPT AREA — the hero element */
-.cmd-wrap{
-  width:100%;position:relative;
-  margin-bottom:24px;
-}
-.cmd-box{
-  background:var(--night3);
-  border:3px solid var(--grass);
-  box-shadow:
-    0 0 0 1px var(--grass2),
-    4px 4px 0 var(--grass2),
-    0 0 30px rgba(92,148,54,.15),
-    inset 0 0 20px rgba(10,15,10,.5);
-  padding:0;
-  position:relative;
-}
-.cmd-prefix{
-  font-family:var(--fp);font-size:clamp(9px,1.4vw,13px);
-  color:var(--grass3);letter-spacing:1px;white-space:nowrap;
-  text-shadow:1px 1px 0 rgba(0,0,0,.5);flex-shrink:0;
-  padding-right:8px;user-select:none;
-}
-.cmd-inner{display:flex;align-items:center;gap:0;width:100%;padding:14px 16px}
-.cmd-input{
-  flex:1;background:none;border:none;outline:none;
-  font-family:var(--fp);font-size:clamp(9px,1.4vw,13px);
-  color:var(--white);letter-spacing:.5px;
-  caret-color:var(--leaf);
-  padding:4px 0;
-}
-.cmd-input::placeholder{color:var(--grey2);font-size:.9em}
-.cmd-cursor{
-  width:12px;height:22px;background:var(--leaf);
-  flex-shrink:0;margin-left:2px;
-  animation:blink .8s steps(1) infinite;
-}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
-.cmd-input:focus~.cmd-cursor,.cmd-input:not(:placeholder-shown)~.cmd-cursor{display:none}
-
-.cmd-footer{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:8px 16px;background:var(--night4);
-  border-top:1px solid var(--grey3);
-}
-.cmd-left{display:flex;gap:8px;align-items:center}
-.ver-sel{
-  display:flex;align-items:center;gap:6px;
-  background:var(--night3);border:1px solid var(--grey3);
-  padding:5px 10px;cursor:pointer;transition:border-color .1s;
-  position:relative;user-select:none;
-}
+/* CMD prompt */
+.cmd-box{width:100%;max-width:720px;background:var(--night2);border:2px solid var(--grass);box-shadow:3px 3px 0 var(--grass2),0 0 20px rgba(92,148,54,.1);margin-bottom:20px}
+.cmd-main{display:flex;align-items:center;padding:0 16px}
+.cmd-pre{font-family:var(--fp);font-size:clamp(8px,1.2vw,12px);color:var(--grass2);white-space:nowrap;flex-shrink:0;padding:14px 10px 14px 0;letter-spacing:1px}
+.cmd-inp{flex:1;background:none;border:none;outline:none;font-family:var(--fp);font-size:clamp(8px,1.2vw,12px);color:var(--white);caret-color:var(--leaf);padding:14px 0;letter-spacing:.5px}
+.cmd-inp::placeholder{color:var(--grey3);font-size:.9em}
+.cmd-foot{display:flex;align-items:center;justify-content:space-between;padding:7px 14px;background:var(--night3);border-top:1px solid var(--grey3);gap:8px}
+.cmd-left{display:flex;align-items:center;gap:6px}
+.ver-sel{display:flex;align-items:center;gap:5px;background:var(--night2);border:1px solid var(--grey3);padding:5px 9px;position:relative;user-select:none;transition:border-color .1s}
 .ver-sel:hover{border-color:var(--grass)}
-.vs-dot{width:6px;height:6px;background:var(--leaf);image-rendering:pixelated;box-shadow:0 0 4px var(--leaf)}
-.vs-lbl{font-family:var(--fp);font-size:7px;color:var(--white);letter-spacing:1px}
-.vs-chev{color:var(--grey2);font-size:8px}
-.vmenu{position:fixed;background:var(--night2);border:2px solid var(--grass);display:none;min-width:150px;z-index:9999;box-shadow:4px 4px 0 var(--grass2)}
+.vsdot{width:5px;height:5px;background:var(--leaf);box-shadow:0 0 4px var(--leaf);image-rendering:pixelated}
+.vslbl{font-family:var(--fp);font-size:7px;color:var(--white);letter-spacing:1px}
+.vschev{color:var(--grey2);font-size:8px}
+.vmenu{position:fixed;background:var(--night2);border:2px solid var(--grass);display:none;min-width:150px;z-index:9999;box-shadow:3px 3px 0 var(--grass2)}
 .vmenu.open{display:block}
-.vmbtn{width:100%;background:none;border:none;border-bottom:1px solid var(--night4);color:var(--dim);font-family:var(--fm);font-size:11px;padding:9px 12px;text-align:left;letter-spacing:.3px;display:flex;align-items:center;justify-content:space-between;transition:background .05s;cursor:pointer}
+.vmbtn{width:100%;background:none;border:none;border-bottom:1px solid var(--night3);color:var(--dim);font-family:var(--fm);font-size:11px;padding:8px 12px;text-align:left;display:flex;align-items:center;justify-content:space-between;transition:background .05s}
 .vmbtn:last-child{border-bottom:none}
 .vmbtn:hover{background:var(--gdim);color:var(--leaf)}
 .vmbtn.sel{color:var(--leaf)}
-.vtg{font-family:var(--fp);font-size:6px;color:var(--leaf);letter-spacing:1px}
-
-.setbtn{background:var(--night3);border:1px solid var(--grey3);color:var(--grey);width:30px;height:30px;display:flex;align-items:center;justify-content:center;font-size:13px;cursor:pointer;transition:all .1s}
+.vtg{font-family:var(--fp);font-size:6px;color:var(--leaf)}
+.setbtn{background:var(--night2);border:1px solid var(--grey3);color:var(--grey);width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:13px;transition:all .1s}
 .setbtn:hover{border-color:var(--grass);color:var(--leaf)}
-.setpnl{position:absolute;bottom:calc(100%+6px);left:0;background:var(--night2);border:2px solid var(--grass);padding:16px;width:240px;display:none;box-shadow:4px 4px 0 var(--grass2);z-index:300}
+.setpnl{position:absolute;bottom:calc(100%+6px);left:0;background:var(--night2);border:2px solid var(--grass);padding:14px;width:230px;display:none;box-shadow:3px 3px 0 var(--grass2);z-index:300}
 .setpnl.open{display:block}
-.slbl{font-family:var(--fp);font-size:6px;color:var(--leaf);letter-spacing:2px;margin-bottom:8px;display:block}
-.srow{display:flex;gap:5px;flex-wrap:wrap}
-.obt{background:var(--night3);border:1px solid var(--grey3);color:var(--grey);font-family:var(--fm);font-size:11px;padding:5px 10px;cursor:pointer;transition:all .1s}
+.slbl{font-family:var(--fp);font-size:6px;color:var(--leaf);letter-spacing:2px;margin-bottom:7px;display:block}
+.srow{display:flex;gap:4px;flex-wrap:wrap}
+.obt{background:var(--night3);border:1px solid var(--grey3);color:var(--grey);font-family:var(--fm);font-size:11px;padding:4px 9px;transition:all .1s}
 .obt:hover{border-color:var(--grass2);color:var(--white)}
-.obt.on{background:rgba(92,148,54,.15);border-color:var(--grass);color:var(--leaf)}
-.ssep{border:none;border-top:1px solid var(--night4);margin:12px 0}
-.crbdg{display:none;align-items:center;gap:5px;border:1px solid var(--grey3);padding:5px 9px;background:var(--night3)}
-.crbdg .ci{color:var(--leaf);font-size:12px}
-.crbdg .cn{font-family:var(--fp);font-size:8px;color:var(--leaf)}
-.cmd-right{display:flex;align-items:center;gap:8px}
-
-.gen-btn{
-  background:var(--grass);color:var(--white);border:none;
-  font-family:var(--fp);font-size:9px;padding:10px 20px;
-  letter-spacing:1px;cursor:pointer;
-  box-shadow:3px 3px 0 var(--grass2),inset 0 1px 0 rgba(255,255,255,.15);
-  display:flex;align-items:center;gap:8px;
-  transition:all .1s;text-shadow:1px 1px 0 rgba(0,0,0,.3);
-}
-.gen-btn:hover{transform:translate(-1px,-1px);box-shadow:4px 4px 0 var(--grass2)}
-.gen-btn:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--grass2)}
+.obt.on{background:var(--gdim);border-color:var(--grass);color:var(--leaf)}
+.ssep{border:none;border-top:1px solid var(--night4);margin:10px 0}
+.crbdg{display:none;align-items:center;gap:4px;border:1px solid var(--grey3);padding:4px 8px;background:var(--night2)}
+.crbdg .ci{color:var(--leaf);font-size:11px}
+.crbdg .cn{font-family:var(--fp);font-size:7px;color:var(--leaf)}
+.gen-btn{background:var(--grass);color:var(--white);border:none;font-family:var(--fp);font-size:8px;padding:9px 16px;letter-spacing:1px;box-shadow:2px 2px 0 var(--grass2);display:flex;align-items:center;gap:6px;transition:all .1s;flex-shrink:0}
+.gen-btn:hover{transform:translate(-1px,-1px);box-shadow:3px 3px 0 var(--grass2)}
 .gen-btn:disabled{background:var(--grey3);color:var(--grey2);box-shadow:none;transform:none}
-.spx{width:12px;height:12px;border:2px solid rgba(255,255,255,.2);border-top-color:var(--white);border-radius:50%;animation:spn .4s steps(8) infinite;display:none}
+.spx{width:10px;height:10px;border:2px solid rgba(255,255,255,.2);border-top-color:var(--white);border-radius:50%;animation:spn .4s steps(8) infinite;display:none}
 .gen-btn.loading .spx{display:block}
 .gen-btn.loading .blbl{display:none}
 @keyframes spn{to{transform:rotate(360deg)}}
+.ex-cards{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;width:100%;max-width:720px}
+.ex-card{background:var(--night2);border:1px solid var(--grey3);padding:12px 14px;flex:1;min-width:150px;max-width:200px;cursor:pointer;transition:all .12s;text-align:left}
+.ex-card:hover{border-color:var(--grass);transform:translateY(-3px);box-shadow:0 6px 0 var(--grass2)}
+.ec-icon{font-size:18px;margin-bottom:8px;display:block}
+.ec-title{font-family:var(--fp);font-size:7px;color:var(--leaf);margin-bottom:6px;letter-spacing:1px}
+.ec-desc{font-size:10px;color:var(--grey);line-height:1.5}
 
-/* EXAMPLE CARDS */
-.ex-cards{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;width:100%}
-.ex-card{
-  background:var(--night2);
-  border:2px solid var(--grey3);
-  padding:14px 16px;flex:1;min-width:160px;max-width:220px;
-  cursor:pointer;
-  transition:all .12s;position:relative;overflow:hidden;text-align:left;
-}
-.ex-card::before{content:'';position:absolute;inset:0;background:var(--grass);opacity:0;transition:opacity .12s}
-.ex-card:hover{border-color:var(--grass);transform:translateY(-4px);box-shadow:0 8px 0 var(--grass2),0 0 20px rgba(92,148,54,.15)}
-.ex-card:hover::before{opacity:.05}
-.ex-card:active{transform:translateY(0);box-shadow:none}
-.ec-icon{font-size:22px;margin-bottom:10px;display:block;image-rendering:pixelated}
-.ec-title{font-family:var(--fp);font-size:7px;color:var(--leaf);margin-bottom:8px;letter-spacing:1px}
-.ec-desc{font-size:10px;color:var(--grey);line-height:1.6}
-
-/* MOD VIEW (shown after generation) */
-.mod-view{width:100%;max-width:860px;display:none;padding:20px 0 0}
-.mod-view.show{display:block}
-
-.block-panel{
-  background:var(--night2);
-  border:2px solid var(--grass);
-  margin-bottom:12px;
-  box-shadow:3px 3px 0 var(--grass2);
-  position:relative;overflow:hidden;
-}
-.bp-head{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:10px 16px;border-bottom:1px solid var(--grey3);
-  background:var(--night3);
-}
-.bp-title{font-family:var(--fp);font-size:7px;color:var(--leaf);letter-spacing:2px}
-
-.mod-info-row{display:flex;align-items:center;gap:14px;padding:16px}
-.mi-icon{font-size:28px;flex-shrink:0;image-rendering:pixelated}
-.mi-name{font-family:var(--fp);font-size:13px;color:var(--leaf);text-shadow:2px 2px 0 var(--grass2)}
-.mi-tags{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
-.mi-tag{font-family:var(--fp);font-size:6px;letter-spacing:1px;padding:3px 8px;border:1px solid var(--grey3);color:var(--grey)}
-.mi-tag.g{border-color:var(--grass2);color:var(--leaf)}
-
-/* Build steps */
-.bsteps{padding:14px 16px;display:flex;flex-direction:column;gap:10px}
-.bstep{display:flex;align-items:center;gap:12px;font-size:11px;letter-spacing:.3px}
-.bsn{width:22px;height:22px;border:2px solid var(--grey3);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:var(--fp);font-size:7px;color:var(--grey2);image-rendering:pixelated}
-.bsn.run{border-color:var(--leaf);color:var(--leaf);animation:blink .4s steps(1) infinite}
+/* ═══ IDE LAYOUT ═════════════════════════════════════ */
+#ide-view{flex:1;display:none;overflow:hidden}
+#ide-view.show{display:flex;flex-direction:column}
+/* IDE top bar */
+.ide-topbar{height:36px;background:var(--night2);border-bottom:1px solid var(--grey3);display:flex;align-items:center;padding:0 10px;gap:8px;flex-shrink:0}
+.ide-mod-name{font-family:var(--fp);font-size:8px;color:var(--leaf);letter-spacing:1px}
+.ide-mod-tag{font-family:var(--fp);font-size:6px;letter-spacing:1px;padding:2px 7px;border:1px solid var(--grey3);color:var(--grey)}
+.ide-mod-tag.g{border-color:var(--grass2);color:var(--leaf)}
+.ide-tbtn{background:none;border:1px solid var(--grey3);color:var(--grey);font-family:var(--fp);font-size:6px;padding:4px 9px;letter-spacing:1px;transition:all .1s}
+.ide-tbtn:hover{border-color:var(--grass);color:var(--leaf)}
+.ide-tbtn.primary{background:var(--grass);color:var(--white);border-color:var(--grass);box-shadow:2px 2px 0 var(--grass2)}
+.ide-tbtn.primary:hover{transform:translate(-1px,-1px);box-shadow:3px 3px 0 var(--grass2)}
+/* IDE panes */
+.ide-panes{flex:1;display:flex;overflow:hidden}
+/* Left panel */
+.ide-left{width:240px;flex-shrink:0;background:var(--night2);border-right:1px solid var(--grey3);display:flex;flex-direction:column;overflow:hidden}
+/* File tree */
+.ide-files{flex:0 0 auto;border-bottom:1px solid var(--grey3)}
+.ide-section-hd{display:flex;align-items:center;justify-content:space-between;padding:7px 12px;font-family:var(--fp);font-size:6px;color:var(--grey2);letter-spacing:2px;user-select:none}
+.ide-section-hd button{background:none;border:none;color:var(--grey2);font-size:14px;transition:color .1s;cursor:pointer}
+.ide-section-hd button:hover{color:var(--leaf)}
+.file-tree{max-height:200px;overflow-y:auto;padding:4px 0}
+.ft-item{display:flex;align-items:center;gap:6px;padding:5px 12px;font-size:11px;color:var(--grey);cursor:pointer;transition:all .1s;user-select:none;white-space:nowrap;overflow:hidden}
+.ft-item:hover{background:var(--night3);color:var(--white)}
+.ft-item.active{background:var(--gdim);color:var(--leaf);border-left:2px solid var(--grass)}
+.ft-item.active{padding-left:10px}
+.ft-icon{font-size:12px;flex-shrink:0}
+.ft-name{overflow:hidden;text-overflow:ellipsis;flex:1}
+.ft-mod{width:5px;height:5px;border-radius:50%;background:var(--gold);flex-shrink:0;display:none}
+.ft-item.modified .ft-mod{display:block}
+/* AI Chat */
+.ide-chat{flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:0}
+.chat-hd{display:flex;align-items:center;justify-content:space-between;padding:7px 12px;border-bottom:1px solid var(--grey3);flex-shrink:0}
+.chat-hd-title{font-family:var(--fp);font-size:6px;color:var(--grey2);letter-spacing:2px}
+.chat-msgs{flex:1;overflow-y:auto;padding:10px;display:flex;flex-direction:column;gap:8px;min-height:0}
+.chat-msg{display:flex;flex-direction:column;gap:4px}
+.chat-msg-who{font-family:var(--fp);font-size:6px;letter-spacing:1px;display:flex;align-items:center;gap:6px}
+.chat-msg-who.ai{color:var(--leaf)}
+.chat-msg-who.user{color:var(--grey);flex-direction:row-reverse}
+.chat-msg-body{font-size:11px;color:var(--dim);line-height:1.6;background:var(--night3);border:1px solid var(--grey3);padding:8px 10px;border-radius:0}
+.chat-msg.user .chat-msg-body{background:var(--gdim);border-color:var(--grass2);color:var(--white);text-align:right}
+.diff-badge{display:flex;gap:8px;font-family:var(--fp);font-size:7px;margin-top:4px}
+.diff-badge .da{color:#60c878}.diff-badge .dr{color:#c06060}
+.apply-row{display:flex;gap:5px;margin-top:6px}
+.chat-inp-area{flex-shrink:0;border-top:1px solid var(--grey3);padding:8px}
+.chat-inp-row{display:flex;gap:5px}
+.chat-inp{flex:1;background:var(--night);border:1px solid var(--grey3);color:var(--white);font-family:var(--fm);font-size:11px;padding:7px 9px;outline:none;caret-color:var(--leaf);transition:border-color .1s}
+.chat-inp:focus{border-color:var(--grass)}
+.chat-inp::placeholder{color:var(--grey3)}
+.chat-send{background:var(--grass);color:var(--white);border:none;font-family:var(--fp);font-size:7px;padding:7px 12px;letter-spacing:1px;box-shadow:2px 2px 0 var(--grass2);transition:all .1s;white-space:nowrap}
+.chat-send:hover{transform:translate(-1px,-1px);box-shadow:3px 3px 0 var(--grass2)}
+.chat-send:disabled{background:var(--grey3);color:var(--grey2);box-shadow:none;transform:none}
+.chat-hint{font-size:10px;color:var(--grey3);margin-top:5px;letter-spacing:.2px}
+/* Right: Editor */
+.ide-right{flex:1;display:flex;flex-direction:column;overflow:hidden;background:var(--night)}
+/* Editor tabs */
+.editor-tabs{display:flex;background:var(--night2);border-bottom:1px solid var(--grey3);overflow-x:auto;scrollbar-width:none;flex-shrink:0}
+.editor-tabs::-webkit-scrollbar{display:none}
+.etab{display:flex;align-items:center;gap:6px;padding:7px 14px;font-family:var(--fm);font-size:10px;color:var(--grey2);border-right:1px solid var(--grey3);white-space:nowrap;cursor:pointer;transition:all .1s;flex-shrink:0;border-bottom:2px solid transparent}
+.etab:hover{color:var(--white);background:var(--night3)}
+.etab.active{color:var(--leaf);background:var(--night);border-bottom-color:var(--grass)}
+.etab .emod{width:5px;height:5px;border-radius:50%;background:var(--gold);display:none;flex-shrink:0}
+.etab.modified .emod{display:block}
+/* Code editor */
+.editor-wrap{flex:1;display:flex;overflow:hidden}
+.line-nums{width:46px;flex-shrink:0;background:var(--night2);border-right:1px solid var(--grey3);padding:14px 0;font-family:var(--fm);font-size:11px;color:var(--grey3);line-height:1.75;text-align:right;padding-right:10px;overflow:hidden;user-select:none;white-space:pre}
+.code-ta{flex:1;background:var(--night);border:none;outline:none;resize:none;font-family:var(--fm);font-size:11px;color:#a8d8a8;line-height:1.75;padding:14px 16px;caret-color:var(--leaf);tab-size:2;overflow:auto}
+.code-ta::selection{background:rgba(92,148,54,.25)}
+/* Editor statusbar */
+.editor-status{height:22px;background:var(--grass2);display:flex;align-items:center;padding:0 12px;gap:16px;flex-shrink:0}
+.es-item{font-family:var(--fm);font-size:10px;color:rgba(255,255,255,.7);letter-spacing:.3px}
+/* Build progress overlay */
+.build-overlay{position:absolute;inset:0;background:rgba(10,15,10,.9);display:none;flex-direction:column;align-items:center;justify-content:center;gap:20px;z-index:10}
+.build-overlay.show{display:flex}
+.build-steps{display:flex;flex-direction:column;gap:10px;min-width:320px}
+.build-step{display:flex;align-items:center;gap:12px;font-size:11px}
+.bsn{width:22px;height:22px;border:2px solid var(--grey3);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:var(--fp);font-size:7px;color:var(--grey2)}
+.bsn.run{border-color:var(--leaf);color:var(--leaf);animation:pblink .4s steps(1) infinite}
 .bsn.done{border-color:var(--grass);color:var(--white);background:var(--grass2)}
 .bsn.err{border-color:var(--red);color:var(--red)}
-.bsl{color:var(--grey2)}
-.bsl.act{color:var(--white)}
-.bsl.done{color:var(--grey3)}
-.bprog{padding:0 16px 16px}
-.pt{height:6px;background:var(--night4);border:1px solid var(--grey3);overflow:hidden;image-rendering:pixelated}
-.pb{height:100%;background:var(--grass);width:0%;transition:width .5s steps(10);box-shadow:0 0 6px rgba(92,148,54,.5)}
+@keyframes pblink{0%,100%{opacity:1}50%{opacity:0}}
+.build-bar-wrap{width:320px}
+.build-track{height:5px;background:var(--night3);border:1px solid var(--grey3);overflow:hidden}
+.build-fill{height:100%;background:var(--grass);width:0%;transition:width .5s steps(10)}
+.build-title{font-family:var(--fp);font-size:9px;color:var(--leaf);letter-spacing:2px}
 
-/* Download area */
-.dl-area{display:none}
-.dl-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:14px}
-.dl-btn{display:flex;align-items:center;gap:12px;border:2px solid var(--grey3);padding:14px;background:var(--night3);cursor:pointer;transition:all .1s;position:relative;overflow:hidden}
-.dl-btn:hover{border-color:var(--grass);background:var(--night4);transform:translate(-1px,-1px);box-shadow:3px 3px 0 var(--grass2)}
-.dl-icon{font-size:26px;flex-shrink:0;image-rendering:pixelated}
-.dl-tt{font-family:var(--fp);font-size:7px;color:var(--leaf);letter-spacing:1px;margin-bottom:5px}
-.dl-sb{font-size:10px;color:var(--grey)}
-.api-row{border-top:1px solid var(--grey3);padding:8px 14px;display:flex;align-items:center;gap:8px;font-size:10px;color:var(--grey2)}
-.api-val{color:var(--leaf);font-family:var(--fm);font-size:10px}
-.small-btn{background:none;border:1px solid var(--grey3);color:var(--grey);font-family:var(--fm);font-size:10px;padding:3px 8px;cursor:pointer;transition:all .1s}
-.small-btn:hover{border-color:var(--grass);color:var(--leaf)}
-
-/* ═══ IDE EDITOR ═══════════════════════════════════════════ */
-.ide{background:var(--night);border:2px solid var(--grass);margin-bottom:12px;display:none;box-shadow:3px 3px 0 var(--grass2)}
-/* Title bar */
-.ide-bar{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;border-bottom:1px solid var(--grey3);background:var(--night2);gap:8px}
-.mc-dots{display:flex;gap:5px;flex-shrink:0}
-.mcd{width:10px;height:10px;image-rendering:pixelated}
-.mcd.r{background:#ff5f57}.mcd.y{background:#febc2e}.mcd.g{background:var(--leaf)}
-.ide-title{font-family:var(--fp);font-size:7px;color:var(--leaf);letter-spacing:1px;flex:1}
-.ide-actions{display:flex;gap:5px;flex-shrink:0}
-/* File tabs */
-.ide-tabs{display:flex;border-bottom:1px solid var(--grey3);background:var(--night3);overflow-x:auto;scrollbar-width:none}
-.ide-tabs::-webkit-scrollbar{display:none}
-.ide-tab{display:flex;align-items:center;gap:6px;padding:7px 14px;font-family:var(--fm);font-size:10px;color:var(--grey2);border-right:1px solid var(--grey3);white-space:nowrap;cursor:pointer;transition:all .1s;flex-shrink:0;border-bottom:2px solid transparent}
-.ide-tab:hover{color:var(--white);background:var(--night4)}
-.ide-tab.active{color:var(--leaf);background:var(--night);border-bottom-color:var(--grass)}
-.ide-tab .tab-dot{width:5px;height:5px;border-radius:50%;background:var(--gold);display:none}
-.ide-tab.modified .tab-dot{display:block}
-/* Editor area: line numbers + textarea */
-.ide-editor{display:flex;position:relative;height:360px}
-.ide-lines{width:44px;flex-shrink:0;background:var(--night2);border-right:1px solid var(--grey3);padding:14px 0;font-family:var(--fm);font-size:11px;color:var(--grey3);line-height:1.75;text-align:right;padding-right:8px;overflow:hidden;user-select:none}
-.ide-textarea{flex:1;background:var(--night);border:none;outline:none;resize:none;font-family:var(--fm);font-size:11px;color:#a8d8a8;line-height:1.75;padding:14px 16px;caret-color:var(--leaf);tab-size:2;white-space:pre;overflow:auto;height:100%}
-.ide-textarea::selection{background:rgba(92,148,54,.3)}
-/* AI edit bar */
-.ide-ai{border-top:1px solid var(--grey3);background:var(--night2);padding:10px 12px;display:flex;flex-direction:column;gap:8px}
-.ide-ai-top{display:flex;align-items:center;gap:8px;font-family:var(--fp);font-size:7px;color:var(--leaf);letter-spacing:1px}
-.ide-ai-top::before{content:'🤖'}
-.ide-prompt-row{display:flex;gap:6px}
-.ide-prompt{flex:1;background:var(--night);border:1px solid var(--grey3);color:var(--white);font-family:var(--fm);font-size:11px;padding:8px 10px;outline:none;caret-color:var(--leaf);transition:border-color .1s}
-.ide-prompt:focus{border-color:var(--grass)}
-.ide-prompt::placeholder{color:var(--grey3)}
-.ide-send{background:var(--grass);color:var(--white);border:none;font-family:var(--fp);font-size:7px;padding:8px 14px;letter-spacing:1px;cursor:pointer;box-shadow:2px 2px 0 var(--grass2);transition:all .1s;white-space:nowrap;flex-shrink:0}
-.ide-send:hover{transform:translate(-1px,-1px);box-shadow:3px 3px 0 var(--grass2)}
-.ide-send:disabled{background:var(--grey3);color:var(--grey2);box-shadow:none;transform:none}
-/* Diff view */
-.ide-diff{border-top:1px solid var(--grey3);background:var(--night);max-height:260px;overflow-y:auto;display:none}
-.diff-header{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;background:var(--night2);border-bottom:1px solid var(--grey3)}
-.diff-stats{display:flex;gap:12px;font-family:var(--fp);font-size:7px;letter-spacing:1px}
-.diff-add{color:#40c060}.diff-del{color:#c04040}
-.diff-body{font-family:var(--fm);font-size:11px;line-height:1.75}
-.diff-line{display:flex;gap:0;min-height:20px}
-.diff-ln{width:44px;flex-shrink:0;padding:0 8px 0 0;text-align:right;color:var(--grey3);font-size:10px;user-select:none;border-right:1px solid var(--grey3)}
-.diff-content{flex:1;padding:0 16px;white-space:pre-wrap;word-break:break-word}
-.diff-line.add{background:rgba(64,192,96,.08)}.diff-line.add .diff-content{color:#60c878}
-.diff-line.del{background:rgba(192,64,64,.08)}.diff-line.del .diff-content{color:#c06060;text-decoration:line-through}
-.diff-line.ctx .diff-content{color:var(--grey2)}
-.diff-apply-row{padding:8px 14px;display:flex;gap:8px;border-top:1px solid var(--grey3);background:var(--night2)}
-/* Cbtn reuse */
-.cbtn{background:var(--night2);border:1px solid var(--grey3);color:var(--grey);font-family:var(--fm);font-size:10px;padding:3px 8px;cursor:pointer;transition:all .1s}
-.cbtn:hover{border-color:var(--grass);color:var(--leaf)}
-
-/* Error panel */
-.ep{background:var(--night2);border:2px solid var(--grey3);margin-bottom:12px;box-shadow:3px 3px 0 var(--grey3)}
-.eph{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--grey3);background:var(--night3)}
-.epht{font-family:var(--fp);font-size:7px;color:var(--leaf);letter-spacing:2px}
-.eperrs{padding:10px;display:flex;flex-direction:column;gap:5px;max-height:240px;overflow-y:auto}
-.epi{display:flex;align-items:flex-start;gap:10px;padding:8px 10px;border-left:3px solid var(--grey3);background:var(--night3)}
-.epi.err{border-color:var(--red)}
-.epi.ok{border-color:var(--grass)}
-.epi.warn{border-color:var(--gold)}
-.epic{font-size:12px;flex-shrink:0;margin-top:1px}
-.eptl{font-size:11px;font-weight:500;color:var(--white);margin-bottom:2px}
-.epds{font-size:10px;color:var(--grey);line-height:1.5}
-.epfl{font-size:9px;color:var(--grey2);margin-top:3px;font-family:var(--fm)}
-.epft{display:flex;gap:8px;padding:10px 14px;border-top:1px solid var(--grey3)}
-
-/* SIDEBAR for mods */
-.sb-wrap{position:fixed;left:0;top:52px;bottom:48px;width:220px;background:var(--night2);border-right:2px solid var(--grey3);z-index:30;display:flex;flex-direction:column;transition:transform .2s steps(4)}
-.sb-wrap.hidden{transform:translateX(-222px)}
-.sb-toggle-tab{position:fixed;left:0;top:50%;transform:translateY(-50%);width:16px;height:48px;background:var(--night2);border:2px solid var(--grey3);border-left:none;display:none;align-items:center;justify-content:center;color:var(--leaf);z-index:45;font-size:11px;cursor:pointer;transition:all .1s}
-.sb-toggle-tab:hover{background:var(--gdim)}
-.sb-toggle-tab.show{display:flex}
-.sbh{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid var(--grey3)}
-.sbt{font-family:var(--fp);font-size:7px;color:var(--leaf);letter-spacing:2px}
-.sbtg{background:none;border:none;color:var(--grey);cursor:pointer;font-size:14px;transition:color .1s}
-.sbtg:hover{color:var(--leaf)}
-.bnn{display:flex;align-items:center;gap:8px;width:calc(100% - 16px);margin:8px 8px;background:none;border:2px dashed var(--grey3);color:var(--grey);font-family:var(--fm);font-size:11px;padding:7px 10px;cursor:pointer;transition:all .1s}
-.bnn:hover{border-color:var(--grass);color:var(--leaf);background:var(--gdim)}
-.sb-empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;text-align:center;padding:20px}
-.sbepx{font-family:var(--fp);font-size:28px;opacity:.12;letter-spacing:-2px;color:var(--grass)}
-.sbet{font-family:var(--fp);font-size:7px;color:var(--grey2);letter-spacing:1px}
-.sbes{font-size:10px;color:var(--grey3);margin-top:2px}
-.sb-mods{flex:1;overflow-y:auto;padding:6px}
-.mi{display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid transparent;cursor:pointer;transition:all .1s;font-size:11px;color:var(--grey);margin-bottom:2px}
-.mi:hover{border-color:var(--grey3);background:var(--night3);color:var(--white)}
-.mi.active{border-color:var(--grass);background:var(--gdim);color:var(--leaf)}
-.min{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.mdot{width:6px;height:6px;flex-shrink:0;image-rendering:pixelated}
-.mdot.done{background:var(--leaf);box-shadow:0 0 4px var(--leaf)}
-.mdot.pending{background:var(--gold);animation:blink .8s steps(1) infinite}
-
-/* GEN OVERLAY */
+/* ═══ OVERLAYS ═══════════════════════════════════════ */
+.overlay{position:fixed;inset:0;z-index:700;display:none;align-items:center;justify-content:center;background:rgba(10,15,10,.97);padding:20px}
+.overlay.open{display:flex}
+/* Pricing */
+.pmod{background:var(--night2);border:2px solid var(--grass);box-shadow:4px 4px 0 var(--grass2);width:100%;max-width:920px;max-height:90vh;overflow-y:auto;position:relative}
+.pmcl{position:absolute;top:10px;right:10px;background:var(--night3);border:1px solid var(--grey3);color:var(--grey);width:24px;height:24px;display:flex;align-items:center;justify-content:center;transition:all .1s}
+.pmcl:hover{border-color:var(--grass);color:var(--leaf)}
+.pmhd{padding:32px 36px 24px;border-bottom:1px solid var(--grey3);text-align:center}
+.pmkk{font-family:var(--fp);font-size:7px;color:var(--leaf);letter-spacing:3px;margin-bottom:14px;display:block}
+.pmhd h2{font-family:var(--fp);font-size:14px;color:var(--leaf);letter-spacing:2px;line-height:1.6;margin-bottom:8px;text-shadow:2px 2px 0 var(--grass2)}
+.pmhd p{font-size:12px;color:var(--grey);max-width:480px;margin:0 auto}
+.pgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--grey3);margin:1px}
+@media(max-width:640px){.pgrid{grid-template-columns:1fr}}
+.plc{background:var(--night2);padding:24px;position:relative}
+.plc.pop{background:var(--night3);box-shadow:inset 0 0 0 1px var(--grass)}
+.plpop{font-family:var(--fp);font-size:6px;color:var(--white);background:var(--grass);padding:3px 9px;letter-spacing:1px;display:inline-block;margin-bottom:12px;box-shadow:2px 2px 0 var(--grass2)}
+.plnm{font-family:var(--fp);font-size:7px;color:var(--grey);letter-spacing:2px;margin-bottom:10px}
+.plpn{font-family:var(--fp);font-size:26px;color:var(--leaf);display:block;margin-bottom:2px;text-shadow:2px 2px 0 var(--grass2)}
+.plpp{font-size:11px;color:var(--grey2);margin-bottom:14px;display:block}
+.plbtn{width:100%;padding:10px;font-family:var(--fp);font-size:6px;letter-spacing:1px;border:none;margin-bottom:16px;transition:all .1s}
+.plbtn.fr{background:var(--night3);color:var(--grey);border:1px solid var(--grey3)}
+.plbtn.fr:hover{border-color:var(--grass);color:var(--leaf)}
+.plbtn.pr{background:var(--grass);color:var(--white);box-shadow:2px 2px 0 var(--grass2)}
+.plbtn.pr:hover{transform:translate(-1px,-1px);box-shadow:3px 3px 0 var(--grass2)}
+.plbtn.el{background:linear-gradient(135deg,var(--leaf),var(--grass2));color:var(--white);box-shadow:2px 2px 0 var(--grass2)}
+.plft{display:flex;flex-direction:column;gap:7px}
+.plfi{display:flex;align-items:flex-start;gap:7px;font-size:11px;color:var(--grey)}
+.fic{font-size:10px;flex-shrink:0;margin-top:1px}
+.fic.yes{color:var(--leaf)}.fic.no{color:var(--grey3)}.fic.star{color:var(--gold)}
+/* Admin */
+.admo{position:fixed;inset:0;z-index:800;display:none;align-items:center;justify-content:center;background:rgba(10,15,10,.97)}
+.admo.open{display:flex}
+.admc{background:var(--night2);border:2px solid var(--grass);padding:26px;width:100%;max-width:420px;box-shadow:4px 4px 0 var(--grass2)}
+.admtt{font-family:var(--fp);font-size:8px;color:var(--leaf);letter-spacing:1px;margin-bottom:18px;display:flex;align-items:center;gap:8px}
+.admf{margin-bottom:12px}
+.admf label{display:block;font-family:var(--fp);font-size:6px;color:var(--leaf);letter-spacing:2px;margin-bottom:6px}
+.admf input{width:100%;background:var(--night);border:1px solid var(--grey3);color:var(--white);font-family:var(--fm);font-size:13px;padding:8px 11px;outline:none;transition:border-color .1s}
+.admf input:focus{border-color:var(--grass)}
+.admrw{display:flex;gap:8px;margin-top:14px}
+.badm{flex:1;background:var(--grass);color:var(--white);border:none;font-family:var(--fp);font-size:7px;padding:9px;letter-spacing:1px;box-shadow:2px 2px 0 var(--grass2);transition:all .1s}
+.badm:hover{transform:translate(-1px,-1px);box-shadow:3px 3px 0 var(--grass2)}
+.badm.sec{background:var(--night3);color:var(--grey);border:1px solid var(--grey3);box-shadow:none}
+.badm.sec:hover{border-color:var(--grass);color:var(--leaf);transform:none}
+.admlog{margin-top:12px;padding:9px;background:var(--night);border:1px solid var(--grey3);font-size:11px;color:var(--grey);min-height:32px;line-height:1.6;font-family:var(--fm)}
+/* GEN overlay */
 .gover{position:fixed;inset:0;z-index:500;display:none;align-items:center;justify-content:center;background:rgba(10,15,10,.93)}
 .gover.show{display:flex}
-.gbox{
-  background:var(--night2);border:3px solid var(--grass);
-  box-shadow:0 0 0 2px var(--grass2),6px 6px 0 var(--grass2),0 0 60px rgba(92,148,54,.2);
-  padding:48px;text-align:center;min-width:320px;
-  position:relative;
-}
-.gbox::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,var(--leaf),transparent)}
-.gprog{display:flex;justify-content:center;gap:3px;margin-bottom:24px}
-.gblk{width:16px;height:16px;background:var(--grass);image-rendering:pixelated;animation:gba .8s steps(1) infinite;box-shadow:1px 1px 0 var(--grass2)}
+.gbox{background:var(--night2);border:2px solid var(--grass);box-shadow:4px 4px 0 var(--grass2);padding:40px;text-align:center;min-width:300px}
+.gprog{display:flex;justify-content:center;gap:3px;margin-bottom:20px}
+.gblk{width:14px;height:14px;background:var(--grass);animation:gba .8s steps(1) infinite;box-shadow:1px 1px 0 var(--grass2)}
 .gblk:nth-child(2){animation-delay:.2s;background:var(--leaf)}
-.gblk:nth-child(3){animation-delay:.4s;background:var(--grass3)}
-.gblk:nth-child(4){animation-delay:.6s;background:var(--leaf)}
+.gblk:nth-child(3){animation-delay:.4s}.gblk:nth-child(4){animation-delay:.6s;background:var(--leaf)}
 @keyframes gba{0%,100%{opacity:.15;transform:scaleY(.5)}50%{opacity:1;transform:scaleY(1)}}
-.gmsg{font-family:var(--fp);font-size:9px;color:var(--leaf);letter-spacing:1px;line-height:1.8;margin-bottom:8px}
-.gtmr{font-family:var(--fp);font-size:12px;color:var(--white);margin-bottom:4px}
-.ghnt{font-size:10px;color:var(--grey);letter-spacing:.3px}
-
-/* TOAST */
-.toast{position:fixed;bottom:76px;left:50%;transform:translateX(-50%);background:var(--night2);border:2px solid var(--grey3);color:var(--white);font-family:var(--fp);font-size:8px;padding:10px 20px;letter-spacing:1px;display:none;z-index:900;white-space:nowrap;box-shadow:3px 3px 0 var(--grass2)}
+.gmsg{font-family:var(--fp);font-size:8px;color:var(--leaf);letter-spacing:1px;line-height:1.8;margin-bottom:6px}
+.gtmr{font-family:var(--fp);font-size:11px;color:var(--white);margin-bottom:4px}
+.ghnt{font-size:10px;color:var(--grey)}
+/* Toast */
+.toast{position:fixed;bottom:50px;left:50%;transform:translateX(-50%);background:var(--night2);border:2px solid var(--grey3);color:var(--white);font-family:var(--fp);font-size:8px;padding:9px 18px;letter-spacing:1px;display:none;z-index:900;white-space:nowrap;box-shadow:3px 3px 0 var(--grass2)}
 .toast.show{display:block}
 .toast.ok{border-color:var(--grass);color:var(--leaf)}
 .toast.err{border-color:var(--red);color:var(--red)}
-
-/* PRICING */
-.overlay{position:fixed;inset:0;z-index:700;display:none;align-items:center;justify-content:center;background:rgba(10,15,10,.97);padding:20px}
-.overlay.open{display:flex}
-.pmod{background:var(--night2);border:3px solid var(--grass);box-shadow:0 0 0 2px var(--grass2),6px 6px 0 var(--grass2),0 0 60px rgba(92,148,54,.2);width:100%;max-width:960px;max-height:90vh;overflow-y:auto;position:relative}
-.pmcl{position:absolute;top:12px;right:12px;background:var(--grass2);border:2px solid var(--grass3);color:var(--white);font-family:var(--fp);font-size:8px;width:26px;height:26px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .1s}
-.pmcl:hover{background:var(--grass);box-shadow:2px 2px 0 var(--grass2)}
-.pmhd{padding:36px 40px 28px;border-bottom:1px solid var(--grey3);text-align:center}
-.pmkk{font-family:var(--fp);font-size:7px;color:var(--leaf);letter-spacing:3px;margin-bottom:16px;display:block}
-.pmhd h2{font-family:var(--fp);font-size:16px;color:var(--leaf);letter-spacing:2px;line-height:1.6;margin-bottom:10px;text-shadow:3px 3px 0 var(--grass2)}
-.pmhd p{font-size:12px;color:var(--grey);max-width:480px;margin:0 auto;letter-spacing:.3px}
-.pgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--grey3);margin:1px}
-@media(max-width:680px){.pgrid{grid-template-columns:1fr}}
-.plc{background:var(--night2);padding:28px;position:relative}
-.plc.pop{background:var(--night3);box-shadow:inset 0 0 0 2px var(--grass)}
-.plpop{font-family:var(--fp);font-size:6px;color:var(--white);background:var(--grass);padding:4px 10px;letter-spacing:1px;display:inline-block;margin-bottom:14px;box-shadow:2px 2px 0 var(--grass2)}
-.plnm{font-family:var(--fp);font-size:8px;color:var(--grey);letter-spacing:2px;margin-bottom:12px}
-.plpn{font-family:var(--fp);font-size:28px;color:var(--leaf);display:block;margin-bottom:2px;text-shadow:2px 2px 0 var(--grass2)}
-.plpp{font-size:11px;color:var(--grey2);letter-spacing:.3px;margin-bottom:18px;display:block}
-.plbtn{width:100%;padding:12px;font-family:var(--fp);font-size:7px;letter-spacing:1px;border:none;margin-bottom:20px;cursor:pointer;transition:all .1s}
-.plbtn.fr{background:var(--night4);color:var(--grey);border:2px solid var(--grey3)}
-.plbtn.fr:hover{border-color:var(--grass);color:var(--leaf)}
-.plbtn.pr{background:var(--grass);color:var(--white);box-shadow:3px 3px 0 var(--grass2);text-shadow:1px 1px 0 rgba(0,0,0,.3)}
-.plbtn.pr:hover{transform:translate(-1px,-1px);box-shadow:4px 4px 0 var(--grass2)}
-.plbtn.el{background:linear-gradient(135deg,var(--leaf),var(--grass2));color:var(--white);box-shadow:3px 3px 0 var(--grass2)}
-.plft{display:flex;flex-direction:column;gap:8px}
-.plfi{display:flex;align-items:flex-start;gap:8px;font-size:11px;color:var(--grey)}
-.fic{font-size:10px;flex-shrink:0;margin-top:1px}
-.fic.yes{color:var(--leaf)}
-.fic.no{color:var(--grey3)}
-.fic.star{color:var(--gold)}
-
-/* ADMIN */
-.admo{position:fixed;inset:0;z-index:800;display:none;align-items:center;justify-content:center;background:rgba(10,15,10,.97)}
-.admo.open{display:flex}
-.admc{background:var(--night2);border:3px solid var(--grass);padding:28px;width:100%;max-width:420px;box-shadow:6px 6px 0 var(--grass2)}
-.admtt{font-family:var(--fp);font-size:9px;color:var(--leaf);letter-spacing:1px;margin-bottom:20px;display:flex;align-items:center;gap:8px}
-.admf{margin-bottom:14px}
-.admf label{display:block;font-family:var(--fp);font-size:6px;color:var(--leaf);letter-spacing:2px;margin-bottom:7px}
-.admf input{width:100%;background:var(--night);border:2px solid var(--grey3);color:var(--white);font-family:var(--fm);font-size:13px;padding:9px 12px;outline:none;transition:border-color .1s}
-.admf input:focus{border-color:var(--grass)}
-.admrw{display:flex;gap:8px;margin-top:16px}
-.badm{flex:1;background:var(--grass);color:var(--white);border:none;font-family:var(--fp);font-size:7px;padding:10px;letter-spacing:1px;cursor:pointer;box-shadow:2px 2px 0 var(--grass2);transition:all .1s;text-shadow:1px 1px 0 rgba(0,0,0,.3)}
-.badm:hover{transform:translate(-1px,-1px);box-shadow:3px 3px 0 var(--grass2)}
-.badm.sec{background:var(--night3);color:var(--grey);border:1px solid var(--grey3);box-shadow:none;text-shadow:none}
-.badm.sec:hover{border-color:var(--grass);color:var(--leaf);transform:none}
-.admlog{margin-top:14px;padding:10px;background:var(--night);border:1px solid var(--grey3);font-size:11px;color:var(--grey);min-height:36px;line-height:1.6;font-family:var(--fm)}
-
-/* Sidebar offset for main */
-.main-has-sb{margin-left:220px;transition:margin-left .2s steps(4)}
-.main-has-sb.no-sb{margin-left:0}
+/* Small btn */
+.smbtn{background:none;border:1px solid var(--grey3);color:var(--grey);font-family:var(--fm);font-size:10px;padding:2px 7px;transition:all .1s}
+.smbtn:hover{border-color:var(--grass);color:var(--leaf)}
 </style>
 </head>
 <body>
 
-<!-- Stars -->
-<div class="stars-wrap" id="starsWrap"></div>
-
-<!-- Ground -->
-<div class="ground">
-  <div class="grass-strip"></div>
-  <div class="dirt-strip"></div>
-</div>
-
-<!-- Auth Modal -->
+<!-- AUTH -->
 <div id="authModal">
   <div class="auth-card">
     <button class="ac-close" onclick="closeAuth()">✕</button>
@@ -553,7 +298,7 @@ html,body{height:100%;background:var(--night);color:var(--white);font-family:var
       <div class="ac-title">NEW PLAYER</div>
       <div class="ac-sub">// create account to generate mods</div>
       <div class="fld"><label>EMAIL</label><input type="email" id="rEmail" placeholder="you@example.com"><div class="err" id="rEmailErr"></div></div>
-      <div class="fld"><label>USERNAME</label><input type="text" id="rUser" placeholder="CoolModder" maxlength="20"><div class="hint">// 3-20 chars, letters/numbers/_</div><div class="err" id="rUserErr"></div></div>
+      <div class="fld"><label>USERNAME</label><input type="text" id="rUser" placeholder="CoolModder" maxlength="20"><div class="hint">// 3-20 chars</div><div class="err" id="rUserErr"></div></div>
       <div class="fld"><label>PASSWORD</label><input type="password" id="rPass" placeholder="••••••••"><div class="err" id="rPassErr"></div></div>
       <button class="mc-btn" id="btnReg" onclick="doRegister()">[ CREATE ACCOUNT ]</button>
       <div class="ac-sw">Already playing? <button onclick="switchForm('login')">[ SIGN IN ]</button></div>
@@ -570,31 +315,29 @@ html,body{height:100%;background:var(--night);color:var(--white);font-family:var
   </div>
 </div>
 
-<!-- APP -->
 <div id="app">
   <!-- NAV -->
   <div class="tnav">
     <div class="nbrand">
-      <div class="nblock"><div class="nblock-t" style="background:#6BAF40"></div><div class="nblock-t" style="background:#5C9436"></div><div class="nblock-b" style="background:#8B6340"></div><div class="nblock-b2" style="background:#6B4C30"></div></div>
+      <div class="nblock"><div></div><div></div><div></div><div></div></div>
       <div class="nbname">MODFORGE</div>
       <span class="nbver">v2.0</span>
     </div>
     <div class="nsp"></div>
     <div class="nr">
       <button class="nb" onclick="openPricing()">PRICING</button>
-      <div id="navGuest" style="display:flex;align-items:center;gap:8px">
+      <div id="navGuest" style="display:flex;align-items:center;gap:6px">
         <button class="nb" onclick="openAuth('login')">SIGN IN</button>
         <button class="nbp" onclick="openAuth('register')">REGISTER</button>
       </div>
-      <div id="navUser" style="display:none;align-items:center;gap:8px">
+      <div id="navUser" style="display:none;align-items:center;gap:6px">
         <div class="ncred"><span style="color:var(--leaf)">⚡</span><span class="ncnum" id="navCredits">5</span><span class="nclbl">credits</span></div>
         <div style="position:relative">
           <div class="nav-avatar" id="navAvatar" onclick="toggleAvMenu(event)"><span id="navInitials">U</span></div>
           <div class="avm" id="avMenu">
             <button class="avmi" onclick="closeAvMenu()">// Profile</button>
-            <button class="avmi" onclick="closeAvMenu()">// Settings</button>
             <button class="avmi" onclick="closeAvMenu();openPricing()">// Upgrade</button>
-            <button class="avmi" id="adminMenuBtn" onclick="openAdmin()" style="display:none">// Admin Panel</button>
+            <button class="avmi" id="adminMenuBtn" onclick="openAdmin()" style="display:none">// Admin</button>
             <button class="avmi danger" onclick="doLogout()">// Sign Out</button>
           </div>
         </div>
@@ -602,216 +345,151 @@ html,body{height:100%;background:var(--night);color:var(--white);font-family:var
     </div>
   </div>
 
-  <!-- SIDEBAR -->
-  <div class="sb-wrap" id="sidebar">
-    <div class="sbh"><span class="sbt">MODS</span><button class="sbtg" onclick="toggleSB()">‹</button></div>
-    <button class="bnn" onclick="onNewMod()"><span style="font-family:var(--fp);font-size:10px;color:var(--leaf)">+</span>NEW MOD</button>
-    <div class="sb-empty" id="sbEmpty"><div class="sbepx">🌱</div><div class="sbet">EMPTY CHEST</div><div class="sbes">// no mods yet</div></div>
-    <div class="sb-mods" id="sbMods" style="display:none"></div>
-  </div>
-  <button class="sb-toggle-tab" id="sbExpandTab" onclick="toggleSB()">›</button>
+  <div class="app-body">
 
-  <!-- MAIN CONTENT -->
-  <div class="main-has-sb" id="mainContent">
-    <div class="main-fs" id="mainFS">
-
-      <!-- Floating deco blocks -->
-      <div class="deco-block" style="top:8%;left:5%;--fd:7s;--fdelay:.5s;--r:12deg;font-size:32px">🪨</div>
-      <div class="deco-block" style="top:15%;right:8%;--fd:5s;--fdelay:1s;--r:-8deg;font-size:28px">🌿</div>
-      <div class="deco-block" style="top:65%;left:3%;--fd:8s;--fdelay:2s;--r:5deg;font-size:24px">💎</div>
-      <div class="deco-block" style="top:70%;right:4%;--fd:6s;--fdelay:.3s;--r:-15deg;font-size:26px">🪵</div>
-      <div class="deco-block" style="top:35%;left:8%;--fd:9s;--fdelay:1.5s;--r:20deg;font-size:20px">⛏</div>
-      <div class="deco-block" style="top:45%;right:6%;--fd:7s;--fdelay:.8s;--r:-10deg;font-size:22px">🔮</div>
-
-      <!-- HERO -->
-      <div id="hero" style="width:100%;max-width:800px;display:flex;flex-direction:column;align-items:center;text-align:center">
-
-        <div class="big-title">MINECRAFT<br>MOD GENERATOR</div>
-        <div class="sub-title">POWERED BY GROQ AI · REAL JAR · ZERO SETUP</div>
-
-        <div class="feat-row">
-          <div class="feat-pill"><span class="fp-dot g"></span>Fabric + NeoForge</div>
-          <div class="feat-pill"><span class="fp-dot o"></span>MC 1.16 → 1.21</div>
-          <div class="feat-pill"><span class="fp-dot b"></span>Real compiled JAR</div>
-          <div class="feat-pill"><span class="fp-dot g"></span>AI auto-fix loop</div>
+    <!-- ═══ LANDING ════════════════════════════════════ -->
+    <div id="landing">
+      <div class="lt">MINECRAFT<br>MOD GENERATOR</div>
+      <div class="ls">POWERED BY GROQ AI · REAL JAR · ZERO SETUP</div>
+      <div class="lfeat">
+        <div class="lf"><span class="lfdot g"></span>Fabric + NeoForge</div>
+        <div class="lf"><span class="lfdot o"></span>MC 1.16 → 1.21</div>
+        <div class="lf"><span class="lfdot b"></span>Real compiled JAR</div>
+        <div class="lf"><span class="lfdot g"></span>AI auto-fix loop</div>
+      </div>
+      <div class="cmd-box">
+        <div class="cmd-main">
+          <span class="cmd-pre">MODFORGE&nbsp;&gt;</span>
+          <input class="cmd-inp" id="promptInput" type="text"
+            placeholder="describe your mod idea..."
+            onkeydown="if(event.key==='Enter')onGenerate()"
+            onfocus="if(!S.user){openAuth('register');this.blur()}"
+            autocomplete="off">
         </div>
-
-        <!-- BIG COMMAND PROMPT -->
-        <div class="cmd-wrap" id="cmdWrap">
-          <div class="cmd-box">
-            <div class="cmd-inner">
-              <span class="cmd-prefix">MODFORGE &gt;</span>
-              <input class="cmd-input" id="promptInput" type="text"
-                placeholder="describe your mod idea..."
-                onkeydown="if(event.key==='Enter')onGenerate()"
-                onfocus="if(!S.user){openAuth('register');this.blur()}"
-                autocomplete="off">
-              <div class="cmd-cursor"></div>
-            </div>
-            <div class="cmd-footer">
-              <div class="cmd-left">
-                <div class="ver-sel" id="verPill" onclick="toggleVerMenu(event)">
-                  <span class="vs-dot"></span>
-                  <span class="vs-lbl" id="vLabel">MC 1.21.1</span>
-                  <span class="vs-chev">▼</span>
-                  <div class="vmenu" id="verMenu">
-                    <button class="vmbtn sel" onclick="setVer('1.21.1',this)">MC 1.21.1<span class="vtg">LATEST</span></button>
-                    <button class="vmbtn" onclick="setVer('1.20.4',this)">MC 1.20.4</button>
-                    <button class="vmbtn" onclick="setVer('1.20.1',this)">MC 1.20.1</button>
-                    <button class="vmbtn" onclick="setVer('1.19.4',this)">MC 1.19.4</button>
-                    <button class="vmbtn" onclick="setVer('1.18.2',this)">MC 1.18.2</button>
-                    <button class="vmbtn" onclick="setVer('1.16.5',this)">MC 1.16.5</button>
-                  </div>
-                </div>
-                <div style="position:relative">
-                  <button class="setbtn" onclick="toggleSetPanel(event)"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" width="14" height="14" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="10" r="2.5"/><path d="M10 2v1.5M10 16.5V18M2 10h1.5M16.5 10H18M4.1 4.1l1.1 1.1M14.8 14.8l1.1 1.1M4.1 15.9l1.1-1.1M14.8 5.2l1.1-1.1"/></svg></button>
-                  <div class="setpnl" id="setPanel">
-                    <span class="slbl">LOADER</span>
-                    <div class="srow" id="gLoader"><button class="obt on" data-v="Fabric" onclick="pickOpt(this,'gLoader')">Fabric</button><button class="obt" data-v="Forge" onclick="pickOpt(this,'gLoader')">Forge</button><button class="obt" data-v="NeoForge" onclick="pickOpt(this,'gLoader')">NeoForge</button></div>
-                    <hr class="ssep">
-                    <span class="slbl">LANGUAGE</span>
-                    <div class="srow" id="gLang"><button class="obt on" data-v="Java" onclick="pickOpt(this,'gLang')">Java</button><button class="obt" data-v="Kotlin" onclick="pickOpt(this,'gLang')">Kotlin</button></div>
-                  </div>
-                </div>
-                <div class="crbdg" id="creditsBadge"><span class="ci">⚡</span><span class="cn" id="creditsBar">5</span></div>
-              </div>
-              <div class="cmd-right">
-                <button class="gen-btn" id="genBtn" onclick="onGenerate()">
-                  <div class="spx"></div>
-                  <span class="blbl">[ GENERATE ]</span>
-                </button>
+        <div class="cmd-foot">
+          <div class="cmd-left">
+            <div class="ver-sel" id="verPill" onclick="toggleVerMenu(event)">
+              <span class="vsdot"></span>
+              <span class="vslbl" id="vLabel">MC 1.21.1</span>
+              <span class="vschev">▼</span>
+              <div class="vmenu" id="verMenu">
+                <button class="vmbtn sel" onclick="setVer('1.21.1',this)">MC 1.21.1<span class="vtg">LATEST</span></button>
+                <button class="vmbtn" onclick="setVer('1.20.4',this)">MC 1.20.4</button>
+                <button class="vmbtn" onclick="setVer('1.20.1',this)">MC 1.20.1</button>
+                <button class="vmbtn" onclick="setVer('1.19.4',this)">MC 1.19.4</button>
+                <button class="vmbtn" onclick="setVer('1.18.2',this)">MC 1.18.2</button>
+                <button class="vmbtn" onclick="setVer('1.16.5',this)">MC 1.16.5</button>
               </div>
             </div>
+            <div style="position:relative">
+              <button class="setbtn" onclick="toggleSetPanel(event)"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" width="13" height="13" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="10" r="2.5"/><path d="M10 2v1.5M10 16.5V18M2 10h1.5M16.5 10H18M4.1 4.1l1.1 1.1M14.8 14.8l1.1 1.1M4.1 15.9l1.1-1.1M14.8 5.2l1.1-1.1"/></svg></button>
+              <div class="setpnl" id="setPanel">
+                <span class="slbl">LOADER</span>
+                <div class="srow" id="gLoader"><button class="obt on" data-v="Fabric" onclick="pickOpt(this,'gLoader')">Fabric</button><button class="obt" data-v="Forge" onclick="pickOpt(this,'gLoader')">Forge</button><button class="obt" data-v="NeoForge" onclick="pickOpt(this,'gLoader')">NeoForge</button></div>
+                <hr class="ssep">
+                <span class="slbl">LANGUAGE</span>
+                <div class="srow" id="gLang"><button class="obt on" data-v="Java" onclick="pickOpt(this,'gLang')">Java</button><button class="obt" data-v="Kotlin" onclick="pickOpt(this,'gLang')">Kotlin</button></div>
+              </div>
+            </div>
+            <div class="crbdg" id="creditsBadge"><span class="ci">⚡</span><span class="cn" id="creditsBar">5</span></div>
           </div>
-        </div>
-
-        <!-- Example cards -->
-        <div class="ex-cards">
-          <div class="ex-card" onclick="onCard('Create a magic wand that shoots lightning bolts and levitates mobs')"><span class="ec-icon">✨</span><div class="ec-title">MAGIC WAND</div><div class="ec-desc">lightning + mob levitation</div></div>
-          <div class="ex-card" onclick="onCard('Speed boots that give permanent speed boost and double jump when worn')"><span class="ec-icon">⚡</span><div class="ec-title">SPEED BOOTS</div><div class="ec-desc">speed boost + double jump</div></div>
-          <div class="ex-card" onclick="onCard('Lucky blocks that drop random items when broken, from diamonds to explosions')"><span class="ec-icon">🎁</span><div class="ec-title">LUCKY BLOCK</div><div class="ec-desc">random drops: diamonds → TNT</div></div>
-          <div class="ex-card" onclick="onCard('A jetpack item that lets players fly when equipped in chest slot')"><span class="ec-icon">🚀</span><div class="ec-title">JETPACK</div><div class="ec-desc">chest armor → fly ability</div></div>
+          <button class="gen-btn" id="genBtn" onclick="onGenerate()">
+            <div class="spx"></div><span class="blbl">[ GENERATE ]</span>
+          </button>
         </div>
       </div>
-
-      <!-- MOD VIEW -->
-      <div class="mod-view" id="modView">
-        <div class="block-panel">
-          <div class="bp-head">
-            <span class="bp-title">MOD INFO</span>
-          </div>
-          <div class="mod-info-row">
-            <div class="mi-icon" id="mvIcon">⚙️</div>
-            <div>
-              <div class="mi-name" id="mvName">MY_MOD</div>
-              <div class="mi-tags">
-                <span class="mi-tag g" id="mvLoader">Fabric</span>
-                <span class="mi-tag" id="mvVer">MC 1.21.1</span>
-                <span class="mi-tag" id="mvLang">Java</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="block-panel">
-          <div class="bp-head"><span class="bp-title">BUILD STATUS</span></div>
-          <div class="bsteps">
-            <div class="bstep"><div class="bsn" id="s0i">1</div><span class="bsl" id="s0l">// Generating source code with AI...</span></div>
-            <div class="bstep"><div class="bsn" id="s1i">2</div><span class="bsl" id="s1l">// Parsing generated files...</span></div>
-            <div class="bstep"><div class="bsn" id="s2i">3</div><span class="bsl" id="s2l">// Building Gradle project structure...</span></div>
-            <div class="bstep"><div class="bsn" id="s3i">4</div><span class="bsl" id="s3l">// Packaging project ZIP...</span></div>
-          </div>
-          <div class="bprog"><div class="pt"><div class="pb" id="progFill"></div></div></div>
-        </div>
-
-        <div class="block-panel dl-area" id="dlArea">
-          <div class="bp-head"><span class="bp-title">DOWNLOAD</span></div>
-          <div class="dl-grid">
-            <div class="dl-btn" id="dlJarBtn" onclick="compileAndDownloadJar()"><span class="dl-icon" id="dlJarIco">☕</span><div><div class="dl-tt" id="dlJarTitle">DOWNLOAD JAR</div><div class="dl-sb" id="dlJarSub">// server-compiled → drop in mods/</div></div></div>
-            <div class="dl-btn" onclick="downloadZip()"><span class="dl-icon">📦</span><div><div class="dl-tt">DOWNLOAD ZIP</div><div class="dl-sb">// build: <code style="color:var(--leaf);font-size:9px">gradlew build</code></div></div></div>
-          </div>
-          <div class="api-row"><span>COMPILER:</span><span class="api-val" id="apiUrlDisplay">not set</span><button class="small-btn" onclick="setApiUrl()" style="margin-left:auto">CHANGE</button></div>
-        </div>
-
-        <!-- IDE EDITOR -->
-        <div class="ide" id="codePanel">
-          <!-- Title bar -->
-          <div class="ide-bar">
-            <div class="mc-dots"><div class="mcd r"></div><div class="mcd y"></div><div class="mcd g"></div></div>
-            <span class="ide-title">// EDITOR</span>
-            <div class="ide-actions">
-              <button class="cbtn" id="copyBtn" onclick="copyCode()">COPY</button>
-              <button class="cbtn" onclick="ideToggle()">COLLAPSE</button>
-            </div>
-          </div>
-          <!-- File tabs -->
-          <div class="ide-tabs" id="ideTabs"></div>
-          <!-- Editor -->
-          <div class="ide-editor" id="ideEditorWrap">
-            <div class="ide-lines" id="ideLines">1</div>
-            <textarea class="ide-textarea" id="ideTextarea" spellcheck="false" oninput="onIdeInput()" onscroll="syncScroll()" onkeydown="ideKeydown(event)"></textarea>
-          </div>
-          <!-- AI edit bar -->
-          <div class="ide-ai">
-            <div class="ide-ai-top">AI EDIT</div>
-            <div class="ide-prompt-row">
-              <input class="ide-prompt" id="idePromptInput" type="text"
-                placeholder="describe what to change, e.g. 'add right-click teleport ability'..."
-                onkeydown="if(event.key==='Enter')ideAiEdit()">
-              <button class="ide-send" id="ideSendBtn" onclick="ideAiEdit()">[ EDIT ]</button>
-            </div>
-          </div>
-          <!-- Diff view -->
-          <div class="ide-diff" id="ideDiff">
-            <div class="diff-header">
-              <div class="diff-stats">
-                <span class="diff-add" id="diffAdded">+0 lines</span>
-                <span class="diff-del" id="diffRemoved">-0 lines</span>
-              </div>
-              <span style="font-family:var(--fp);font-size:7px;color:var(--grey2);letter-spacing:1px" id="diffFile"></span>
-            </div>
-            <div class="diff-body" id="diffBody"></div>
-            <div class="diff-apply-row">
-              <button class="cbtn" style="background:var(--grass);color:var(--white);border-color:var(--grass)" onclick="applyDiff()">APPLY CHANGES</button>
-              <button class="cbtn" onclick="discardDiff()">DISCARD</button>
-              <span id="diffHint" style="font-size:10px;color:var(--grey2);margin-left:auto;font-family:var(--fm)"></span>
-            </div>
-          </div>
-        </div>
-
-        <div class="ep" id="errorPanel" style="display:none">
-          <div class="eph"><span class="epht">CODE ANALYSIS</span><label style="display:flex;align-items:center;gap:6px;font-size:10px;color:var(--grey)"><input type="checkbox" id="autoFixChk" style="accent-color:var(--grass)">// auto-fix</label></div>
-          <div id="epErrors" class="eperrs"></div>
-          <div class="epft"><button class="cbtn" onclick="checkErrors()">RUN CHECK</button><button class="cbtn" id="fixBtn" onclick="fixErrors()" style="display:none;background:var(--grass);color:var(--white);border-color:var(--grass)">FIX WITH AI</button></div>
-        </div>
-
-        <!-- Back to prompt -->
-        <div style="padding:12px 0;text-align:center">
-          <button class="small-btn" onclick="backToHero()">← GENERATE NEW MOD</button>
-        </div>
-
-        <!-- Re-show prompt at bottom of mod view too -->
-        <div class="cmd-wrap" id="cmdWrap2" style="margin-bottom:16px">
-          <div class="cmd-box">
-            <div class="cmd-inner">
-              <span class="cmd-prefix">MODFORGE &gt;</span>
-              <input class="cmd-input" id="promptInput2" type="text" placeholder="generate another mod..." onkeydown="if(event.key==='Enter'){document.getElementById('promptInput').value=this.value;onGenerate()}" autocomplete="off">
-            </div>
-            <div class="cmd-footer">
-              <div class="cmd-left"></div>
-              <div class="cmd-right">
-                <button class="gen-btn" onclick="document.getElementById('promptInput').value=document.getElementById('promptInput2').value;onGenerate()">
-                  <span>[ GENERATE AGAIN ]</span>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+      <div class="ex-cards">
+        <div class="ex-card" onclick="onCard('Create a magic wand that shoots lightning bolts and levitates mobs')"><span class="ec-icon">✨</span><div class="ec-title">MAGIC WAND</div><div class="ec-desc">lightning + mob levitation</div></div>
+        <div class="ex-card" onclick="onCard('Speed boots that give permanent speed boost and double jump when worn')"><span class="ec-icon">⚡</span><div class="ec-title">SPEED BOOTS</div><div class="ec-desc">speed boost + double jump</div></div>
+        <div class="ex-card" onclick="onCard('Lucky blocks that drop random items when broken, from diamonds to explosions')"><span class="ec-icon">🎁</span><div class="ec-title">LUCKY BLOCK</div><div class="ec-desc">random drops: diamonds → TNT</div></div>
+        <div class="ex-card" onclick="onCard('A jetpack item that lets players fly when equipped in chest slot')"><span class="ec-icon">🚀</span><div class="ec-title">JETPACK</div><div class="ec-desc">chest armor → fly ability</div></div>
       </div>
-
     </div>
-  </div>
-</div>
+
+    <!-- ═══ IDE VIEW ════════════════════════════════════ -->
+    <div id="ide-view">
+      <!-- IDE top bar -->
+      <div class="ide-topbar">
+        <button class="ide-tbtn" onclick="backToLanding()" style="margin-right:4px">← NEW MOD</button>
+        <span style="color:var(--grey3);font-size:11px">|</span>
+        <span class="ide-mod-name" id="ideModName">MY_MOD</span>
+        <span class="ide-mod-tag g" id="ideModLoader">Fabric</span>
+        <span class="ide-mod-tag" id="ideModVer">MC 1.21.1</span>
+        <div style="flex:1"></div>
+        <button class="ide-tbtn" id="ideCompileBtn" onclick="compileAndDownloadJar()">☕ COMPILE JAR</button>
+        <button class="ide-tbtn" onclick="downloadZip()">📦 ZIP</button>
+        <button class="ide-tbtn primary" onclick="showNewPrompt()">+ GENERATE MORE</button>
+      </div>
+
+      <div class="ide-panes" style="position:relative">
+        <!-- Build overlay -->
+        <div class="build-overlay" id="buildOverlay">
+          <div class="build-title">BUILDING MOD...</div>
+          <div class="build-steps">
+            <div class="build-step"><div class="bsn" id="s0i">1</div><span id="s0l" style="color:var(--grey2)">// Generating source code with AI...</span></div>
+            <div class="build-step"><div class="bsn" id="s1i">2</div><span id="s1l" style="color:var(--grey2)">// Parsing generated files...</span></div>
+            <div class="build-step"><div class="bsn" id="s2i">3</div><span id="s2l" style="color:var(--grey2)">// Building Gradle project structure...</span></div>
+            <div class="build-step"><div class="bsn" id="s3i">4</div><span id="s3l" style="color:var(--grey2)">// Packaging project ZIP...</span></div>
+          </div>
+          <div class="build-bar-wrap">
+            <div class="build-track"><div class="build-fill" id="buildFill"></div></div>
+          </div>
+        </div>
+
+        <!-- LEFT: file tree + chat -->
+        <div class="ide-left">
+          <!-- Files -->
+          <div class="ide-files">
+            <div class="ide-section-hd">
+              <span>FILES</span>
+            </div>
+            <div class="file-tree" id="fileTree"></div>
+          </div>
+          <!-- AI Chat -->
+          <div class="ide-chat">
+            <div class="chat-hd">
+              <span class="chat-hd-title">AI CHAT</span>
+              <button class="smbtn" onclick="clearChat()">CLEAR</button>
+            </div>
+            <div class="chat-msgs" id="chatMsgs">
+              <div class="chat-msg">
+                <div class="chat-msg-who ai">🤖 MODFORGE AI</div>
+                <div class="chat-msg-body">// Mod generated! Select a file on the right and ask me to edit it. Example: "add a right-click ability" or "fix the registration"</div>
+              </div>
+            </div>
+            <div class="chat-inp-area">
+              <div class="chat-inp-row">
+                <input class="chat-inp" id="chatInput" type="text" placeholder="describe what to change..." onkeydown="if(event.key==='Enter')sendChat()">
+                <button class="chat-send" id="chatSendBtn" onclick="sendChat()">SEND</button>
+              </div>
+              <div class="chat-hint">// edits the currently open file</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT: editor -->
+        <div class="ide-right">
+          <div class="editor-tabs" id="editorTabs"></div>
+          <div class="editor-wrap">
+            <div class="line-nums" id="lineNums">1</div>
+            <textarea class="code-ta" id="codeTa" spellcheck="false"
+              oninput="onCodeInput()"
+              onscroll="syncLineNums()"
+              onkeydown="taKeydown(event)"
+              placeholder="// select a file from the tree to edit"></textarea>
+          </div>
+          <div class="editor-status">
+            <span class="es-item" id="esFile">no file open</span>
+            <span class="es-item" id="esLines">0 lines</span>
+            <span class="es-item" id="esLoader">—</span>
+            <span class="es-item" style="margin-left:auto" id="esCursor">Ln 1, Col 1</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- app-body -->
+</div><!-- app -->
 
 <!-- Pricing -->
 <div class="overlay" id="pricingOverlay" onclick="if(event.target===this)closePricing()">
@@ -819,31 +497,31 @@ html,body{height:100%;background:var(--night);color:var(--white);font-family:var
     <button class="pmcl" onclick="closePricing()">✕</button>
     <div class="pmhd"><span class="pmkk">▶ PLANS &amp; PRICING</span><h2>LEVEL UP YOUR MODS</h2><p>// more credits, priority AI, faster compilation</p></div>
     <div class="pgrid">
-      <div class="plc"><div class="plnm">FREE</div><span class="plpn">$0</span><span class="plpp">// no credit card</span><button class="plbtn fr" onclick="closePricing();openAuth('register')">[ GET STARTED ]</button><div class="plft"><div class="plfi"><span class="fic yes">✓</span><span>5 credits on signup</span></div><div class="plfi"><span class="fic yes">✓</span><span>Groq fast inference</span></div><div class="plfi"><span class="fic yes">✓</span><span>Real JAR compilation</span></div><div class="plfi"><span class="fic yes">✓</span><span>Fabric &amp; NeoForge</span></div><div class="plfi"><span class="fic yes">✓</span><span>AI auto-fix (4x)</span></div><div class="plfi"><span class="fic no">✕</span><span style="color:var(--grey3)">Priority queue</span></div></div></div>
-      <div class="plc pop"><div class="plpop">★ POPULAR</div><div class="plnm">PRO</div><span class="plpn">$9</span><span class="plpp">// 100 credits/month</span><button class="plbtn pr" onclick="closePricing();showToast('PRO COMING SOON','ok')">[ UPGRADE ]</button><div class="plft"><div class="plfi"><span class="fic yes">✓</span><span>100 credits/month</span></div><div class="plfi"><span class="fic yes">✓</span><span>Premium AI models</span></div><div class="plfi"><span class="fic yes">✓</span><span>Priority compilation</span></div><div class="plfi"><span class="fic yes">✓</span><span>AI auto-fix (10x)</span></div><div class="plfi"><span class="fic yes">✓</span><span>30-day history</span></div><div class="plfi"><span class="fic yes">✓</span><span>Email support</span></div></div></div>
-      <div class="plc"><div class="plnm" style="color:var(--leaf)">ELITE</div><span class="plpn">$24</span><span class="plpp">// 500 credits/month</span><button class="plbtn el" onclick="closePricing();showToast('ELITE COMING SOON','ok')">[ GO ELITE ]</button><div class="plft"><div class="plfi"><span class="fic star">★</span><span>500 credits/month</span></div><div class="plfi"><span class="fic star">★</span><span>Frontier AI models</span></div><div class="plfi"><span class="fic star">★</span><span>Dedicated server</span></div><div class="plfi"><span class="fic star">★</span><span>Unlimited auto-fix</span></div><div class="plfi"><span class="fic star">★</span><span>Unlimited history</span></div><div class="plfi"><span class="fic star">★</span><span>Discord support</span></div></div></div>
+      <div class="plc"><div class="plnm">FREE</div><span class="plpn">$0</span><span class="plpp">// no credit card</span><button class="plbtn fr" onclick="closePricing();openAuth('register')">[ GET STARTED ]</button><div class="plft"><div class="plfi"><span class="fic yes">✓</span><span>5 credits on signup</span></div><div class="plfi"><span class="fic yes">✓</span><span>Groq fast inference</span></div><div class="plfi"><span class="fic yes">✓</span><span>Real JAR compilation</span></div><div class="plfi"><span class="fic yes">✓</span><span>Fabric &amp; NeoForge</span></div><div class="plfi"><span class="fic yes">✓</span><span>AI auto-fix</span></div><div class="plfi"><span class="fic no">✕</span><span style="color:var(--grey3)">Priority queue</span></div></div></div>
+      <div class="plc pop"><div class="plpop">★ POPULAR</div><div class="plnm">PRO</div><span class="plpn">$9</span><span class="plpp">// 100 credits/month</span><button class="plbtn pr" onclick="closePricing();showToast('COMING SOON','ok')">[ UPGRADE ]</button><div class="plft"><div class="plfi"><span class="fic yes">✓</span><span>100 credits/month</span></div><div class="plfi"><span class="fic yes">✓</span><span>Premium AI models</span></div><div class="plfi"><span class="fic yes">✓</span><span>Priority compilation</span></div><div class="plfi"><span class="fic yes">✓</span><span>AI auto-fix (10x)</span></div><div class="plfi"><span class="fic yes">✓</span><span>30-day history</span></div><div class="plfi"><span class="fic yes">✓</span><span>Email support</span></div></div></div>
+      <div class="plc"><div class="plnm" style="color:var(--leaf)">ELITE</div><span class="plpn">$24</span><span class="plpp">// 500 credits/month</span><button class="plbtn el" onclick="closePricing();showToast('COMING SOON','ok')">[ GO ELITE ]</button><div class="plft"><div class="plfi"><span class="fic star">★</span><span>500 credits/month</span></div><div class="plfi"><span class="fic star">★</span><span>Frontier AI models</span></div><div class="plfi"><span class="fic star">★</span><span>Dedicated server</span></div><div class="plfi"><span class="fic star">★</span><span>Unlimited auto-fix</span></div><div class="plfi"><span class="fic star">★</span><span>Unlimited history</span></div><div class="plfi"><span class="fic star">★</span><span>Discord support</span></div></div></div>
     </div>
-    <div style="padding:14px 28px;border-top:1px solid var(--grey3);font-size:10px;color:var(--grey2);text-align:center;letter-spacing:.5px">// secure payments via Stripe · cancel anytime</div>
+    <div style="padding:12px 24px;border-top:1px solid var(--grey3);font-size:10px;color:var(--grey2);text-align:center">// secure payments via Stripe · cancel anytime</div>
   </div>
 </div>
 
 <!-- Admin -->
 <div class="admo" id="adminOverlay" onclick="if(event.target===this)closeAdmin()">
   <div class="admc">
-    <div id="adminLock"><div class="admtt">🔐 ADMIN ACCESS</div><div class="admf"><label>PASSWORD</label><input type="password" id="adminPassInput" placeholder="enter password..." onkeydown="if(event.key==='Enter')adminUnlock()" autofocus></div><div class="admlog" id="adminLockLog" style="min-height:0;margin-top:8px"></div><div class="admrw" style="margin-top:12px"><button class="badm" onclick="adminUnlock()">[ UNLOCK ]</button><button class="badm sec" onclick="closeAdmin()">[ CANCEL ]</button></div></div>
+    <div id="adminLock"><div class="admtt">🔐 ADMIN</div><div class="admf"><label>PASSWORD</label><input type="password" id="adminPassInput" placeholder="enter password..." onkeydown="if(event.key==='Enter')adminUnlock()" autofocus></div><div class="admlog" id="adminLockLog" style="min-height:0;margin-top:8px"></div><div class="admrw" style="margin-top:12px"><button class="badm" onclick="adminUnlock()">[ UNLOCK ]</button><button class="badm sec" onclick="closeAdmin()">[ CANCEL ]</button></div></div>
     <div id="adminMain" style="display:none">
-      <div class="admtt" style="justify-content:space-between;margin-bottom:16px">🛡️ ADMIN<button onclick="adminLock()" style="background:none;border:none;color:var(--grey);font-family:var(--fm);font-size:10px;cursor:pointer">[ lock ]</button></div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:14px">
-        <div style="background:var(--night);border:1px solid var(--grey3);padding:10px;text-align:center"><div style="font-family:var(--fp);font-size:14px;color:var(--leaf)" id="statTotal">—</div><div style="font-size:9px;color:var(--grey2);margin-top:4px">USERS</div></div>
-        <div style="background:var(--night);border:1px solid var(--grey3);padding:10px;text-align:center"><div style="font-family:var(--fp);font-size:14px;color:var(--leaf)" id="statCredits">—</div><div style="font-size:9px;color:var(--grey2);margin-top:4px">CREDITS</div></div>
-        <div style="background:var(--night);border:1px solid var(--grey3);padding:10px;text-align:center"><div style="font-family:var(--fp);font-size:14px;color:var(--leaf)" id="statToday">—</div><div style="font-size:9px;color:var(--grey2);margin-top:4px">TODAY</div></div>
+      <div class="admtt" style="justify-content:space-between;margin-bottom:14px">🛡️ ADMIN<button onclick="adminLock()" style="background:none;border:none;color:var(--grey);font-family:var(--fm);font-size:10px;cursor:pointer">[ lock ]</button></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:12px">
+        <div style="background:var(--night);border:1px solid var(--grey3);padding:9px;text-align:center"><div style="font-family:var(--fp);font-size:13px;color:var(--leaf)" id="statTotal">—</div><div style="font-size:9px;color:var(--grey2);margin-top:3px">USERS</div></div>
+        <div style="background:var(--night);border:1px solid var(--grey3);padding:9px;text-align:center"><div style="font-family:var(--fp);font-size:13px;color:var(--leaf)" id="statCredits">—</div><div style="font-size:9px;color:var(--grey2);margin-top:3px">CREDITS</div></div>
+        <div style="background:var(--night);border:1px solid var(--grey3);padding:9px;text-align:center"><div style="font-family:var(--fp);font-size:13px;color:var(--leaf)" id="statToday">—</div><div style="font-size:9px;color:var(--grey2);margin-top:3px">TODAY</div></div>
       </div>
-      <div class="admf"><label>USER EMAIL</label><input type="email" id="adminEmail" placeholder="email@example.com" oninput="adminAutoSearch()" style="width:100%"><div id="adminUserInfo" style="display:none;margin-top:8px;padding:8px;background:var(--night);border:1px solid var(--grey3);font-size:11px;color:var(--grey);line-height:1.7"></div></div>
-      <div class="admf"><label>CREDITS</label><div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px"><button class="badm sec" style="font-size:10px;padding:4px 8px" onclick="setCredVal(5)">5</button><button class="badm sec" style="font-size:10px;padding:4px 8px" onclick="setCredVal(50)">50</button><button class="badm sec" style="font-size:10px;padding:4px 8px" onclick="setCredVal(100)">100</button><button class="badm sec" style="font-size:10px;padding:4px 8px" onclick="setCredVal(999999)">∞</button></div><div style="display:flex;gap:6px"><input type="number" id="adminCredits" value="100" style="flex:1"><button class="badm" style="flex:0;padding:9px 12px;font-size:10px" onclick="adminSetCredits()">SET</button><button class="badm sec" style="flex:0;padding:9px 12px;font-size:10px" onclick="adminAddCredits()">+ADD</button></div></div>
-      <div class="admf"><label style="display:flex;justify-content:space-between;align-items:center"><span>USERS</span><button class="cbtn" onclick="adminLoadUsers()">↻ REFRESH</button></label><div id="adminUsersList" style="background:var(--night);border:1px solid var(--grey3);max-height:140px;overflow-y:auto;font-size:11px"><div style="padding:10px;color:var(--grey2);text-align:center">// click refresh</div></div></div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px"><button class="badm sec" style="font-size:10px" onclick="adminGiveAll()">GIVE ALL +10</button><button class="badm sec" style="font-size:10px;color:var(--red);border-color:rgba(255,82,82,.3)" onclick="adminResetAll()">RESET ALL → 5</button></div>
+      <div class="admf"><label>USER EMAIL</label><input type="email" id="adminEmail" placeholder="email@example.com" oninput="adminAutoSearch()" style="width:100%"><div id="adminUserInfo" style="display:none;margin-top:7px;padding:7px;background:var(--night);border:1px solid var(--grey3);font-size:11px;color:var(--grey);line-height:1.7"></div></div>
+      <div class="admf"><label>CREDITS</label><div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:7px"><button class="badm sec" style="font-size:10px;padding:3px 7px" onclick="setCredVal(5)">5</button><button class="badm sec" style="font-size:10px;padding:3px 7px" onclick="setCredVal(50)">50</button><button class="badm sec" style="font-size:10px;padding:3px 7px" onclick="setCredVal(100)">100</button><button class="badm sec" style="font-size:10px;padding:3px 7px" onclick="setCredVal(999999)">∞</button></div><div style="display:flex;gap:5px"><input type="number" id="adminCredits" value="100" style="flex:1"><button class="badm" style="flex:0;padding:8px 11px;font-size:9px" onclick="adminSetCredits()">SET</button><button class="badm sec" style="flex:0;padding:8px 11px;font-size:9px" onclick="adminAddCredits()">+ADD</button></div></div>
+      <div class="admf"><label style="display:flex;justify-content:space-between;align-items:center"><span>USERS</span><button class="smbtn" onclick="adminLoadUsers()">↻ REFRESH</button></label><div id="adminUsersList" style="background:var(--night);border:1px solid var(--grey3);max-height:130px;overflow-y:auto;font-size:11px"><div style="padding:9px;color:var(--grey2);text-align:center">// click refresh</div></div></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:9px"><button class="badm sec" style="font-size:9px" onclick="adminGiveAll()">GIVE ALL +10</button><button class="badm sec" style="font-size:9px;color:var(--red);border-color:rgba(255,82,82,.3)" onclick="adminResetAll()">RESET → 5</button></div>
       <div class="admlog" id="adminLog">// ready</div>
-      <div style="margin-top:10px;text-align:right"><button class="badm sec" style="font-size:10px" onclick="closeAdmin()">[ CLOSE ]</button></div>
+      <div style="margin-top:9px;text-align:right"><button class="badm sec" style="font-size:9px" onclick="closeAdmin()">[ CLOSE ]</button></div>
     </div>
   </div>
 </div>
@@ -854,19 +532,19 @@ html,body{height:100%;background:var(--night);color:var(--white);font-family:var
     <div class="gprog"><div class="gblk"></div><div class="gblk"></div><div class="gblk"></div><div class="gblk"></div></div>
     <div class="gmsg" id="genMsg">CRAFTING YOUR MOD...</div>
     <div class="gtmr" id="genTimer">0s</div>
-    <div class="ghnt">// groq ai · fast inference engine</div>
+    <div class="ghnt">// groq ai · fast inference</div>
   </div>
 </div>
-
 <div class="toast" id="toast"></div>
 
 <script>
-// Stars
-(function(){const w=document.getElementById('starsWrap');for(let i=0;i<120;i++){const s=document.createElement('div');s.className='star';const sz=Math.random()<.7?1:Math.random()<.6?2:3;s.style.cssText=`width:${sz}px;height:${sz}px;top:${Math.random()*85}%;left:${Math.random()*100}%;--d:${2+Math.random()*4}s;--delay:${Math.random()*4}s;--min:${.1+Math.random()*.3};--max:${.6+Math.random()*.4}`;w.appendChild(s);}})();
-
+// ═══ CONFIG ════════════════════════════════════════════════════════
 const SB_URL='https://tjipfwhzcnzppuchxkmo.supabase.co',SB_KEY='sb_publishable_Zg4IIB1HfciHvw60h6ewcA_J8OfePL8';
 const S={user:null,mods:JSON.parse(localStorage.getItem('mcmg_mods')||'[]'),activeMod:null,sb:null};
 let mcVer='1.21.1';
+
+// IDE state
+const IDE={files:{},active:null,modified:{}};
 
 function initSB(){return new Promise(r=>{const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js';s.onload=()=>{try{S.sb=window.supabase.createClient(SB_URL,SB_KEY);}catch(e){}r();};s.onerror=()=>r();document.head.appendChild(s);});}
 
@@ -875,7 +553,6 @@ window.addEventListener('DOMContentLoaded',async()=>{
   if(S.sb){const{data:{session}}=await S.sb.auth.getSession().catch(()=>({data:{session:null}}));if(session?.user)setUser(session.user);else setGuest();S.sb.auth.onAuthStateChange((_e,sess)=>{if(sess?.user){setUser(sess.user);closeAuth();}else setGuest();});}
   else setGuest();
   document.addEventListener('click',()=>{document.getElementById('verMenu').classList.remove('open');document.getElementById('setPanel').classList.remove('open');document.getElementById('avMenu').classList.remove('open');});
-  updateApiDisplay();
 });
 
 const ADMINS=['oleksandrromanovic2@gmail.com'];
@@ -892,353 +569,340 @@ async function setUser(u){
   document.getElementById('navCredits').textContent=cr;
   document.getElementById('creditsBar').textContent=cr;
   const ab=document.getElementById('adminMenuBtn');if(ab)ab.style.display=ADMINS.includes(u.email)?'':'none';
-  renderSB();
 }
 function setGuest(){S.user=null;document.getElementById('navGuest').style.display='flex';document.getElementById('navUser').style.display='none';document.getElementById('creditsBadge').style.display='none';}
 function openAuth(m){document.getElementById('authModal').classList.add('open');switchForm(m);}
 function closeAuth(){document.getElementById('authModal').classList.remove('open');}
 function switchForm(m){document.getElementById('formReg').style.display=m==='register'?'':'none';document.getElementById('formLogin').style.display=m==='login'?'':'none';}
-async function doRegister(){const email=document.getElementById('rEmail').value.trim(),uname=document.getElementById('rUser').value.trim(),pass=document.getElementById('rPass').value;let ok=true;if(!email.includes('@')){showErr('rEmailErr','// valid email');ok=false;}else hideErr('rEmailErr');if(!uname||uname.length<3||!/^\w+$/.test(uname)){showErr('rUserErr','// 3-20 chars');ok=false;}else hideErr('rUserErr');if(pass.length<6){showErr('rPassErr','// min 6 chars');ok=false;}else hideErr('rPassErr');if(!ok)return;const btn=document.getElementById('btnReg');btn.disabled=true;btn.textContent='[ LOADING... ]';if(!S.sb){showToast('AUTH UNAVAILABLE','err');btn.disabled=false;btn.textContent='[ CREATE ACCOUNT ]';return;}const{error}=await S.sb.auth.signUp({email,password:pass,options:{data:{username:uname,credits:5}}});btn.disabled=false;btn.textContent='[ CREATE ACCOUNT ]';if(error){showErr('rEmailErr',error.message);return;}showToast('ACCOUNT CREATED','ok');switchForm('login');}
-async function doLogin(){const email=document.getElementById('lEmail').value.trim(),pass=document.getElementById('lPass').value;if(!email.includes('@')||!pass){showErr('lErr','// enter credentials');return;}const btn=document.getElementById('btnLogin');btn.disabled=true;btn.textContent='[ ... ]';if(!S.sb){showToast('AUTH UNAVAILABLE','err');btn.disabled=false;btn.textContent='[ SIGN IN ]';return;}const{error}=await S.sb.auth.signInWithPassword({email,password:pass});btn.disabled=false;btn.textContent='[ SIGN IN ]';if(error)showErr('lErr',error.message.includes('Invalid')?'// wrong credentials':error.message);}
+async function doRegister(){const email=document.getElementById('rEmail').value.trim(),uname=document.getElementById('rUser').value.trim(),pass=document.getElementById('rPass').value;let ok=true;if(!email.includes('@')){showErr('rEmailErr','// valid email');ok=false;}else hideErr('rEmailErr');if(!uname||uname.length<3||!/^\w+$/.test(uname)){showErr('rUserErr','// 3-20 chars');ok=false;}else hideErr('rUserErr');if(pass.length<6){showErr('rPassErr','// min 6 chars');ok=false;}else hideErr('rPassErr');if(!ok)return;const btn=document.getElementById('btnReg');btn.disabled=true;btn.textContent='[ ... ]';if(!S.sb){showToast('AUTH UNAVAILABLE','err');btn.disabled=false;btn.textContent='[ CREATE ACCOUNT ]';return;}const{error}=await S.sb.auth.signUp({email,password:pass,options:{data:{username:uname,credits:5}}});btn.disabled=false;btn.textContent='[ CREATE ACCOUNT ]';if(error){showErr('rEmailErr',error.message);return;}showToast('ACCOUNT CREATED','ok');switchForm('login');}
+async function doLogin(){const email=document.getElementById('lEmail').value.trim(),pass=document.getElementById('lPass').value;if(!email.includes('@')||!pass){showErr('lErr','// enter credentials');return;}const btn=document.getElementById('btnLogin');btn.disabled=true;btn.textContent='[ ... ]';if(!S.sb){showToast('AUTH UNAVAILABLE','err');btn.disabled=false;btn.textContent='[ SIGN IN ]';return;}const{error}=await S.sb.auth.signInWithPassword({email,password:pass});btn.disabled=false;btn.textContent='[ SIGN IN ]';if(error)showErr('lErr','// wrong credentials');}
 async function doLogout(){document.getElementById('avMenu').classList.remove('open');if(S.sb)await S.sb.auth.signOut();else setGuest();}
 function showErr(id,m){const e=document.getElementById(id);e.textContent=m;e.style.display='block';}
 function hideErr(id){document.getElementById(id).style.display='none';}
 
-let sbOpen=true;
-function toggleSB(){sbOpen=!sbOpen;const sb=document.getElementById('sidebar'),tab=document.getElementById('sbExpandTab'),mc=document.getElementById('mainContent');sb.classList.toggle('hidden',!sbOpen);tab.classList.toggle('show',!sbOpen);mc.classList.toggle('no-sb',!sbOpen);}
+// ═══ VIEWS ══════════════════════════════════════════════════════════
+function showLanding(){document.getElementById('landing').style.display='flex';document.getElementById('ide-view').classList.remove('show');}
+function showIDE(){document.getElementById('landing').style.display='none';document.getElementById('ide-view').classList.add('show');}
+function backToLanding(){S.activeMod=null;showLanding();}
+function showNewPrompt(){backToLanding();setTimeout(()=>document.getElementById('promptInput').focus(),100);}
 
-function renderSB(){if(!S.user)return;const mods=S.mods.filter(m=>m.owner===S.user.email);const e=document.getElementById('sbEmpty'),l=document.getElementById('sbMods');if(!mods.length){e.style.display='flex';l.style.display='none';return;}e.style.display='none';l.style.display='block';l.innerHTML=mods.map(m=>`<div class="mi ${S.activeMod?.id===m.id?'active':''}" onclick="openMod('${m.id}')"><span style="font-size:14px">${m.icon||'⚙️'}</span><span class="min">${m.name}</span><span class="mdot ${m.built?'done':'pending'}"></span></div>`).join('');}
-function onNewMod(){if(!S.user){openAuth('register');return;}S.activeMod=null;backToHero();renderSB();document.getElementById('promptInput').focus();}
-function openMod(id){const m=S.mods.find(x=>x.id===id);if(!m)return;S.activeMod=m;renderSB();showMV(m);}
-function backToHero(){document.getElementById('hero').style.display='flex';document.getElementById('modView').classList.remove('show');S.activeMod=null;renderSB();}
-
-function showMV(m){
-  document.getElementById('hero').style.display='none';
-  document.getElementById('modView').classList.add('show');
-  document.getElementById('mvIcon').textContent=m.icon||'⚙️';
-  document.getElementById('mvName').textContent=m.name.toUpperCase();
-  document.getElementById('mvLoader').textContent=m.loader;
-  document.getElementById('mvVer').textContent='MC '+m.version;
-  document.getElementById('mvLang').textContent=m.lang;
-  if(m.built){for(let i=0;i<4;i++){const ic=document.getElementById('s'+i+'i');ic.className='bsn done';ic.innerHTML='✓';document.getElementById('s'+i+'l').className='bsl done';}document.getElementById('progFill').style.width='100%';document.getElementById('dlArea').style.display='block';if(m.code)showCode(m,parseMF(m.code,m));}
-  else{resetSteps();document.getElementById('dlArea').style.display='none';document.getElementById('codePanel').style.display='none';}
+// ═══ IDE CORE ════════════════════════════════════════════════════════
+function openInIDE(mod){
+  S.activeMod=mod;
+  IDE.files=parseMF(mod.code,mod);
+  IDE.active=Object.keys(IDE.files).find(f=>f.endsWith('.java'))||Object.keys(IDE.files)[0]||null;
+  IDE.modified={};
+  // Update topbar
+  document.getElementById('ideModName').textContent=mod.name.toUpperCase();
+  document.getElementById('ideModLoader').textContent=mod.loader;
+  document.getElementById('ideModVer').textContent='MC '+mod.version;
+  document.getElementById('esLoader').textContent=mod.loader+' '+mod.version;
+  renderFileTree();
+  renderEditorTabs();
+  loadActiveFile();
+  showIDE();
+  addChatMsg('ai','// Mod "'+mod.name+'" loaded. '+Object.keys(IDE.files).length+' files. Ask me to edit any of them!');
 }
-function resetSteps(){for(let i=0;i<4;i++){const ic=document.getElementById('s'+i+'i');ic.className='bsn';ic.textContent=i+1;document.getElementById('s'+i+'l').className='bsl';}document.getElementById('progFill').style.width='0%';}
+
+function renderFileTree(){
+  const tree=document.getElementById('fileTree');
+  // Group files
+  const files=Object.keys(IDE.files);
+  tree.innerHTML=files.map(fp=>{
+    const name=fp.split('/').pop();
+    const ext=name.split('.').pop();
+    const icon=ext==='java'?'☕':ext==='json'?'{}':ext==='toml'?'⚙':ext==='gradle'?'🐘':'📄';
+    const isActive=fp===IDE.active;
+    const isMod=IDE.modified[fp];
+    const esc=fp.replace(/"/g,'&quot;');
+    return `<div class="ft-item ${isActive?'active':''} ${isMod?'modified':''}" data-fp="${esc}" title="${esc}">
+      <span class="ft-icon">${icon}</span>
+      <span class="ft-name">${name}</span>
+      <span class="ft-mod"></span>
+    </div>`;
+  }).join('');
+  // attach clicks via delegation to avoid filepath injection
+  tree.querySelectorAll('.ft-item').forEach(el=>{
+    el.onclick=()=>switchFile(el.dataset.fp);
+  });
+}
+
+function renderEditorTabs(){
+  const tabs=document.getElementById('editorTabs');
+  tabs.innerHTML=Object.keys(IDE.files).map(fp=>{
+    const name=fp.split('/').pop();
+    const isActive=fp===IDE.active;
+    const isMod=IDE.modified[fp];
+    const esc=fp.replace(/"/g,'&quot;');
+    return `<div class="etab ${isActive?'active':''} ${isMod?'modified':''}" data-fp="${esc}">
+      <span>${name}</span>
+      <span class="emod"></span>
+    </div>`;
+  }).join('');
+  tabs.querySelectorAll('.etab').forEach(el=>{
+    el.onclick=()=>switchFile(el.dataset.fp);
+  });
+}
+
+function switchFile(fp){
+  if(IDE.active)IDE.files[IDE.active]=document.getElementById('codeTa').value;
+  IDE.active=fp;
+  renderFileTree();
+  renderEditorTabs();
+  loadActiveFile();
+}
+
+function loadActiveFile(){
+  const ta=document.getElementById('codeTa');
+  if(!IDE.active){ta.value='';updateLineNums(ta);return;}
+  ta.value=IDE.files[IDE.active]||'';
+  updateLineNums(ta);
+  updateStatus();
+}
+
+function updateLineNums(ta){
+  const lines=ta.value.split('\n').length;
+  document.getElementById('lineNums').textContent=Array.from({length:lines},(_,i)=>i+1).join('\n');
+}
+
+function syncLineNums(){
+  const ta=document.getElementById('codeTa');
+  document.getElementById('lineNums').scrollTop=ta.scrollTop;
+}
+
+function onCodeInput(){
+  const ta=document.getElementById('codeTa');
+  if(IDE.active){
+    IDE.files[IDE.active]=ta.value;
+    IDE.modified[IDE.active]=true;
+    if(S.activeMod){S.activeMod.code=Object.entries(IDE.files).map(([p,c])=>`// FILE: ${p}\n${c}`).join('\n\n');saveMods();}
+    renderFileTree();
+    renderEditorTabs();
+  }
+  updateLineNums(ta);
+  updateStatus();
+}
+
+function taKeydown(e){
+  if(e.key==='Tab'){e.preventDefault();const ta=e.target,s=ta.selectionStart;ta.value=ta.value.slice(0,s)+'  '+ta.value.slice(ta.selectionEnd);ta.selectionStart=ta.selectionEnd=s+2;onCodeInput();}
+  // track cursor
+  setTimeout(updateCursor,0);
+}
+
+function updateCursor(){
+  const ta=document.getElementById('codeTa');
+  const text=ta.value.substring(0,ta.selectionStart);
+  const lines=text.split('\n');
+  document.getElementById('esCursor').textContent=`Ln ${lines.length}, Col ${lines[lines.length-1].length+1}`;
+}
+
+function updateStatus(){
+  const ta=document.getElementById('codeTa');
+  const name=IDE.active?IDE.active.split('/').pop():'no file open';
+  document.getElementById('esFile').textContent=(IDE.modified[IDE.active]?'● ':'')+name;
+  document.getElementById('esLines').textContent=ta.value.split('\n').length+' lines';
+}
+
+// ═══ AI CHAT ════════════════════════════════════════════════════════
+const PENDING_DIFFS={};
+let _diffIdCounter=0;
+
+function addChatMsg(who,text,diffData){
+  const msgs=document.getElementById('chatMsgs');
+  const div=document.createElement('div');
+  div.className='chat-msg '+(who==='user'?'user':'');
+
+  const whoEl=document.createElement('div');
+  whoEl.className='chat-msg-who '+who;
+  whoEl.textContent=who==='ai'?'🤖 MODFORGE AI':'👤 YOU';
+
+  const bodyEl=document.createElement('div');
+  bodyEl.className='chat-msg-body';
+  bodyEl.textContent=text;
+
+  div.appendChild(whoEl);
+  div.appendChild(bodyEl);
+
+  if(diffData){
+    const badge=document.createElement('div');
+    badge.className='diff-badge';
+    badge.innerHTML=`<span class="da">+${diffData.added} lines</span><span class="dr">-${diffData.removed} lines</span>`;
+    div.appendChild(badge);
+
+    // Store diff by ID to avoid JSON-in-onclick
+    const did='d'+(++_diffIdCounter);
+    PENDING_DIFFS[did]=diffData;
+
+    const row=document.createElement('div');
+    row.className='apply-row';
+
+    const applyBtn=document.createElement('button');
+    applyBtn.className='smbtn';
+    applyBtn.style.cssText='background:var(--grass);color:var(--white);border-color:var(--grass)';
+    applyBtn.textContent='APPLY';
+    applyBtn.onclick=()=>{applyDiff(did);row.style.opacity='.5';};
+
+    const discardBtn=document.createElement('button');
+    discardBtn.className='smbtn';
+    discardBtn.textContent='DISCARD';
+    discardBtn.onclick=()=>{delete PENDING_DIFFS[did];row.style.opacity='.4';};
+
+    row.appendChild(applyBtn);
+    row.appendChild(discardBtn);
+    div.appendChild(row);
+  }
+
+  msgs.appendChild(div);
+  msgs.scrollTop=msgs.scrollHeight;
+}
+
+function clearChat(){document.getElementById('chatMsgs').innerHTML='';}
+
+async function sendChat(){
+  const input=document.getElementById('chatInput');
+  const prompt=input.value.trim();
+  if(!prompt)return;
+  if(!IDE.active||!IDE.files[IDE.active]){showToast('SELECT A FILE FIRST','err');return;}
+  if(!S.user){openAuth('register');return;}
+  input.value='';
+  addChatMsg('user',prompt);
+  const btn=document.getElementById('chatSendBtn');
+  btn.disabled=true;btn.textContent='...';
+  const m=S.activeMod;
+  const fileName=IDE.active.split('/').pop();
+  const currentCode=IDE.files[IDE.active];
+  const sys=`You are a Minecraft mod code editor. The user wants to modify "${fileName}".
+Respond in this EXACT format:
+SUMMARY: <one line what you changed>
+ADDED: <number>
+REMOVED: <number>
+FILE_START
+<complete updated file content>
+FILE_END
+Output the COMPLETE file. Use correct ${m?.loader||'Fabric'} ${m?.version||'1.21.1'} APIs only.`;
+  const usr=`File: ${IDE.active}\nRequest: ${prompt}\n\nCurrent code:\n${currentCode}`;
+  try{
+    const data=await groqFetch(sys,usr);
+    const raw=data.choices?.[0]?.message?.content||'';
+    if(!raw)throw new Error('Empty response');
+    const sumM=raw.match(/SUMMARY:\s*(.+)/);
+    const addM=raw.match(/ADDED:\s*(\d+)/);
+    const remM=raw.match(/REMOVED:\s*(\d+)/);
+    const fileM=raw.match(/FILE_START\n([\s\S]*?)\nFILE_END/);
+    if(!fileM)throw new Error('Bad AI response format');
+    const newCode=fileM[1].trim();
+    const added=parseInt(addM?.[1]||'0');
+    const removed=parseInt(remM?.[1]||'0');
+    const summary=sumM?.[1]||prompt;
+    const diffData={fp:IDE.active,newCode,added,removed,summary};
+    addChatMsg('ai',`// ${summary}`,diffData);
+  }catch(err){
+    addChatMsg('ai','// Error: '+err.message.slice(0,60));
+  }
+  btn.disabled=false;btn.textContent='SEND';
+}
+
+function applyDiff(did){
+  const d=PENDING_DIFFS[did];
+  if(!d){showToast('DIFF EXPIRED','err');return;}
+  const{fp,newCode,added,removed}=d;
+  IDE.files[fp]=newCode;
+  IDE.modified[fp]=true;
+  if(S.activeMod){S.activeMod.code=Object.entries(IDE.files).map(([p,c])=>`// FILE: ${p}\n${c}`).join('\n\n');saveMods();}
+  if(IDE.active===fp){document.getElementById('codeTa').value=newCode;updateLineNums(document.getElementById('codeTa'));updateStatus();}
+  renderFileTree();renderEditorTabs();
+  delete PENDING_DIFFS[did];
+  showToast(`APPLIED +${added} -${removed}`,'ok');
+}
+
+// ═══ GENERATE ════════════════════════════════════════════════════════
 function getGuide(l,v){if(l==='Fabric')return`FABRIC ${v}: new Item.Settings(), Registries.ITEM, Identifier.of(), schemaVersion:1, AbstractBlock.Settings.create(). NEVER: FabricItemSettings, ItemGroup.X, Registry.ITEM, new Identifier()`;if(l==='NeoForge')return`NEOFORGE ${v}: DeferredRegister.create(Registries.ITEM,MODID), ResourceLocation.fromNamespaceAndPath(). NEVER: Fabric imports, ForgeRegistries`;return`MC ${v} — use correct ${l} APIs`;}
 function loadJSZ(){return new Promise(r=>{if(window.JSZip){r(window.JSZip);return;}const s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';s.onload=()=>r(window.JSZip);s.onerror=()=>r(null);document.head.appendChild(s);});}
 function toId(p){return p.toLowerCase().replace(/[^a-z0-9 ]/g,'').trim().split(/\s+/).slice(0,3).join('_')||'mymod';}
 function toName(p){return p.replace(/[^a-zA-Z0-9 ]/g,'').trim().split(/\s+/).slice(0,4).map(w=>w.charAt(0).toUpperCase()+w.slice(1).toLowerCase()).join('')||'MyMod';}
 function toPkg(id){return'com.modgen.'+id.replace(/[^a-z0-9]/g,'');}
 
+function setStep(i,st){const ic=document.getElementById('s'+i+'i'),lb=document.getElementById('s'+i+'l');const m={run:['run','⚡'],done:['done','✓'],err:['err','✕']};const[c,t]=m[st]||['',''+i];ic.className='bsn '+c;ic.textContent=t;if(lb){lb.style.color=st==='done'?'var(--grey3)':st==='run'?'var(--white)':'var(--grey2)';}}
+
 async function onGenerate(){
-  const prompt=(document.getElementById('promptInput').value||document.getElementById('promptInput2').value).trim();
+  const prompt=document.getElementById('promptInput').value.trim();
   if(!prompt){document.getElementById('promptInput').focus();return;}
   if(!S.user){openAuth('register');return;}
   if(S.user.credits<=0){showToast('NO CREDITS LEFT','err');return;}
-  const loader=getOpt('gLoader')||'NeoForge',lang=getOpt('gLang')||'Java',modId=toId(prompt),modName=toName(prompt),pkg=toPkg(modId);
-  const icons=['⚔️','🪄','🎁','⚡','🔮','🏹','🛡️','🧲','🌱','💎'],id='mod_'+Date.now(),icon=icons[Math.floor(Math.random()*icons.length)];
+  const loader=getOpt('gLoader')||'NeoForge',lang=getOpt('gLang')||'Java';
+  const modId=toId(prompt),modName=toName(prompt),pkg=toPkg(modId);
+  const icons=['⚔️','🪄','🎁','⚡','🔮','🏹','🛡️','🧲','🌱','💎'];
+  const id='mod_'+Date.now(),icon=icons[Math.floor(Math.random()*icons.length)];
   const mod={id,name:modName,icon,loader,version:mcVer,lang,prompt,modId,pkg,built:false,owner:S.user.email,code:'',zipBlob:null};
-  S.mods.push(mod);saveMods();S.activeMod=mod;renderSB();showMV(mod);
+  S.mods.push(mod);saveMods();S.activeMod=mod;
+
+  // Show gen overlay
   const ov=document.getElementById('genOverlay');ov.classList.add('show');
   const tEl=document.getElementById('genTimer'),mEl=document.getElementById('genMsg'),t0=Date.now();
   const msgs=['CRAFTING YOUR MOD...','QUERYING GROQ AI...','WRITING JAVA CODE...','LOADING TEXTURES...','BUILDING GRADLE...','ALMOST DONE...'];
   let tmi=0;
   const iv=setInterval(()=>{const s=Math.floor((Date.now()-t0)/1000);tEl.textContent=s+'s';if(tmi<msgs.length&&s>=tmi*3){mEl.textContent=msgs[tmi];tmi++;}},500);
   const btn=document.getElementById('genBtn');btn.disabled=true;btn.classList.add('loading');
+
   try{
-    setStep(0,'run');
     const guide=getGuide(loader,mcVer),pkgp=pkg.replace(/\./g,'/');
-    const sys=`You are a senior Minecraft mod developer. Generate a complete, compilable ${loader} mod for Minecraft ${mcVer} in ${lang}.\nPACKAGE: ${pkg}   MOD_ID: ${modId}   MOD_NAME: ${modName}\n${guide}\nOUTPUT FORMAT:\n// FILE: src/main/java/${pkgp}/${modName}.java\n[complete java]\n// FILE: ${loader==='Fabric'?'src/main/resources/fabric.mod.json':'src/main/resources/META-INF/neoforge.mods.toml'}\n[config]\nOnly output files. No prose outside code comments.`;
+    const sys=`You are a senior Minecraft mod developer. Generate a complete, compilable ${loader} mod for Minecraft ${mcVer} in ${lang}.
+PACKAGE: ${pkg}   MOD_ID: ${modId}   MOD_NAME: ${modName}
+${guide}
+OUTPUT FORMAT:
+// FILE: src/main/java/${pkgp}/${modName}.java
+[complete java]
+// FILE: ${loader==='Fabric'?'src/main/resources/fabric.mod.json':'src/main/resources/META-INF/neoforge.mods.toml'}
+[config]
+Only output files. No prose outside code comments.`;
     const usr=`Create a working ${loader} mod for Minecraft ${mcVer} in ${lang}.\nMod idea: ${prompt}\nMod ID: ${modId}, Package: ${pkg}, Main class: ${modName}`;
-    const data=await groqFetch(sys,usr);const raw=data.choices?.[0]?.message?.content||'';mod.code=raw;setStep(0,'done');clearInterval(iv);
-    setStep(1,'run');await sleep(300);const files=parseMF(raw,mod);setStep(1,'done');document.getElementById('progFill').style.width='50%';
-    setStep(2,'run');await sleep(400);const JSZ=await loadJSZ();if(!JSZ)throw new Error('JSZip failed');const zip=buildZip(JSZ,mod,files);setStep(2,'done');document.getElementById('progFill').style.width='80%';
-    setStep(3,'run');mod.zipBlob=await zip.generateAsync({type:'blob',compression:'DEFLATE'});setStep(3,'done');document.getElementById('progFill').style.width='100%';
-    S.user.credits=Math.max(0,S.user.credits-1);document.getElementById('navCredits').textContent=S.user.credits;document.getElementById('creditsBar').textContent=S.user.credits;
+    const data=await groqFetch(sys,usr);
+    const raw=data.choices?.[0]?.message?.content||'';
+    mod.code=raw;
+    clearInterval(iv);ov.classList.remove('show');
+
+    // Now show IDE with build progress
+    openInIDE(mod);
+    const bo=document.getElementById('buildOverlay');bo.classList.add('show');
+    for(let i=0;i<4;i++){setStep(i,'run');await sleep(300);setStep(i,'done');document.getElementById('buildFill').style.width=((i+1)*25)+'%';}
+
+    const JSZ=await loadJSZ();
+    if(JSZ){const files=parseMF(raw,mod);const zip=buildZip(JSZ,mod,files);mod.zipBlob=await zip.generateAsync({type:'blob',compression:'DEFLATE'});}
+    mod.built=true;saveMods();
+
+    S.user.credits=Math.max(0,S.user.credits-1);
+    document.getElementById('navCredits').textContent=S.user.credits;
+    document.getElementById('creditsBar').textContent=S.user.credits;
     if(S.sb)S.sb.from('profiles').update({credits:S.user.credits}).eq('id',S.user.id).then(()=>{});
-    mod.built=true;saveMods();renderSB();clearInterval(iv);ov.classList.remove('show');document.getElementById('dlArea').style.display='block';showCode(mod,files);showToast('BUILD COMPLETE','ok');
-  }catch(err){clearInterval(iv);ov.classList.remove('show');showToast('ERROR: '+err.message.slice(0,40),'err');setStep(0,'err');}
-  finally{btn.disabled=false;btn.classList.remove('loading');document.getElementById('promptInput').value='';document.getElementById('promptInput2').value='';}
+
+    bo.classList.remove('show');
+    showToast('BUILD COMPLETE','ok');
+    addChatMsg('ai',`// ✅ "${modName}" built successfully! ${Object.keys(IDE.files).length} files generated. Ask me to add features or fix anything.`);
+  }catch(err){
+    clearInterval(iv);ov.classList.remove('show');
+    showToast('ERROR: '+err.message.slice(0,40),'err');
+    setStep(0,'err');
+  }
+  finally{btn.disabled=false;btn.classList.remove('loading');document.getElementById('promptInput').value='';}
 }
 
-function setStep(i,st){const ic=document.getElementById('s'+i+'i'),lb=document.getElementById('s'+i+'l'),m={run:['run','⚡','act'],done:['done','✓','done'],err:['err','✕','']},[c,t,lc]=m[st]||['',''+i,''];ic.className='bsn '+c;ic.textContent=t;if(lc)lb.className='bsl '+lc;}
 function parseMF(raw,mod){const files={},parts=raw.split(/\/\/\s*FILE:\s*/);for(let i=1;i<parts.length;i++){const nl=parts[i].indexOf('\n');if(nl===-1)continue;const fp=parts[i].slice(0,nl).trim();let c=parts[i].slice(nl+1).trim().replace(/^```[a-z]*\n?/i,'').replace(/\n?```\s*$/i,'').trim();if(fp&&c)files[fp]=c;}if(!Object.keys(files).length&&raw.length>50){const jp=`src/main/java/${mod.pkg.replace(/\./g,'/')}/${mod.name}.java`;files[jp]=raw.replace(/^```[a-z]*\n?/im,'').replace(/\n?```\s*$/im,'').trim();}return files;}
-function gV(l){return l==='Fabric'?'8.11':'8.10.2';}function nV(v){const m={'1.21.4':'21.4.20','1.21.3':'21.3.3','1.21.1':'21.1.80','1.21':'21.0.167','1.20.6':'20.6.119','1.20.4':'20.4.237','1.20.2':'20.2.88'};return m[v]||'21.1.80';}function fV(v){const m={'1.21.1':'0.114.1+1.21.1','1.21':'0.100.8+1.21','1.20.4':'0.97.0+1.20.4','1.20.2':'0.91.0+1.20.2','1.20.1':'0.92.2+1.20.1','1.19.4':'0.87.2+1.19.4','1.18.2':'0.77.0+1.18.2'};return m[v]||'0.114.1+1.21.1';}
-function buildZip(JSZ,mod,gen){const zip=new JSZ(),root=mod.modId+'/',{modId,name:modName,version:mcV2,loader,pkg}=mod,mcV=mcV2||'1.21.1',iF=loader==='Fabric',gv=gV(loader),nv=nV(mcV),fv=fV(mcV);zip.file(root+'gradle/wrapper/gradle-wrapper.properties',`distributionBase=GRADLE_USER_HOME\ndistributionPath=wrapper/dists\ndistributionUrl=https\\://services.gradle.org/distributions/gradle-${gv}-bin.zip\nnetworkTimeout=180000\nvalidateDistributionUrl=true\nzipStoreBase=GRADLE_USER_HOME\nzipStorePath=wrapper/dists`);zip.file(root+'gradlew','#!/bin/sh\nAPP_HOME=$(cd "$(dirname "$0")" && pwd)\nexec java -jar "$APP_HOME/gradle/wrapper/gradle-wrapper.jar" "$@"',{unixPermissions:'755'});zip.file(root+'gradlew.bat','@echo off\njava -jar "%~dp0gradle\\wrapper\\gradle-wrapper.jar" %*');zip.file(root+'settings.gradle',iF?`pluginManagement {\n    repositories {\n        maven { url = 'https://maven.fabricmc.net/' }\n        mavenCentral()\n        gradlePluginPortal()\n    }\n}\nrootProject.name = "${modId}"`:`pluginManagement {\n    repositories {\n        maven { url = 'https://maven-central.storage.googleapis.com' }\n        mavenCentral()\n        gradlePluginPortal()\n        maven { url = 'https://maven.neoforged.net/releases' }\n    }\n}\nplugins { id 'org.gradle.toolchains.foojay-resolver-convention' version '0.8.0' }\nrootProject.name = "${modId}"`);zip.file(root+'gradle.properties',iF?`minecraft_version=${mcV}\nyarn_mappings=${mcV}+build.1\nloader_version=0.16.10\nfabric_version=${fv}\njava_version=21\nmaven_group=${pkg}\nmod_id=${modId}\nmod_name=${modName}\nmod_version=1.0.0\nmod_authors=ModGen\nmod_description=Generated mod\norg.gradle.jvmargs=-Xmx2G\norg.gradle.daemon=false`:`minecraft_version=${mcV}\nneo_version=${nv}\njava_version=21\nmaven_group=${pkg}\nmod_id=${modId}\nmod_name=${modName}\nmod_version=1.0.0\nmod_authors=ModGen\nmod_description=Generated mod\norg.gradle.jvmargs=-Xmx4G -XX:MaxMetaspaceSize=512m\norg.gradle.daemon=false\norg.gradle.parallel=true\norg.gradle.caching=true\norg.gradle.configuration-cache=false`);zip.file(root+'build.gradle',iF?`plugins {\n    id 'fabric-loom' version '1.9-SNAPSHOT'\n    id 'maven-publish'\n}\nversion = project.mod_version\ngroup = project.maven_group\nbase { archivesName = project.mod_id }\njava.toolchain.languageVersion = JavaLanguageVersion.of(project.java_version.toInteger())\nrepositories { mavenCentral() }\ndependencies {\n    minecraft "com.mojang:minecraft:\${project.minecraft_version}"\n    mappings "net.fabricmc:yarn:\${project.yarn_mappings}:v2"\n    modImplementation "net.fabricmc:fabric-loader:\${project.loader_version}"\n    modImplementation "net.fabricmc.fabric-api:fabric-api:\${project.fabric_version}"\n}\ntasks.withType(JavaCompile).configureEach { options.encoding = 'UTF-8' }`:`plugins {\n    id 'java-library'\n    id 'maven-publish'\n    id 'net.neoforged.gradle.userdev' version '7.0.163'\n}\nversion = project.mod_version\ngroup = project.maven_group\nbase { archivesName = project.mod_id }\njava.toolchain.languageVersion = JavaLanguageVersion.of(project.java_version.toInteger())\nrepositories {\n    maven { url = 'https://maven-central.storage.googleapis.com' }\n    mavenCentral()\n}\ndependencies { implementation "net.neoforged:neoforge:\${neo_version}" }\ntasks.withType(ProcessResources).configureEach {\n    var p=[minecraft_version:minecraft_version,neo_version:neo_version,mod_id:mod_id,mod_name:mod_name,mod_version:mod_version,mod_authors:mod_authors,mod_description:mod_description]\n    inputs.properties p\n    filesMatching(['META-INF/neoforge.mods.toml']){expand p+[project:project]}\n}\ntasks.withType(JavaCompile).configureEach { options.encoding = 'UTF-8' }`);const hF=Object.keys(gen).some(f=>f.includes('fabric.mod.json')),hT=Object.keys(gen).some(f=>f.includes('neoforge.mods.toml'));if(iF&&!hF)zip.file(root+'src/main/resources/fabric.mod.json',JSON.stringify({schemaVersion:1,id:modId,version:'1.0.0',name:modName,description:'Generated mod',authors:['ModGen'],environment:'*',entrypoints:{main:[`${pkg}.${modName}`]},depends:{fabricloader:'>=0.14.0','fabric-api':'*',minecraft:mcV}},null,2));if(!iF&&!hT)zip.file(root+'src/main/resources/META-INF/neoforge.mods.toml',`modLoader="javafml"\nloaderVersion="[4,)"\nlicense="All Rights Reserved"\n[[mods]]\nmodId="${modId}"\nversion="\${mod_version}"\ndisplayName="\${mod_name}"\ndescription="\${mod_description}"\n[[dependencies.${modId}]]\nmodId="neoforge"\ntype="required"\nversionRange="[${nv},)"\nordering="NONE"\nside="BOTH"\n[[dependencies.${modId}]]\nmodId="minecraft"\ntype="required"\nversionRange="[${mcV},)"\nordering="NONE"\nside="BOTH"`);for(const[fp,c]of Object.entries(gen))zip.file(root+fp,c);return zip;}
+
+function gV(l){return l==='Fabric'?'8.11':'8.10.2';}
+function nV(v){const m={'1.21.4':'21.4.20','1.21.3':'21.3.3','1.21.1':'21.1.80','1.21':'21.0.167','1.20.6':'20.6.119','1.20.4':'20.4.237','1.20.2':'20.2.88'};return m[v]||'21.1.80';}
+function fV(v){const m={'1.21.1':'0.114.1+1.21.1','1.21':'0.100.8+1.21','1.20.4':'0.97.0+1.20.4','1.20.2':'0.91.0+1.20.2','1.20.1':'0.92.2+1.20.1','1.19.4':'0.87.2+1.19.4','1.18.2':'0.77.0+1.18.2'};return m[v]||'0.114.1+1.21.1';}
+
+function buildZip(JSZ,mod,gen){const zip=new JSZ(),root=mod.modId+'/',{modId,name:modName,version:mcV2,loader,pkg}=mod,mcV=mcV2||'1.21.1',iF=loader==='Fabric',gv=gV(loader),nv=nV(mcV),fv=fV(mcV);zip.file(root+'gradle/wrapper/gradle-wrapper.properties',`distributionBase=GRADLE_USER_HOME\ndistributionPath=wrapper/dists\ndistributionUrl=https\\://services.gradle.org/distributions/gradle-${gv}-bin.zip\nnetworkTimeout=180000\nvalidateDistributionUrl=true\nzipStoreBase=GRADLE_USER_HOME\nzipStorePath=wrapper/dists`);zip.file(root+'gradlew','#!/bin/sh\nDIRNAME=$(cd "$(dirname "$0")" && pwd)\nexec java -jar "$DIRNAME/gradle/wrapper/gradle-wrapper.jar" "$@"',{unixPermissions:'755'});zip.file(root+'gradlew.bat','@echo off\njava -jar "%~dp0gradle\\wrapper\\gradle-wrapper.jar" %*');zip.file(root+'settings.gradle',iF?`pluginManagement {\n    repositories {\n        maven { url = 'https://maven.fabricmc.net/' }\n        mavenCentral()\n        gradlePluginPortal()\n    }\n}\nrootProject.name = "${modId}"`:`pluginManagement {\n    repositories {\n        maven { url = 'https://maven-central.storage.googleapis.com' }\n        mavenCentral()\n        gradlePluginPortal()\n        maven { url = 'https://maven.neoforged.net/releases' }\n    }\n}\nplugins { id 'org.gradle.toolchains.foojay-resolver-convention' version '0.8.0' }\nrootProject.name = "${modId}"`);zip.file(root+'gradle.properties',iF?`minecraft_version=${mcV}\nyarn_mappings=${mcV}+build.1\nloader_version=0.16.10\nfabric_version=${fv}\njava_version=21\nmaven_group=${pkg}\nmod_id=${modId}\nmod_name=${modName}\nmod_version=1.0.0\nmod_authors=ModGen\nmod_description=Generated mod\norg.gradle.jvmargs=-Xmx2G\norg.gradle.daemon=false`:`minecraft_version=${mcV}\nneo_version=${nv}\njava_version=21\nmaven_group=${pkg}\nmod_id=${modId}\nmod_name=${modName}\nmod_version=1.0.0\nmod_authors=ModGen\nmod_description=Generated mod\norg.gradle.jvmargs=-Xmx4G -XX:MaxMetaspaceSize=512m\norg.gradle.daemon=false\norg.gradle.parallel=true\norg.gradle.caching=true\norg.gradle.configuration-cache=false`);zip.file(root+'build.gradle',iF?`plugins {\n    id 'fabric-loom' version '1.9-SNAPSHOT'\n    id 'maven-publish'\n}\nversion = project.mod_version\ngroup = project.maven_group\nbase { archivesName = project.mod_id }\njava.toolchain.languageVersion = JavaLanguageVersion.of(project.java_version.toInteger())\nrepositories { mavenCentral() }\ndependencies {\n    minecraft "com.mojang:minecraft:\${project.minecraft_version}"\n    mappings "net.fabricmc:yarn:\${project.yarn_mappings}:v2"\n    modImplementation "net.fabricmc:fabric-loader:\${project.loader_version}"\n    modImplementation "net.fabricmc.fabric-api:fabric-api:\${project.fabric_version}"\n}\ntasks.withType(JavaCompile).configureEach { options.encoding = 'UTF-8' }`:`plugins {\n    id 'java-library'\n    id 'maven-publish'\n    id 'net.neoforged.gradle.userdev' version '7.0.163'\n}\nversion = project.mod_version\ngroup = project.maven_group\nbase { archivesName = project.mod_id }\njava.toolchain.languageVersion = JavaLanguageVersion.of(project.java_version.toInteger())\nrepositories {\n    maven { url = 'https://maven-central.storage.googleapis.com' }\n    mavenCentral()\n}\ndependencies { implementation "net.neoforged:neoforge:\${neo_version}" }\ntasks.withType(ProcessResources).configureEach {\n    var p=[minecraft_version:minecraft_version,neo_version:neo_version,mod_id:mod_id,mod_name:mod_name,mod_version:mod_version,mod_authors:mod_authors,mod_description:mod_description]\n    inputs.properties p\n    filesMatching(['META-INF/neoforge.mods.toml']){expand p+[project:project]}\n}\ntasks.withType(JavaCompile).configureEach { options.encoding = 'UTF-8' }`);const hF=Object.keys(gen).some(f=>f.includes('fabric.mod.json')),hT=Object.keys(gen).some(f=>f.includes('neoforge.mods.toml'));if(iF&&!hF)zip.file(root+'src/main/resources/fabric.mod.json',JSON.stringify({schemaVersion:1,id:modId,version:'1.0.0',name:modName,description:'Generated mod',authors:['ModGen'],environment:'*',entrypoints:{main:[`${pkg}.${modName}`]},depends:{fabricloader:'>=0.14.0','fabric-api':'*',minecraft:mcV}},null,2));if(!iF&&!hT)zip.file(root+'src/main/resources/META-INF/neoforge.mods.toml',`modLoader="javafml"\nloaderVersion="[4,)"\nlicense="All Rights Reserved"\n[[mods]]\nmodId="${modId}"\nversion="\${mod_version}"\ndisplayName="\${mod_name}"\ndescription="\${mod_description}"\n[[dependencies.${modId}]]\nmodId="neoforge"\ntype="required"\nversionRange="[${nv},)"\nordering="NONE"\nside="BOTH"\n[[dependencies.${modId}]]\nmodId="minecraft"\ntype="required"\nversionRange="[${mcV},)"\nordering="NONE"\nside="BOTH"`);for(const[fp,c]of Object.entries(gen))zip.file(root+fp,c);return zip;}
 
 async function groqFetch(sys,usr){const r=await fetch(getApiUrl()+'/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({system:sys,user:usr}),signal:AbortSignal.timeout(180000)});if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e.error||'Server error '+r.status);}return r.json();}
 const DAPI='https://mc-mod-backend.onrender.com';
 function getApiUrl(){return localStorage.getItem('mcmg_api')||DAPI;}
-function setApiUrl(){const u=prompt('Compiler API URL:',getApiUrl());if(u){localStorage.setItem('mcmg_api',u.replace(/\/$/,''));updateApiDisplay();showToast('API UPDATED','ok');}}
-function updateApiDisplay(){const e=document.getElementById('apiUrlDisplay');if(e)e.textContent=getApiUrl();}
 
-async function compileAndDownloadJar(){const m=S.activeMod;if(!m?.code){showToast('NO MOD TO COMPILE','err');return;}const btn=document.getElementById('dlJarBtn'),ic=document.getElementById('dlJarIco'),tt=document.getElementById('dlJarTitle'),sb=document.getElementById('dlJarSub');btn.style.opacity='0.6';btn.style.pointerEvents='none';ic.textContent='⏳';tt.textContent='COMPILING...';sb.textContent='// first build ~5-10 min';try{const files=parseMF(m.code,m),r=await fetch(getApiUrl()+'/compile',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({modId:m.modId,modName:m.name,loader:m.loader,mcVersion:m.version,files}),signal:AbortSignal.timeout(10*60*1000)});if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e.details||e.error||'HTTP '+r.status);}const cd=r.headers.get('Content-Disposition')||'',match=cd.match(/filename="?([^"]+)"?/),fn=match?match[1]:m.modId+'-1.0.0.jar';dlFile(await r.blob(),fn);showToast('JAR DOWNLOADED','ok');}catch(err){showToast('ERROR: '+err.message.slice(0,40),'err');}finally{btn.style.opacity='1';btn.style.pointerEvents='';ic.textContent='☕';tt.textContent='DOWNLOAD JAR';sb.textContent='// server-compiled → drop in mods/';}}
+async function compileAndDownloadJar(){const m=S.activeMod;if(!m?.code){showToast('NO MOD TO COMPILE','err');return;}const btn=document.getElementById('ideCompileBtn');btn.textContent='COMPILING...';btn.disabled=true;try{const files=parseMF(m.code,m),r=await fetch(getApiUrl()+'/compile',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({modId:m.modId,modName:m.name,loader:m.loader,mcVersion:m.version,files}),signal:AbortSignal.timeout(10*60*1000)});if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e.details||e.error||'HTTP '+r.status);}const cd=r.headers.get('Content-Disposition')||'',match=cd.match(/filename="?([^"]+)"?/),fn=match?match[1]:m.modId+'-1.0.0.jar';dlFile(await r.blob(),fn);showToast('JAR DOWNLOADED','ok');addChatMsg('ai','// ✅ JAR compiled and downloaded!');}catch(err){showToast('ERROR: '+err.message.slice(0,40),'err');addChatMsg('ai','// ❌ Compile error: '+err.message.slice(0,80));}finally{btn.textContent='☕ COMPILE JAR';btn.disabled=false;}}
 function downloadZip(){const m=S.activeMod;if(!m?.zipBlob){showToast('NO PROJECT BUILT','err');return;}dlFile(m.zipBlob,m.modId+'-project.zip');showToast('ZIP DOWNLOADED','ok');}
 function dlFile(b,n){const a=Object.assign(document.createElement('a'),{href:URL.createObjectURL(b),download:n});a.click();}
-// ═══ IDE EDITOR ══════════════════════════════════════════════════════
-const IDE = {
-  files: {},       // { filepath: content }
-  active: null,    // active filepath
-  modified: {},    // { filepath: true } — unsaved
-  pendingDiff: null,
-};
 
-function showCode(mod, files) {
-  IDE.files = files && Object.keys(files).length ? { ...files } : {};
-  // fallback: if no parsed files but raw code exists
-  if (!Object.keys(IDE.files).length && mod.code) {
-    const jp = `src/main/java/${mod.pkg.replace(/\./g,'/')}/${mod.name}.java`;
-    IDE.files[jp] = mod.code;
-  }
-  IDE.active = Object.keys(IDE.files).find(f => f.endsWith('.java'))
-             || Object.keys(IDE.files)[0]
-             || null;
-  IDE.modified = {};
-  renderIdeTabs();
-  loadActiveFile();
-  document.getElementById('codePanel').style.display = 'block';
-  document.getElementById('errorPanel').style.display = 'block';
-  setTimeout(() => checkErrors(), 300);
-}
-
-function renderIdeTabs() {
-  const tabs = document.getElementById('ideTabs');
-  tabs.innerHTML = Object.keys(IDE.files).map(fp => {
-    const name = fp.split('/').pop();
-    const isActive = fp === IDE.active;
-    const isMod = IDE.modified[fp];
-    return `<div class="ide-tab ${isActive?'active':''} ${isMod?'modified':''}" onclick="switchTab('${fp}')">
-      <span>${name}</span>
-      <span class="tab-dot"></span>
-    </div>`;
-  }).join('');
-}
-
-function switchTab(fp) {
-  // save current
-  if (IDE.active) {
-    IDE.files[IDE.active] = document.getElementById('ideTextarea').value;
-  }
-  IDE.active = fp;
-  renderIdeTabs();
-  loadActiveFile();
-  // hide diff when switching
-  document.getElementById('ideDiff').style.display = 'none';
-}
-
-function loadActiveFile() {
-  if (!IDE.active) return;
-  const ta = document.getElementById('ideTextarea');
-  ta.value = IDE.files[IDE.active] || '';
-  updateLineNumbers();
-}
-
-function updateLineNumbers() {
-  const ta = document.getElementById('ideTextarea');
-  const lines = ta.value.split('\n').length;
-  const ln = document.getElementById('ideLines');
-  ln.innerHTML = Array.from({length: lines}, (_, i) => i + 1).join('<br>');
-}
-
-function onIdeInput() {
-  if (IDE.active) {
-    IDE.files[IDE.active] = document.getElementById('ideTextarea').value;
-    IDE.modified[IDE.active] = true;
-    // persist back to mod
-    if (S.activeMod) {
-      S.activeMod.code = Object.entries(IDE.files)
-        .map(([p,c]) => `// FILE: ${p}\n${c}`).join('\n\n');
-      saveMods();
-    }
-    renderIdeTabs();
-  }
-  updateLineNumbers();
-}
-
-function syncScroll() {
-  const ta = document.getElementById('ideTextarea');
-  document.getElementById('ideLines').scrollTop = ta.scrollTop;
-}
-
-function ideKeydown(e) {
-  // Tab inserts 2 spaces
-  if (e.key === 'Tab') {
-    e.preventDefault();
-    const ta = e.target;
-    const s = ta.selectionStart, end = ta.selectionEnd;
-    ta.value = ta.value.slice(0, s) + '  ' + ta.value.slice(end);
-    ta.selectionStart = ta.selectionEnd = s + 2;
-    onIdeInput();
-  }
-}
-
-function ideToggle() {
-  const wrap = document.getElementById('ideEditorWrap');
-  const diff = document.getElementById('ideDiff');
-  const ai   = document.querySelector('.ide-ai');
-  const hidden = wrap.style.display === 'none';
-  wrap.style.display = hidden ? 'flex' : 'none';
-  diff.style.display = 'none';
-  ai.style.display   = hidden ? '' : 'none';
-}
-
-function copyCode() {
-  if (!IDE.active || !IDE.files[IDE.active]) return;
-  navigator.clipboard.writeText(IDE.files[IDE.active]).then(() => {
-    const b = document.getElementById('copyBtn');
-    b.textContent = 'COPIED!';
-    setTimeout(() => b.textContent = 'COPY', 1500);
-  });
-}
-
-// ── AI EDIT ──────────────────────────────────────────────────────────
-async function ideAiEdit() {
-  const prompt = document.getElementById('idePromptInput').value.trim();
-  if (!prompt) { document.getElementById('idePromptInput').focus(); return; }
-  if (!IDE.active || !IDE.files[IDE.active]) { showToast('NO FILE OPEN','err'); return; }
-  if (!S.user) { openAuth('register'); return; }
-
-  const m = S.activeMod;
-  const btn = document.getElementById('ideSendBtn');
-  btn.disabled = true; btn.textContent = '[ ... ]';
-  document.getElementById('ideDiff').style.display = 'none';
-
-  const fileName = IDE.active.split('/').pop();
-  const currentCode = IDE.files[IDE.active];
-
-  const sys = `You are a Minecraft mod code editor. The user wants to modify a file.
-You MUST respond in this exact format and nothing else:
-
-CHANGES_SUMMARY: <one line describing what you changed>
-ADDED_LINES: <number>
-REMOVED_LINES: <number>
-FILE_START
-<complete updated file content>
-FILE_END
-
-Rules:
-- Output the COMPLETE updated file between FILE_START and FILE_END
-- Keep all existing functionality unless told otherwise
-- Use correct ${m?.loader||'Fabric'} ${m?.version||'1.21.1'} APIs`;
-
-  const usr = `File: ${IDE.active}
-User request: ${prompt}
-
-Current code:
-${currentCode}`;
-
-  try {
-    const data = await groqFetch(sys, usr);
-    const raw = data.choices?.[0]?.message?.content || '';
-    if (!raw) throw new Error('Empty response');
-
-    // Parse response
-    const summaryM = raw.match(/CHANGES_SUMMARY:\s*(.+)/);
-    const addedM   = raw.match(/ADDED_LINES:\s*(\d+)/);
-    const removedM = raw.match(/REMOVED_LINES:\s*(\d+)/);
-    const fileM    = raw.match(/FILE_START\n([\s\S]*?)\nFILE_END/);
-
-    if (!fileM) throw new Error('Could not parse AI response');
-
-    const newCode  = fileM[1].trim();
-    const added    = parseInt(addedM?.[1] || '0');
-    const removed  = parseInt(removedM?.[1] || '0');
-    const summary  = summaryM?.[1] || prompt;
-
-    // Build diff
-    IDE.pendingDiff = { fp: IDE.active, oldCode: currentCode, newCode, added, removed, summary };
-    renderDiff(currentCode, newCode, added, removed, fileName, summary);
-
-    document.getElementById('idePromptInput').value = '';
-  } catch (err) {
-    showToast('AI EDIT FAILED: ' + err.message.slice(0, 30), 'err');
-  }
-  btn.disabled = false; btn.textContent = '[ EDIT ]';
-}
-
-function renderDiff(oldCode, newCode, added, removed, fileName, summary) {
-  const oldLines = oldCode.split('\n');
-  const newLines = newCode.split('\n');
-
-  // Simple line-by-line diff
-  const diffLines = [];
-  const maxLen = Math.max(oldLines.length, newLines.length);
-
-  // Use LCS-like approach: find changed regions
-  let oldI = 0, newI = 0;
-  const CONTEXT = 3;
-
-  // Build a simple unified diff
-  const changes = [];
-  for (let i = 0; i < Math.max(oldLines.length, newLines.length); i++) {
-    const o = oldLines[i], n = newLines[i];
-    if (o === undefined) changes.push({ type: 'add', line: n, newLn: i+1 });
-    else if (n === undefined) changes.push({ type: 'del', line: o, oldLn: i+1 });
-    else if (o !== n) {
-      changes.push({ type: 'del', line: o, oldLn: i+1 });
-      changes.push({ type: 'add', line: n, newLn: i+1 });
-    } else {
-      changes.push({ type: 'ctx', line: o, oldLn: i+1, newLn: i+1 });
-    }
-  }
-
-  // Show only context around changes (collapse unchanged sections)
-  const changedIdxs = new Set();
-  changes.forEach((c, i) => { if (c.type !== 'ctx') { for (let j = Math.max(0,i-CONTEXT); j <= Math.min(changes.length-1,i+CONTEXT); j++) changedIdxs.add(j); }});
-
-  let html = '';
-  let lastShown = -1;
-  changes.forEach((c, i) => {
-    if (!changedIdxs.has(i)) return;
-    if (lastShown !== -1 && i > lastShown + 1) {
-      html += `<div class="diff-line ctx" style="opacity:.3"><div class="diff-ln">···</div><div class="diff-content"></div></div>`;
-    }
-    const ln = c.oldLn || c.newLn || '';
-    const esc = (s) => (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-    const prefix = c.type === 'add' ? '+' : c.type === 'del' ? '-' : ' ';
-    html += `<div class="diff-line ${c.type}"><div class="diff-ln">${ln}</div><div class="diff-content">${prefix} ${esc(c.line)}</div></div>`;
-    lastShown = i;
-  });
-
-  document.getElementById('diffBody').innerHTML = html || '<div style="padding:12px 16px;color:var(--grey2);font-size:11px">// no visible changes in context</div>';
-  document.getElementById('diffAdded').textContent   = `+${added} lines`;
-  document.getElementById('diffRemoved').textContent = `-${removed} lines`;
-  document.getElementById('diffFile').textContent    = fileName;
-  document.getElementById('diffHint').textContent    = summary;
-  document.getElementById('ideDiff').style.display   = 'block';
-  // Scroll to diff
-  document.getElementById('ideDiff').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-}
-
-function applyDiff() {
-  if (!IDE.pendingDiff) return;
-  const { fp, newCode, added, removed } = IDE.pendingDiff;
-  IDE.files[fp] = newCode;
-  IDE.modified[fp] = true;
-  if (IDE.active === fp) {
-    document.getElementById('ideTextarea').value = newCode;
-    updateLineNumbers();
-  }
-  // persist
-  if (S.activeMod) {
-    S.activeMod.code = Object.entries(IDE.files).map(([p,c]) => `// FILE: ${p}\n${c}`).join('\n\n');
-    saveMods();
-  }
-  renderIdeTabs();
-  document.getElementById('ideDiff').style.display = 'none';
-  IDE.pendingDiff = null;
-  showToast(`APPLIED +${added} -${removed}`, 'ok');
-  // re-check errors
-  setTimeout(() => checkErrors(), 200);
-}
-
-function discardDiff() {
-  IDE.pendingDiff = null;
-  document.getElementById('ideDiff').style.display = 'none';
-  showToast('CHANGES DISCARDED', '');
-}
 function onCard(t){if(!S.user){openAuth('register');return;}document.getElementById('promptInput').value=t;document.getElementById('promptInput').focus();}
-
 function toggleVerMenu(e){e.stopPropagation();const m=document.getElementById('verMenu');document.getElementById('setPanel').classList.remove('open');if(m.classList.contains('open')){m.classList.remove('open');return;}const p=document.getElementById('verPill'),r=p.getBoundingClientRect();m.style.left=r.left+'px';m.style.bottom=(window.innerHeight-r.top+6)+'px';m.style.top='auto';m.classList.add('open');}
 function setVer(v,btn){mcVer=v;document.getElementById('vLabel').textContent='MC '+v;document.querySelectorAll('.vmbtn').forEach(b=>b.classList.remove('sel'));btn.classList.add('sel');document.getElementById('verMenu').classList.remove('open');}
 function toggleSetPanel(e){e.stopPropagation();document.getElementById('setPanel').classList.toggle('open');document.getElementById('verMenu').classList.remove('open');}
@@ -1261,17 +925,10 @@ async function adminLoadStats(){if(!S.sb)return;try{const{data}=await S.sb.from(
 let ast;function adminAutoSearch(){clearTimeout(ast);ast=setTimeout(adminGetUser,500);}
 async function adminGetUser(){const email=document.getElementById('adminEmail').value.trim(),info=document.getElementById('adminUserInfo');if(!email.includes('@')){info.style.display='none';return;}if(!S.sb)return;try{const{data}=await S.sb.from('profiles').select('*').eq('email',email).single();if(!data){info.style.display='block';info.innerHTML='<span style="color:var(--red)">// not found</span>';return;}document.getElementById('adminCredits').value=data.credits;info.style.display='block';info.innerHTML=`// <b style="color:var(--white)">${data.username||'—'}</b> · cr: <b style="color:var(--leaf)">${data.credits}</b><br><span style="color:var(--grey2);font-size:10px">${data.id}</span>`;}catch(e){info.style.display='block';info.textContent='// err: '+e.message;}}
 async function adminSetCredits(){const email=document.getElementById('adminEmail').value.trim(),cr=parseInt(document.getElementById('adminCredits').value);if(!email||isNaN(cr)){adminLog('// enter email+credits',false);return;}if(!S.sb)return;adminLog('// setting...');try{const{data,error}=await S.sb.from('profiles').update({credits:cr}).eq('email',email).select();if(error)throw error;if(!data?.length){adminLog('// not found',false);return;}adminLog(`// set ${cr} → ${email}`,true);if(S.user?.email===email){S.user.credits=cr;document.getElementById('navCredits').textContent=cr;document.getElementById('creditsBar').textContent=cr;}adminGetUser();adminLoadStats();}catch(e){adminLog('// err: '+e.message,false);}}
-async function adminAddCredits(){const email=document.getElementById('adminEmail').value.trim(),add=parseInt(document.getElementById('adminCredits').value);if(!email||isNaN(add)){adminLog('// enter email+amount',false);return;}if(!S.sb)return;adminLog('// adding...');try{const{data:cur}=await S.sb.from('profiles').select('credits').eq('email',email).single();if(!cur){adminLog('// not found',false);return;}const nC=(cur.credits||0)+add;await S.sb.from('profiles').update({credits:nC}).eq('email',email);adminLog(`// +${add} → ${nC} for ${email}`,true);if(S.user?.email===email){S.user.credits=nC;document.getElementById('navCredits').textContent=nC;document.getElementById('creditsBar').textContent=nC;}adminGetUser();adminLoadStats();}catch(e){adminLog('// err: '+e.message,false);}}
-async function adminLoadUsers(){if(!S.sb)return;adminLog('// loading...');try{const{data,error}=await S.sb.from('profiles').select('email,username,credits,created_at').order('created_at',{ascending:false}).limit(50);if(error)throw error;const list=document.getElementById('adminUsersList');list.innerHTML=data.length?data.map(u=>`<div style="display:flex;justify-content:space-between;padding:6px 10px;border-bottom:1px solid var(--night4);cursor:pointer;transition:background .05s;font-family:var(--fm)" onclick="document.getElementById('adminEmail').value='${u.email}';adminGetUser()" onmouseover="this.style.background='var(--gdim)'" onmouseout="this.style.background=''"><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:200px;color:var(--grey);font-size:10px">${u.email}</span><span style="color:var(--leaf);font-family:var(--fp);font-size:8px;flex-shrink:0;margin-left:8px">⚡${u.credits}</span></div>`).join(''):'<div style="padding:10px;color:var(--grey2);text-align:center;font-size:10px">// empty</div>';adminLog(`// ${data.length} users`,true);adminLoadStats();}catch(e){adminLog('// err: '+e.message,false);}}
-async function adminGiveAll(){if(!confirm('Give ALL +10 credits?'))return;if(!S.sb)return;adminLog('// ...');try{const{data}=await S.sb.from('profiles').select('id,credits');if(!data)return;await Promise.all(data.map(u=>S.sb.from('profiles').update({credits:(u.credits||0)+10}).eq('id',u.id)));adminLog(`// gave +10 to ${data.length}`,true);adminLoadStats();adminLoadUsers();}catch(e){adminLog('// err: '+e.message,false);}}
+async function adminAddCredits(){const email=document.getElementById('adminEmail').value.trim(),add=parseInt(document.getElementById('adminCredits').value);if(!email||isNaN(add)){adminLog('// enter email+amount',false);return;}if(!S.sb)return;adminLog('// adding...');try{const{data:cur}=await S.sb.from('profiles').select('credits').eq('email',email).single();if(!cur){adminLog('// not found',false);return;}const nC=(cur.credits||0)+add;await S.sb.from('profiles').update({credits:nC}).eq('email',email);adminLog(`// +${add} → ${nC}`,true);if(S.user?.email===email){S.user.credits=nC;document.getElementById('navCredits').textContent=nC;document.getElementById('creditsBar').textContent=nC;}adminGetUser();adminLoadStats();}catch(e){adminLog('// err: '+e.message,false);}}
+async function adminLoadUsers(){if(!S.sb)return;adminLog('// loading...');try{const{data,error}=await S.sb.from('profiles').select('email,username,credits,created_at').order('created_at',{ascending:false}).limit(50);if(error)throw error;const list=document.getElementById('adminUsersList');list.innerHTML=data.length?data.map(u=>`<div style="display:flex;justify-content:space-between;padding:5px 10px;border-bottom:1px solid var(--night4);cursor:pointer;transition:background .05s;font-family:var(--fm)" onclick="document.getElementById('adminEmail').value='${u.email}';adminGetUser()" onmouseover="this.style.background='var(--gdim)'" onmouseout="this.style.background=''"><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:200px;color:var(--grey);font-size:10px">${u.email}</span><span style="color:var(--leaf);font-family:var(--fp);font-size:7px;flex-shrink:0;margin-left:8px">⚡${u.credits}</span></div>`).join(''):'<div style="padding:9px;color:var(--grey2);text-align:center;font-size:10px">// empty</div>';adminLog(`// ${data.length} users`,true);adminLoadStats();}catch(e){adminLog('// err: '+e.message,false);}}
+async function adminGiveAll(){if(!confirm('Give ALL +10?'))return;if(!S.sb)return;adminLog('// ...');try{const{data}=await S.sb.from('profiles').select('id,credits');if(!data)return;await Promise.all(data.map(u=>S.sb.from('profiles').update({credits:(u.credits||0)+10}).eq('id',u.id)));adminLog(`// +10 to ${data.length}`,true);adminLoadStats();adminLoadUsers();}catch(e){adminLog('// err: '+e.message,false);}}
 async function adminResetAll(){if(!confirm('Reset ALL to 5?'))return;if(!S.sb)return;adminLog('// ...');try{await S.sb.from('profiles').update({credits:5}).neq('email','');adminLog('// all reset to 5',true);adminLoadStats();adminLoadUsers();}catch(e){adminLog('// err: '+e.message,false);}}
-
-const EPATS=[{id:'a',re:/import\s+net\.minecraft\.util\.math\.ThreadLocalRandom/g,title:'Wrong ThreadLocalRandom import',desc:'Use java.util.concurrent.ThreadLocalRandom',severity:'err'},{id:'b',re:/import\s+net\.fabricmc\.fabric\.api\.item\.v1\.FabricItemSettings/g,title:'FabricItemSettings removed',desc:'Use new Item.Settings()',severity:'err'},{id:'c',re:/ItemGroup\.(COMBAT|TOOLS|FOOD|MISC|BUILDING_BLOCKS|DECORATIONS)/g,title:'Old ItemGroup API removed',desc:'Remove .group() from Item.Settings()',severity:'err'},{id:'d',re:/Registry\.register\s*\(\s*Registry\.(ITEM|BLOCK)/g,title:'Old Registry API',desc:'Use Registries.ITEM not Registry.ITEM',severity:'err'},{id:'e',re:/new\s+Identifier\s*\(/g,title:'Deprecated Identifier constructor',desc:'Use Identifier.of() in 1.21+',severity:'err'},{id:'f',re:/Block\.Settings\.of\s*\(/g,title:'Block.Settings.of() removed',desc:'Use AbstractBlock.Settings.create()',severity:'err'},{id:'g',re:/"schemaVersion"\s*:\s*2/g,title:'Wrong schemaVersion (must be 1)',desc:'schemaVersion must be 1',severity:'err'},{id:'h',re:/player\.inventory\.(insertStack|getStack|removeStack)/g,title:'Direct inventory access removed',desc:'Use player.getInventory().method()',severity:'err'}];
-let _cf={},_fe=[];
-function checkErrors(){const m=S.activeMod;if(!m?.code)return;const files=Object.keys(IDE.files).length?IDE.files:parseMF(m.code,m);_cf=files;_fe=[];for(const[fp,c]of Object.entries(files))for(const p of EPATS){let f=false;if(p.re){p.re.lastIndex=0;f=p.re.test(c);p.re.lastIndex=0;}if(f)_fe.push({...p,file:fp.split('/').pop(),filePath:fp});}renderErrors();}
-function renderErrors(){const c=document.getElementById('epErrors'),fb=document.getElementById('fixBtn');if(!_fe.length){c.innerHTML=`<div class="epi ok"><span class="epic">✓</span><div><div class="eptl">// no issues found</div><div class="epds">code looks clean</div></div></div>`;fb.style.display='none';return;}c.innerHTML=_fe.map((e,i)=>`<div class="epi ${e.severity}"><input type="checkbox" class="epchk" id="epchk${i}" checked><span class="epic">${e.severity==='err'?'✕':'!'}</span><div><div class="eptl">${e.title}</div><div class="epds">${e.desc}</div><div class="epfl">${e.file}</div></div></div>`).join('');fb.style.display='';fb.textContent=`FIX ${_fe.length} ERROR${_fe.length>1?'S':''}`;}
-async function fixErrors(){const m=S.activeMod;if(!m?.code||!_fe.length)return;const sel=_fe.filter((_,i)=>{const c=document.getElementById('epchk'+i);return c?c.checked:true;});if(!sel.length)return;const af=document.getElementById('autoFixChk').checked,fb=document.getElementById('fixBtn'),orig=fb.textContent;fb.disabled=true;fb.textContent='FIXING...';document.getElementById('epErrors').innerHTML=`<div class="epi"><span class="epic">⚡</span><div><div class="eptl">// fixing...</div></div></div>`;try{const el=sel.map(e=>`- ${e.title}: ${e.desc} (${e.file})`).join('\n'),jf=Object.entries(_cf).filter(([p])=>p.endsWith('.java')).map(([p,c])=>`// FILE: ${p}\n${c}`).join('\n\n---\n\n'),sys=`Fix ONLY these errors. Loader: ${m.loader}, MC: ${m.version}\nOutput: // FILE: path\n[code]\nFix ALL.`,usr=`Fix:\n${el}\n\n${jf}`;const data=await groqFetch(sys,usr),raw=data.choices?.[0]?.message?.content||'';if(!raw)throw new Error('Empty');const fixed=parseMF(raw,m);if(!Object.keys(fixed).length)throw new Error('No files');const all={..._cf,...fixed};m.code=Object.entries(all).map(([p,c])=>`// FILE: ${p}\n${c}`).join('\n\n');saveMods();// Update IDE files Object.assign(IDE.files,fixed);IDE.modified=Object.fromEntries(Object.keys(fixed).map(k=>[k,true]));renderIdeTabs();if(IDE.active&&fixed[IDE.active]){document.getElementById('ideTextarea').value=fixed[IDE.active];updateLineNumbers();}showToast('ERRORS FIXED','ok');checkErrors();if(af&&_fe.length>0)setTimeout(()=>fixErrors(),1500);}catch(err){showToast('FIX FAILED','err');setTimeout(()=>checkErrors(),2000);}finally{fb.disabled=false;fb.textContent=orig;}}
-function hlJ(c){return c.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/(\/\/[^\n]*)/g,'<span style="color:#3a5a3a;font-style:italic">$1</span>').replace(/("(?:[^"\\]|\\.)*")/g,'<span style="color:#7cb87c">$1</span>').replace(/(@\w+)/g,'<span style="color:#c8a840">$1</span>').replace(/\b(public|private|protected|class|interface|extends|implements|new|return|void|static|final|import|package|if|else|for|while|try|catch|super|this|null|true|false)\b/g,'<span style="color:#5a9abf">$1</span>');}
 </script>
 </body>
 </html>
