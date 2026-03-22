@@ -1945,17 +1945,23 @@ function renderErrors() {
 
 async function fixErrors() {
   const m = S.activeMod;
-  if (!m?.code || _foundErrors.length === 0) return;
+  if (!m?.code) { showToast('❌ No code to fix'); return; }
+  if (_foundErrors.length === 0) { showToast('No errors to fix'); return; }
 
-  const selected = _foundErrors.filter((_,i) => document.getElementById('epchk'+i)?.checked);
+  const selected = _foundErrors.filter((_, i) => {
+    const chk = document.getElementById('epchk' + i);
+    return chk ? chk.checked : true;
+  });
   if (!selected.length) { showToast('Select at least one error to fix'); return; }
 
   const autoFix = document.getElementById('autoFixChk').checked;
   const fixBtn  = document.getElementById('fixBtn');
-  fixBtn.disabled = true; fixBtn.textContent = '🤖 Fixing...';
+  const origText = `🔧 Fix ${_foundErrors.length} error${_foundErrors.length > 1 ? 's' : ''} with AI`;
+  fixBtn.disabled = true;
+  fixBtn.textContent = '🤖 Fixing...';
 
   const container = document.getElementById('epErrors');
-  container.innerHTML = `<div class="ep-item"><span class="ep-icon">🤖</span><div class="ep-body"><div class="ep-title">AI is fixing errors...</div><div class="ep-desc">This may take 15-30 seconds</div></div></div>`;
+  container.innerHTML = `<div class="ep-item"><span class="ep-icon">🤖</span><div class="ep-body"><div class="ep-title">AI is fixing ${selected.length} error${selected.length>1?'s':''}...</div><div class="ep-desc">This may take 15-30 seconds</div></div></div>`;
 
   try {
     const errorList = selected.map(e => `- ${e.title}: ${e.desc} (in ${e.file})`).join('\n');
@@ -1977,23 +1983,21 @@ Rules:
 - Fix EVERY listed error
 - Keep all existing functionality
 - Use correct imports for ${m.loader} ${m.version}
-- Output ALL java files (fixed and unchanged ones)
+- Output ALL java files (fixed and unchanged)
 - No prose outside code comments`;
 
-    const usr = `Fix these errors in my mod files:\n${errorList}\n\nSOURCE FILES:\n${javaFiles}`;
+    const usr = `Fix these errors:\n${errorList}\n\nSOURCE FILES:\n${javaFiles}`;
 
     const data = await groqFetch(sys, usr);
     const raw  = data.choices?.[0]?.message?.content || '';
+    if (!raw) throw new Error('Empty response from AI');
 
-    // Parse fixed files
     const fixed = parseModFiles(raw, m);
-    if (Object.keys(fixed).length === 0) throw new Error('AI returned no files');
+    if (Object.keys(fixed).length === 0) throw new Error('AI returned no file blocks. Check backend logs.');
 
-    // Merge into mod code — rebuild code string
+    // Merge fixed files
     const allFiles = { ..._checkedFiles, ...fixed };
-    const newCode = Object.entries(allFiles)
-      .map(([p, c]) => `// FILE: ${p}\n${c}`).join('\n\n');
-    m.code = newCode;
+    m.code = Object.entries(allFiles).map(([p, c]) => `// FILE: ${p}\n${c}`).join('\n\n');
     saveMods();
 
     // Refresh code view
@@ -2002,20 +2006,21 @@ Rules:
     document.getElementById('codeBody').innerHTML = hlJava(allFiles[jf] || raw);
 
     showToast('✅ Errors fixed!', true);
-
-    // Re-check
     checkErrors();
 
     // Auto-fix loop
     if (autoFix && _foundErrors.length > 0) {
-      setTimeout(() => fixErrors(), 1000);
+      setTimeout(() => fixErrors(), 1500);
     }
 
   } catch(err) {
-    showToast('❌ Fix failed: ' + err.message);
-    checkErrors();
+    showToast('❌ ' + err.message);
+    container.innerHTML = `<div class="ep-item err"><span class="ep-icon">❌</span><div class="ep-body"><div class="ep-title">Fix failed</div><div class="ep-desc">${err.message}</div></div></div>`;
+    // Re-render original errors below
+    setTimeout(() => checkErrors(), 2000);
   } finally {
     fixBtn.disabled = false;
+    fixBtn.textContent = origText;
   }
 }
 
