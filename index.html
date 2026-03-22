@@ -2019,8 +2019,13 @@ Rules:
   }
 }
 
+function hlJava(code) {
   return code.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
     .replace(/(\/\/[^\n]*)/g,'<span style="color:#546e7a;font-style:italic">$1</span>')
     .replace(/("(?:[^"\\]|\\.)*")/g,'<span style="color:#c3e88d">$1</span>')
     .replace(/(@\w+)/g,'<span style="color:#ffcb6b">$1</span>')
-    .replace(/\b(public
+    .replace(/\b(public|private|protected|class|interface|extends|implements|new|return|void|static|final|import|package|if|else|for|while|try|catch|super|this|null|true|false)\b/g,'<span style="color:#c792ea">$1</span>');
+}
+</script>
+</body>
+</html>
