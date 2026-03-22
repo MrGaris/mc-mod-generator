@@ -491,8 +491,8 @@ body::before{content:'';position:fixed;inset:0;background-image:radial-gradient(
 
 <script>
 // ════ CONFIG ════════════════════════════════════════════════════════
-const GROQ_KEY   = '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';
-const GROQ_MODEL = 'llama-3.1-8b-instant';
+// Groq API key lives on the backend (Render env var GROQ_API_KEY)
+// Supabase keys below are safe to be public (anon/publishable key)
 const SB_URL     = 'https://tjipfwhzcnzppuchxkmo.supabase.co';
 const SB_KEY     = 'sb_publishable_Zg4IIB1HfciHvw60h6ewcA_J8OfePL8';
 
@@ -1107,23 +1107,20 @@ Copy it to your Minecraft **mods/** folder.
   return zip;
 }
 
-// ════ GROQ FETCH ═════════════════════════════════════════════════════
+// ════ GROQ FETCH (через бекенд — ключ не в коді) ═════════════════════
 async function groqFetch(sys, usr) {
-  const body = JSON.stringify({ model:GROQ_MODEL, messages:[{role:'system',content:sys},{role:'user',content:usr}], max_tokens:8000, temperature:0.2 });
-  const hdrs = { 'Content-Type':'application/json', 'Authorization':'Bearer '+GROQ_KEY };
-  for (const url of [
-    'https://api.groq.com/openai/v1/chat/completions',
-    'https://corsproxy.io/?url=https://api.groq.com/openai/v1/chat/completions'
-  ]) {
-    try {
-      const r = await fetch(url, { method:'POST', headers:hdrs, body, signal:AbortSignal.timeout(40000) });
-      if (!r.ok) { const e=await r.json().catch(()=>({})); throw new Error(e.error?.message||'HTTP '+r.status); }
-      return r.json();
-    } catch(e) {
-      if (e.message.startsWith('HTTP ')) throw e;
-    }
+  const apiUrl = getApiUrl();
+  const r = await fetch(apiUrl + '/generate', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ system: sys, user: usr }),
+    signal: AbortSignal.timeout(60000)
+  });
+  if (!r.ok) {
+    const e = await r.json().catch(() => ({}));
+    throw new Error(e.error || 'Server error ' + r.status);
   }
-  throw new Error('Network error — run via: python -m http.server 8080');
+  return r.json();
 }
 
 // ════ COMPILER API ════════════════════════════════════════════════════
